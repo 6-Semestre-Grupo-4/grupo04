@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: ['main', 'dev']
+  pull_request:
+    branches: ['main', 'dev']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Code Quality
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Install Prettier
+        run: npm install -g prettier
+
+      - name: Create .prettierrc
+        run: |
+          echo '{
+            'singleQuote': true,
+            'trailingComma': 'all',
+            'semi': true,
+            'printWidth': 120,
+            'tabWidth': 2,
+            'endOfLine': 'auto'
+          }' > .prettierrc
+
+      - name: Create .prettierignore
+        run: |
+          echo 'node_modules\nbuild\ndist\n' > .prettierignore
+
+      - name: Run Prettier and show formatting diffs
+        run: |
+          prettier '**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}' --write
+          git diff --color --exit-code
