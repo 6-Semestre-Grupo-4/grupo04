@@ -1,0 +1,80 @@
+name: 🚀 Pull Request
+description: Crie um pull request para mergear sua branch
+title: "[PR]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por contribuir! Por favor, forneça as informações abaixo para facilitar a revisão e o merge do seu código.
+
+  - type: textarea
+    id: changes-description
+    attributes:
+      label: O que este PR faz?
+      description: Uma descrição clara e concisa das alterações feitas.
+    validations:
+      required: true
+      
+  - type: textarea
+    id: related-issue
+    attributes:
+      label: Issue(s) relacionada(s)
+      description: |
+        Por favor, vincule a issue ou as issues que este PR resolve.
+        Exemplo: "Resolve #123" ou "Relacionado a #456".
+    validations:
+      required: false
+      
+  - type: textarea
+    id: changes-type
+    attributes:
+      label: Tipo de Mudança
+      description: |
+        Assinale os tipos de mudanças que seu código introduz.
+        - [ ] Nova funcionalidade
+        - [ ] Correção de bug
+        - [ ] Melhoria de desempenho
+        - [ ] Refatoração de código
+        - [ ] Outro (descreva abaixo)
+    validations:
+      required: true
+      
+  - type: textarea
+    id: review-notes
+    attributes:
+      label: Pontos para Revisão
+      description: |
+        Algum ponto específico que você gostaria que os revisores analisassem com mais atenção?
+        Por exemplo: "Gostaria de feedback sobre a abordagem de segurança implementada" ou "Verifiquem o novo componente de UI".
+      validations:
+        required: false
+        
+  - type: textarea
+    id: testing
+    attributes:
+      label: Como isso foi testado?
+      description: |
+        Descreva como você testou suas mudanças. Isso pode incluir testes unitários, testes de integração, ou testes manuais.
+        
+        Exemplo: "Testes unitários para a função `calculaPreco` foram adicionados e passam com sucesso."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: |
+        Se aplicável, adicione capturas de tela das alterações visuais.
+        
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist do PR
+      description: |
+        - [ ] Meu código segue as diretrizes de estilo do projeto.
+        - [ ] Fiz uma auto-revisão do meu próprio código.
+        - [ ] Adicionei comentários, especialmente em áreas de código complexas.
+        - [ ] Documentei as mudanças na documentação do projeto, se necessário.
+        - [ ] Fiz as alterações para cobrir todos os casos de borda.
+        - [ ] As novas e existentes unidades de teste passam com sucesso.
