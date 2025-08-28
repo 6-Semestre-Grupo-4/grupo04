@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Como Contribuir
 
-## Getting Started
+Para manter nosso histórico de commits organizado e legível, usamos o [**Commitizen**](https://commitizen.github.io/cz-cli/) e as convenções do [**Conventional Commits**](https://www.conventionalcommits.org/pt-br/v1.0.0/).  
+Isso garante que todas as mensagens de commit sigam um padrão e facilita a geração de changelogs e o versionamento automático.  
 
-First, run the development server:
+⚠️ **É obrigatório o uso do Commitizen para submeter código.**  
+Qualquer commit que não seguir o padrão **não passará** no nosso pipeline de integração contínua (CI).  
+
+---
+
+## Usando o Commitizen
+
+Em vez de usar o comando `git commit` diretamente, utilize o script de commit do projeto:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run git
 ```
+Ao executar este comando, você será guiado por um **questionário interativo** que irá montar a mensagem do commit para você.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Estrutura do Questionário
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Tipo de alteração**: Escolha o tipo de mudança que você está fazendo  
+  **Exemplo:** `feat` (nova funcionalidade), `fix` (correção de bug), `docs` (documentação)  
 
-## Learn More
+- **Escopo (opcional)**: Indique a parte do projeto afetada pela mudança  
+  **Exemplo:** `autenticacao`, `api`, `ui`  
 
-To learn more about Next.js, take a look at the following resources:
+- **Descrição**: Escreva uma breve e objetiva descrição da alteração
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+> Ao seguir esses passos, sua mensagem de commit estará automaticamente no padrão correto, garantindo que seu código seja aprovado no pipeline de forma rápida.
