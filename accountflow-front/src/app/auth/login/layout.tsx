@@ -1,14 +1,11 @@
-import './globals.css';
-
-
-export default function RootLayout({
+export default function LayoutLogin({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className={`antialiased`}>
+      <body className="antialiased">
         {children}
       </body>
     </html>
