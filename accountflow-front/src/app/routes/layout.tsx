@@ -16,7 +16,6 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <div className="flex h-screen">
-
           <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
           <div className="flex flex-col flex-1 transition-all duration-300">
