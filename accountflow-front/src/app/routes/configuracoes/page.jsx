@@ -1,5 +1,3 @@
 export default function Configuracoes() {
-  return(
-    <h1>Tela de Configurações</h1>
-  )
+  return <h1>Tela de Configurações</h1>;
 }
