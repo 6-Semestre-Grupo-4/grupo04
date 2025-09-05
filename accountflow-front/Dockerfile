@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* ./
 RUN npm install
+RUN npm install --save-dev typescript
 
 COPY . .
 
