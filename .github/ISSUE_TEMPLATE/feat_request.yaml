@@ -52,24 +52,20 @@ body:
       description: 'Marque os itens da nossa "Definição de Pronto" que foram concluídos.'
       options:
         - label: 'O código foi revisado por outro desenvolvedor (Code Review).'
-          required: false
         - label: 'Os testes unitários foram criados e estão passando.'
-          required: false
         - label: 'A documentação necessária foi criada ou atualizada.'
-          required: false
         - label: 'O código foi integrado à branch principal (main/develop).'
-          required: false
 
   - type: dropdown
     id: t-shirt-size
     attributes:
       label: 'T-Shirt Size'
-      description: 'Estime o esforço relativo necessário para completar esta issue.'
-      placeholder: |
+      description: |
+        Estime o esforço relativo necessário para completar esta issue.
         S - Simples – pouca lógica ou dependência.
         M - Médio – exige atenção, talvez dependências.
         L - Complexo – lógica mais densa ou testes pesados.
-        Uma tarefa L deve sempre ser quebrada em tarefas menores se possível
+        (Uma tarefa L deve sempre ser quebrada em tarefas menores se possível)
       options:
         - 'S (Simples)'
         - 'M (Médio)'
