@@ -4,15 +4,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Logo from '@/assets/images/logos/sideLogo.png';
 import LogoTransparente from '@/assets/images/logos/logoTransparente3.png';
+import { AiFillHome } from 'react-icons/ai';
 import { IoPeople } from 'react-icons/io5';
 import { MdOutlineAccountTree } from 'react-icons/md';
 import { FaCog, FaUserShield } from 'react-icons/fa';
 
 const menuItems = [
-  { title: 'Pessoas', icon: <IoPeople />, href: '/routes/pessoas' },
-  { title: 'Plano de Contas', icon: <MdOutlineAccountTree />, href: '/routes/planodecontas' },
-  { title: 'Gestão de Acessos', icon: <FaUserShield />, href: '/routes/gestaodeacessos' },
-  { title: 'Configurações', icon: <FaCog />, href: '/routes/configuracoes' },
+  { title: 'Início', icon: <AiFillHome />, href: '/routes/home' },
+  { title: 'Pessoas', icon: <IoPeople />, href: '/routes/people' },
+  { title: 'Plano de Contas', icon: <MdOutlineAccountTree />, href: '/routes/accounts-plan' },
+  { title: 'Gestão de Acessos', icon: <FaUserShield />, href: '/routes/access-management' },
+  { title: 'Configurações', icon: <FaCog />, href: '/routes/system-settings' },
 ];
 
 interface SidebarProps {

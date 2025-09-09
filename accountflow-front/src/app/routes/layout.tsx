@@ -10,7 +10,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en">
-      <body className="antialiased m-0 p-0">
+      <body className="antialiased">
         <div className="flex h-screen">
           <Sidebar isOpen={isSidebarOpen} />
 
