@@ -1,6 +1,6 @@
-name: "💡 Requisição de Tarefa"
-description: "Implementação de funcionalidade"
-title: "Feat: "
+name: '💡 Requisição de Tarefa'
+description: 'Implementação de funcionalidade'
+title: 'Feat: '
 body:
   - type: textarea
     id: description
