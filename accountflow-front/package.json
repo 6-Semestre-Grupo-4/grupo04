@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+<<<<<<< HEAD
 <<<<<<< HEAD:package.json
     "lint": "^0.8.19",
     "next": "15.5.0",
@@ -17,6 +18,11 @@
     "flowbite-react": "^0.12.7",
     "next": "15.5.2",
 >>>>>>> dev:accountflow-front/package.json
+=======
+    "flowbite": "^3.1.2",
+    "flowbite-react": "^0.12.7",
+    "next": "15.5.2",
+>>>>>>> dev
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
@@ -27,12 +33,16 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
+<<<<<<< HEAD
 <<<<<<< HEAD:package.json
     "eslint-config-next": "15.5.0",
     "eslint-config-prettier": "^10.1.8",
 =======
     "eslint-config-next": "15.5.2",
 >>>>>>> dev:accountflow-front/package.json
+=======
+    "eslint-config-next": "15.5.2",
+>>>>>>> dev
     "tailwindcss": "^4",
     "typescript": "^5"
   }
