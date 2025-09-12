@@ -1,30 +1,30 @@
-name: "💡 Requisição de Tarefa"
-description: "Implementação de funcionalidade"
-title: "Feat: "
+name: '💡 Requisição de Tarefa'
+description: 'Implementação de funcionalidade'
+title: 'Feat: '
 body:
   - type: textarea
     id: objetivo
     attributes:
-      label: "Objetivo"
+      label: 'Objetivo'
       description: 'Descreva a necessidade do ponto de vista do usuário. Siga o formato: "Como um [tipo de usuário], eu quero [realizar uma ação] para que [eu obtenha um benefício]."'
-      placeholder: "Como um [TIPO DE USUÁRIO], eu quero [AÇÃO] para que [BENEFÍCIO]."
+      placeholder: 'Como um [TIPO DE USUÁRIO], eu quero [AÇÃO] para que [BENEFÍCIO].'
     validations:
       required: true
 
   - type: textarea
     id: contexto
     attributes:
-      label: "Contexto"
-      description: "Forneça informações de fundo, links para documentação, ou o cenário atual que justifica esta issue."
-      placeholder: "Descreva aqui o contexto de negócio ou o problema que estamos resolvendo..."
+      label: 'Contexto'
+      description: 'Forneça informações de fundo, links para documentação, ou o cenário atual que justifica esta issue.'
+      placeholder: 'Descreva aqui o contexto de negócio ou o problema que estamos resolvendo...'
     validations:
       required: false
 
   - type: textarea
     id: requisitos
     attributes:
-      label: "Requisitos"
-      description: "Liste os requisitos funcionais e não-funcionais. Use a sintaxe de checklist."
+      label: 'Requisitos'
+      description: 'Liste os requisitos funcionais e não-funcionais. Use a sintaxe de checklist.'
       placeholder: |
         - [ ] RF01: (Ex: O usuário deve poder se cadastrar usando e-mail e senha)
         - [ ] RF02: (Ex: O sistema deve validar que o e-mail é único)
@@ -35,8 +35,8 @@ body:
   - type: textarea
     id: criterios-aceite
     attributes:
-      label: "Critérios de Aceite"
-      description: "Liste as condições que devem ser satisfeitas para que a história seja considerada completa. Use o formato Gherkin (Dado, Quando, Então)."
+      label: 'Critérios de Aceite'
+      description: 'Liste as condições que devem ser satisfeitas para que a história seja considerada completa. Use o formato Gherkin (Dado, Quando, Então).'
       placeholder: |
         **Cenário 1:** Título do cenário
         - **Dado** que [contexto inicial].
@@ -48,18 +48,18 @@ body:
   - type: checkboxes
     id: dod-checklist
     attributes:
-      label: "Checklist de DoD (Definition of Done)"
+      label: 'Checklist de DoD (Definition of Done)'
       description: 'Marque os itens da nossa "Definição de Pronto" que foram concluídos.'
       options:
-        - label: "O código foi revisado por outro desenvolvedor (Code Review)."
-        - label: "Os testes unitários foram criados e estão passando."
-        - label: "A documentação necessária foi criada ou atualizada."
-        - label: "O código foi integrado à branch principal (main/develop)."
+        - label: 'O código foi revisado por outro desenvolvedor (Code Review).'
+        - label: 'Os testes unitários foram criados e estão passando.'
+        - label: 'A documentação necessária foi criada ou atualizada.'
+        - label: 'O código foi integrado à branch principal (main/develop).'
 
   - type: dropdown
     id: t-shirt-size
     attributes:
-      label: "T-Shirt Size"
+      label: 'T-Shirt Size'
       description: |
         Estime o esforço relativo necessário para completar esta issue.
         S - Simples – pouca lógica ou dependência.
@@ -67,8 +67,8 @@ body:
         L - Complexo – lógica mais densa ou testes pesados.
         (Uma tarefa L deve sempre ser quebrada em tarefas menores se possível)
       options:
-        - "S (Simples)"
-        - "M (Médio)"
-        - "L (Complexo)"
+        - 'S (Simples)'
+        - 'M (Médio)'
+        - 'L (Complexo)'
     validations:
       required: true
