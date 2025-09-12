@@ -4,7 +4,7 @@ services:
       context: ./accountflow-front
       dockerfile: Dockerfile
     ports:
-      - '3000:3000'
+      - "3000:3000"
     volumes:
       - ./accountflow-front:/app
 
@@ -13,7 +13,7 @@ services:
       context: ./accountflow
       dockerfile: Dockerfile
     ports:
-      - '8000:8000'
+      - "8000:8000"
     environment:
       - DJANGO_SETTINGS_MODULE=accountflow.settings
     volumes:
