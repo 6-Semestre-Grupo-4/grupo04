@@ -1,0 +1,8 @@
+{
+  "builds": [
+    {
+      "src": "accountflow-front/package.json",
+      "use": "@vercel/next"
+    }
+  ]
+}
