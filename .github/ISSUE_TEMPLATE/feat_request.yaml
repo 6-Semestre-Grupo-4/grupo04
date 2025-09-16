@@ -5,8 +5,9 @@ body:
   - type: textarea
     id: objetivo
     attributes:
-      label: 'Descrição de tarefa'
-      description: 'Uma descrição breve e objetiva da tarefa a ser realizada.'
+      label: 'Objetivo'
+      description: 'Descreva a necessidade do ponto de vista do usuário. Siga o formato: "Como um [tipo de usuário], eu quero [realizar uma ação] para que [eu obtenha um benefício]."'
+      placeholder: 'Como um [TIPO DE USUÁRIO], eu quero [AÇÃO] para que [BENEFÍCIO].'
     validations:
       required: true
 

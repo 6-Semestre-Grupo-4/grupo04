@@ -27,11 +27,11 @@ body:
   - type: checkboxes
     id: prerequisites
     attributes:
-      label: 'Checklist'
+      label: Checklist
       options:
-        - label: 'O bug foi previamente comunicado com o grupo.'
+        - label: O bug foi previamente comunicado com o grupo.
           required: true
-        - label: 'Eu atualizarei as dependências de acordo com as alterações.'
+        - label: Eu atualizarei as dependências de acordo com as alterações.
           required: true
-        - label: 'Eu testarei para que as alterações não interfiram nas demais partes do projeto.'
+        - label: Eu testarei para que as alterações não interfiram nas demais partes do projeto.
           required: true
