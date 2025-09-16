@@ -4,9 +4,10 @@ WORKDIR /app
 
 COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* ./
 RUN npm install
+RUN npm install --save-dev typescript
 
 COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+CMD ["npx", "next", "dev"]
