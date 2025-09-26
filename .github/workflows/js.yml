@@ -21,17 +21,17 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-      
+
       - name: Install commitlint
         run: npm install -g @commitlint/cli @commitlint/config-conventional
 
       - name: Create commitlint config
         run: |
           echo "extends: ['@commitlint/config-conventional']" > .commitlintrc.yaml
-      
+
       - name: Validate all commit
         run: |
-          npx commitlint --from ${{ github.event.pull_request.head.sha }}~1 --to ${{github.event.pull_request.head.sha}} 
+          npx commitlint --from ${{ github.event.pull_request.head.sha }}~1 --to ${{github.event.pull_request.head.sha}}
 
       - name: Install Prettier
         run: npm install -g prettier
