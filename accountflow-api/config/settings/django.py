@@ -127,5 +127,6 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+AUTH_USER_MODEL = "accountflow.User"
 
 from .jazzmin import *
