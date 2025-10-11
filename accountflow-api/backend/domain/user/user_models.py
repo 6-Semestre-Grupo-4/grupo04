@@ -8,7 +8,7 @@ class User(AbstractUser):
     Entidade de Usuário Contábil.
     Representa um indivíduo ou empresa com acesso ao sistema.
     """
-
+    app_label = "backend"
     username = None
     email = models.EmailField(_("E-mail"), unique=True)
     full_name = models.CharField(_("Nome completo / Razão social"), max_length=255)
