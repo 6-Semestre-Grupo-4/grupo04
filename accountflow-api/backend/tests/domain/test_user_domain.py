@@ -9,7 +9,7 @@ class TestUserDomainService:
         self.repo = FakeUserRepository()
         self.service = UserDomainService(self.repo)
 
-    def test_criar_usuario_valido_sem_banco(self):
+    def test_criar_usuario_valido(self):
         """
         Dado que informo um e-mail e senha válidos,
         Quando crio o usuário,

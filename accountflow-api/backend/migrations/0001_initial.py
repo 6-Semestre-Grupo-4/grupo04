@@ -32,8 +32,6 @@ class Migration(migrations.Migration):
                 ('cpf_cnpj', models.CharField(max_length=18, unique=True, validators=[django.core.validators.RegexValidator(message='Formato inválido de CPF ou CNPJ.', regex='^\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}$|^\\d{2}\\.?\\d{3}\\.?\\d{3}/?\\d{4}-?\\d{2}$')], verbose_name='CPF / CNPJ')),
                 ('phone', models.CharField(blank=True, max_length=20, null=True, verbose_name='Telefone')),
                 ('role', models.CharField(choices=[('accountant', 'Contador'), ('client', 'Cliente'), ('staff', 'Colaborador')], default='client', max_length=20, verbose_name='Papel no sistema')),
-                ('crc_number', models.CharField(blank=True, max_length=20, null=True, verbose_name='Registro CRC')),
-                ('crc_uf', models.CharField(blank=True, max_length=2, null=True, verbose_name='UF do CRC')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Criado em')),
                 ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Atualizado em')),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
