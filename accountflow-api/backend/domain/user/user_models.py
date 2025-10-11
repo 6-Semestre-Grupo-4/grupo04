@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
+from backend.domain.user.user_manager import UserManager
 
 class User(AbstractUser):
     """
@@ -29,19 +30,18 @@ class User(AbstractUser):
 
     ROLE_CHOICES = [
         ("accountant", "Contador"),
-        ("client", "Cliente"),
+        ("manager", "Gestor"),
         ("staff", "Colaborador"),
     ]
     role = models.CharField(_("Papel no sistema"), max_length=20, choices=ROLE_CHOICES, default="client")
-
-    crc_number = models.CharField(_("Registro CRC"), max_length=20, blank=True, null=True)
-    crc_uf = models.CharField(_("UF do CRC"), max_length=2, blank=True, null=True)
 
     created_at = models.DateTimeField(_("Criado em"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Atualizado em"), auto_now=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["full_name", "cpf_cnpj"]
+
+    objects = UserManager()
 
     class Meta:
         verbose_name = _("Usuário")
@@ -52,9 +52,3 @@ class User(AbstractUser):
         return f"{self.full_name} ({self.email})"
 
 
-    def is_accountant(self):
-        return self.role == "accountant"
-
-    def validate_crc(self):
-        if self.role == "accountant" and not self.crc_number:
-            raise ValueError("Contadores devem possuir um registro CRC.")

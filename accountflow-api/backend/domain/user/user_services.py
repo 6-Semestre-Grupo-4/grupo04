@@ -1,22 +1,19 @@
 from django.core.exceptions import ValidationError
-from accountflow.domain.models import User
-
+from backend.domain.user.user_models import User
 
 class UserDomainService:
+    """
+    Serviço de domínio que usa um repositório injetado.
+    """
 
-    @staticmethod
-    def can_create_user(email: str, cpf_cnpj: str) -> bool:
-        """Impede duplicidade de e-mail ou CPF/CNPJ no domínio."""
-        if User.objects.filter(email=email).exists():
-            raise ValidationError("E-mail já cadastrado.")
-        if User.objects.filter(cpf_cnpj=cpf_cnpj).exists():
-            raise ValidationError("CPF/CNPJ já cadastrado.")
-        return True
+    def __init__(self, repository):
+        self.repository = repository
 
-    @staticmethod
-    def assign_role(user: User, new_role: str):
-        if new_role == "accountant" and not user.crc_number:
-            raise ValidationError("Contadores devem possuir CRC.")
-        user.role = new_role
-        user.save()
-        return user
+    def criar_usuario(self, email, password, full_name, cpf_cnpj):
+        if self.repository.exists_by_email(email):
+            raise ValidationError("E-mail já cadastrado")
+
+        user = User(email=email, full_name=full_name, cpf_cnpj=cpf_cnpj)
+        user.set_password(password)
+
+        return self.repository.save(user)
