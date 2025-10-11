@@ -43,6 +43,13 @@ class User(AbstractUser):
 
     objects = UserManager()
 
+    companies = models.ManyToManyField(
+        "backend.company",
+        through="backend.UserCompany",
+        related_name="users",
+        verbose_name=_("Empresas")
+    )
+
     class Meta:
         verbose_name = _("Usuário")
         verbose_name_plural = _("Usuários")

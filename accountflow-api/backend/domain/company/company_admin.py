@@ -1,5 +1,12 @@
 from django.contrib import admin
 from backend.domain.company.company_models import Company
+from backend.domain.user_company.user_company_models import UserCompany
+
+class UserCompanyInline(admin.TabularInline):
+    model = UserCompany
+    extra = 1
+    autocomplete_fields = ("user",)
+    readonly_fields = ("created_at", "updated_at")
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
@@ -13,4 +20,5 @@ class CompanyAdmin(admin.ModelAdmin):
         ("Contato", {"fields": ("phone", "mobile", "email")}),
         ("Configuração Contábil", {"fields": ("tax_regime",)}),
     )
+    inlines = [UserCompanyInline]
     ordering = ("legal_name",)
