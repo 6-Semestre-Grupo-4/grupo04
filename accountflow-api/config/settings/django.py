@@ -30,6 +30,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    "backend",
     "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -54,7 +55,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "config" / "templates"],  # ← adiciona o diretório raiz de templates
+        "DIRS": [BASE_DIR / "config" / "templates"], 
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -127,6 +128,6 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
-AUTH_USER_MODEL = "accountflow.User"
+AUTH_USER_MODEL = "backend.User"
 
 from .jazzmin import *
