@@ -4,7 +4,6 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 from backend.domain.user.user_models import User
 
-
 # ========================
 # FORMULÁRIOS PERSONALIZADOS
 # ========================

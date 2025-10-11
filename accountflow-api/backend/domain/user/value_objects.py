@@ -25,18 +25,3 @@ class CNPJ:
 
     def __str__(self):
         return self.value
-
-
-@dataclass(frozen=True)
-class CRC:
-    number: str
-    uf: str
-
-    def __post_init__(self):
-        if not self.number or not re.match(r"^[A-Z0-9\-]+$", self.number):
-            raise ValidationError("Número de CRC inválido.")
-        if not self.uf or len(self.uf) != 2:
-            raise ValidationError("UF do CRC inválida.")
-
-    def __str__(self):
-        return f"{self.number}/{self.uf}"
