@@ -41,3 +41,21 @@ yarn-error.log*
 next-env.d.ts
 
 node_modules/
+accountflow-api/staticfiles/
+accountflow-api/venv/
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+*.pdb
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+.vscode/
+.idea/
+*.swp
+.DS_Store
