@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter, usePathname } from 'next/navigation';
 import { Sidebar, SidebarItem, SidebarItemGroup, SidebarItems, createTheme, ThemeProvider } from 'flowbite-react';
 import { AiFillHome } from 'react-icons/ai';
 import { IoPeople } from 'react-icons/io5';
@@ -7,9 +8,7 @@ import { MdOutlineAccountTree } from 'react-icons/md';
 import { FaCog, FaUserShield } from 'react-icons/fa';
 import { RiBuilding2Fill } from 'react-icons/ri';
 import Image from 'next/image';
-import Link from 'next/link';
 import Logo from '@/assets/images/logos/sideLogo.png';
-import { usePathname } from 'next/navigation';
 
 const route = '/pages/';
 
@@ -30,10 +29,10 @@ const customTheme = createTheme({
   sidebar: {
     root: {
       base: 'h-full shadow-lg',
-      inner: 'h-full overflow-y-auto bg-white dark:bg-background a px-3 py-4 rounded',
+      inner: 'h-full overflow-y-auto bg-white dark:bg-background px-3 py-4 rounded',
     },
     item: {
-      base: 'text-sm mb-3 flex items-center transition-colors duration-200 rounded-r-md hover:bg-gray-300 dark:hover:bg-gray-700 relative',
+      base: 'text-sm mb-3 flex items-center transition-colors duration-200 rounded-r-md hover:bg-gray-300 dark:hover:bg-gray-700 relative cursor-pointer',
       active: `
         bg-gray-800 text-white hover:bg-gray-700 font-semibold 
         before:content-[''] before:absolute before:left-0 before:top-0 before:h-full before:w-1.5 
@@ -50,6 +49,7 @@ const customTheme = createTheme({
 
 export function SidebarComponent({ isOpen }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <aside
@@ -68,11 +68,14 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
               {menuItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
-                  <Link key={item.label} href={item.href}>
-                    <SidebarItem icon={item.icon} active={isActive}>
-                      {item.label}
-                    </SidebarItem>
-                  </Link>
+                  <SidebarItem
+                    key={item.label}
+                    icon={item.icon}
+                    active={isActive}
+                    onClick={() => router.push(item.href)} // navegação client-side
+                  >
+                    {item.label}
+                  </SidebarItem>
                 );
               })}
             </SidebarItemGroup>
