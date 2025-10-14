@@ -11,6 +11,7 @@
   --color-text: #cfcfcf;
 }
 
+
 @theme inline {
   --color-background: var(--background);
   --font-sans: var(--font-geist-sans);
