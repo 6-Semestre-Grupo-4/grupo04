@@ -1,57 +1,86 @@
 'use client';
 
+import {
+  Avatar,
+  Dropdown,
+  DropdownDivider,
+  DropdownHeader,
+  DropdownItem,
+  Navbar,
+  NavbarBrand,
+  Button,
+  createTheme,
+  ThemeProvider,
+} from 'flowbite-react';
+
+import { HiMenu } from 'react-icons/hi';
 import Image from 'next/image';
-import User from '@/assets/images/logos/userImg.jpg';
-import { FaBars } from 'react-icons/fa';
 import Logo from '@/assets/images/logos/sideLogo.png';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
-interface NavbarProps {
-  isSidebarOpen: boolean;
-  setIsSidebarOpen: (v: boolean) => void;
+// ClientOnly wrapper para componentes que causam hydration issues
+function ClientOnly({ children }: { children: React.ReactNode }) {
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+  return isMounted ? <>{children}</> : null;
 }
 
-function UserDropdown() {
-  const handleLogout = () => console.log('Logout realizado');
+const customTheme = createTheme({
+  navbar: {
+    root: {
+      base: 'bg-gray-100 text-white px-2 py-2.5 sm:px-4 dark:bg-background',
+    },
+  },
+  button: {
+    color: {
+      primary: 'bg-gray-700 hover:bg-gray-500 dark:hover:bg-gray-600',
+    },
+  },
+});
 
-  const buttonClass =
-    'w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-sm cursor-pointer transition-colors duration-200';
-
-  return (
-    <div className="absolute top-full right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-b-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-      <button onClick={handleLogout} className={buttonClass}>
-        Meus dados
-      </button>
-      <button onClick={handleLogout} className={buttonClass}>
-        Sair
-      </button>
-    </div>
-  );
+interface NavbarComponentProps {
+  onMenuClick: () => void;
 }
 
-export default function Navbar({ isSidebarOpen, setIsSidebarOpen }: NavbarProps) {
+export function NavbarComponent({ onMenuClick }: NavbarComponentProps) {
   return (
-    <nav className="h-16 bg-primary flex items-center px-4 justify-between sticky top-0 z-50">
-      <button
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="p-2 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 cursor-pointer mr-5"
-      >
-        <FaBars />
-      </button>
+    <ThemeProvider theme={customTheme}>
+      <Navbar fluid rounded>
+        <div className="flex items-center gap-2">
+          <Button onClick={onMenuClick} color="primary" className="p-2 rounded-lg md:hidden">
+            <HiMenu size={24} className="dark:text-white bg-text-black" />
+          </Button>
 
-      <div className="left-2 lg:hidden">
-        <Link href="/">
-          <Image src={Logo} alt="Logo" width={120} height={120} />
-        </Link>
-      </div>
+          <NavbarBrand href="#">
+            <div className="self-center whitespace-nowrap text-xl font-semibold md:hidden">
+              <Image src={Logo} alt="Accountflow logo" width={130} height={30} />
+            </div>
+          </NavbarBrand>
+        </div>
 
-      <div className="ml-auto relative group flex items-center gap-2 cursor-pointer">
-        <Image src={User} alt="Avatar" width={40} height={40} className="rounded-full" />
-        <span className="text-gray-800 dark:text-gray-200 font-medium hidden md:block truncate max-w-[150px]">
-          Nome do usuário
-        </span>
-        <UserDropdown />
-      </div>
-    </nav>
+        <div className="flex md:order-2">
+          {/* Renderizar dropdown apenas no client */}
+          <ClientOnly>
+            <Dropdown
+              arrowIcon={true}
+              inline
+              label={
+                <div className="cursor-pointer">
+                  <Avatar alt="User settings" rounded />
+                </div>
+              }
+            >
+              <DropdownHeader>
+                <span className="block text-xs">Matheus Bruckmann Morilha Teles</span>
+                <span className="block truncate text-xs font-medium">matheusmorilha04@gmail.com</span>
+              </DropdownHeader>
+              <DropdownItem className="cursor-pointer">Meu Perfil</DropdownItem>
+              <DropdownDivider />
+              <DropdownItem className="cursor-pointer">Sair</DropdownItem>
+            </Dropdown>
+          </ClientOnly>
+        </div>
+      </Navbar>
+    </ThemeProvider>
   );
 }
