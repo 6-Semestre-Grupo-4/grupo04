@@ -1,0 +1,145 @@
+@startuml UML - AccountFlow
+
+title UML - AccountFlow
+header Grupo 04 | October 23, 2025
+
+' Configuração para layout ortogonal (linhas retas)
+skinparam linetype ortho
+
+' ===================================
+' CLASSES
+' ===================================
+
+class Permissao {
+    permissao_idPK: UUID
+    nome: String
+    codigo_nome: String
+    content_type_idFK: UUID
+}
+
+class ContentType {
+    content_type_idPK: UUID
+    app_label: String
+    model: String
+    app_label: String()
+}
+
+class Grupo {
+    grupo_idPK: UUID
+    nome: String
+    permissoes_idFK: UUID
+}
+
+class Usuario {
+    usuario_idPK: UUID
+    nome: String()
+    email: String()
+}
+
+class Empresa {
+    empresa_idPK: UUID
+    nome: String()
+}
+
+class Pessoa {
+    uuid: UUID
+    company: UUID
+    name: String()
+    type_of: ENUM ('Cliente', 'Fornecedor')
+}
+
+class HistoricoPadrao {
+    historico_padrao_idPK: UUID
+    descricao: String()
+    empresa_idFK: UUID
+}
+
+class ContaContabil {
+    conta_contabil_idPK: UUID
+    codigo: String()
+    nome: String()
+    tipo: ENUM ('Sintetica', 'Analitica')
+    empresa_idFK: UUID
+    conta_pai_idFK: UUID
+}
+
+class LancamentoItem {
+    lancamento_item_idPK: UUID
+    valor: String()
+    tipo: ENUM ('Debito', 'Credito')
+    historico_padrao_idFK: UUID
+    conta_contabil_idFK: UUID
+}
+
+class Lancamento {
+    lancamento_idPK: UUID
+    data: Date()
+    objeto_id: String()
+    lancamento_pai_idFK: UUID
+    usuario_idFK: UUID
+    historico_padrao_idFK: UUID
+    empresa_idFK: UUID
+}
+
+class Titulo {
+    titulo_idPK: UUID
+    tipo: ENUM ('Pagar', 'Receber')
+    valor: String()
+    data_vencimento: Data()
+    empresa_idFK: UUID
+    pessoa_idFK: UUID
+}
+
+class Pagamento {
+    pagamento_idPK: UUID
+    valor_liquidacao: String()
+    data_pagamento: Date()
+    juros: String()
+    multa: String()
+    forma_recebimento: ENUM ('Pix', 'Boleto')
+    observacao: String()
+    titulo_idFK: UUID
+}
+
+
+' ===================================
+' RELACIONAMENTOS (Corrigidos com labels/papéis)
+' ===================================
+
+' Os rótulos foram reintroduzidos usando a sintaxe padrão : [rótulo]
+
+Permissao "N" -up- "1" ContentType
+Permissao "N" -- "N" Grupo
+Usuario "N" -- "N" Grupo
+Usuario "N" -- "N" Permissao
+Empresa "1" -- "N" Grupo
+Empresa "1" -- "N" Pessoa
+Empresa "1" -- "N" HistoricoPadrao
+Empresa "1" -- "N" ContaContabil
+
+ContaContabil "N" -- "1" ContaContabil
+
+HistoricoPadrao "1" -right- "N" Lancamento
+
+' CORREÇÃO: "Analitica" deve ser parte do rótulo
+LancamentoItem "N" -right- "1" ContaContabil
+
+LancamentoItem "N" -down- "1" HistoricoPadrao
+
+' CORREÇÃO: "por" deve ser parte do rótulo
+LancamentoItem "N" -left- "1" Lancamento
+
+Titulo "N" -- "1" Pessoa
+Titulo "N" -- "1" Empresa
+Titulo "1" -- "N" Pagamento
+
+' Relacionamento de dependência (pontilhado) com rótulo
+Titulo "1" .down. "N" Lancamento
+
+' ===================================
+' NOTAS (Adicionadas para clareza visual, sem syntax errors)
+' ===================================
+
+
+
+@enduml

@@ -17,10 +17,10 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from backend.views import PersonList, PersonDetail
 
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path('i18n/', include('django.conf.urls.i18n')),
-    path("api/v1/", include("backend.urls")),
+    path('person/', PersonList.as_view(), name='person-list'),
+    path('person/<uuid:pk>/', PersonDetail.as_view(), name='person-detail'),
 ]

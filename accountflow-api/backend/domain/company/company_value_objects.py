@@ -2,54 +2,66 @@ import re
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-_CNPJ_RE = re.compile(r"^\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}$")
-
 def _only_digits(s: str) -> str:
+
     return re.sub(r"\D", "", s or "")
+
 
 def validate_cnpj(value: str):
     if not value:
         raise ValidationError(_("CNPJ é obrigatório."))
-    if not _CNPJ_RE.match(value):
-        raise ValidationError(_("Formato inválido de CNPJ. Use XX.XXX.XXX/XXXX-XX."))
 
     digits = _only_digits(value)
     if len(digits) != 14:
         raise ValidationError(_("CNPJ deve conter 14 dígitos."))
 
     if digits == digits[0] * 14:
-        raise ValidationError(_("CNPJ inválido."))
+        raise ValidationError(_("CNPJ inválido (dígitos repetidos)."))
 
-    def dv_calc(nums: str) -> str:
-        peso = list(range(len(nums)-6, 1, -1)) + list(range(9, 1, -1))
-        soma = sum(int(n)*p for n, p in zip(nums, peso))
-        dv = 11 - (soma % 11)
-        return "0" if dv >= 10 else str(dv)
+    weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    soma1 = sum(int(n) * p for n, p in zip(digits[:12], weights1))
+    dv1 = 11 - (soma1 % 11)
+    dv1_calc = "0" if dv1 >= 10 else str(dv1)
 
-    dv1 = dv_calc(digits[:12])
-    dv2 = dv_calc(digits[:12] + dv1)
-    if digits[-2:] != dv1 + dv2:
+    weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    soma2 = sum(int(n) * p for n, p in zip(digits[:12] + dv1_calc, weights2))
+    dv2 = 11 - (soma2 % 11)
+    dv2_calc = "0" if dv2 >= 10 else str(dv2)
+
+    if digits[-2:] != dv1_calc + dv2_calc:
         raise ValidationError(_("CNPJ inválido (dígitos verificadores)."))
 
-_CEP_RE = re.compile(r"^\d{5}-?\d{3}$")
-def validate_cep(value: str):
-    if value and not _CEP_RE.match(value):
-        raise ValidationError(_("CEP inválido. Use XXXXX-XXX."))
 
-_CNAE_RE = re.compile(r"^\d{4}-\d/\d{2}$")
+def validate_cep(value: str):
+    if not value:
+        return  
+    
+    digits = _only_digits(value)
+    if len(digits) != 8:
+        raise ValidationError(_("CEP inválido. Deve conter 8 dígitos."))
+
 def validate_cnae(value: str):
-    if value and not _CNAE_RE.match(value):
-        raise ValidationError(_("CNAE inválido. Use NNNN-N/NN."))
+    if not value:
+        return 
+    
+    digits = _only_digits(value)
+    if len(digits) != 7:
+        raise ValidationError(_("CNAE inválido. Deve conter 7 dígitos."))
 
 def validate_ie(value: str):
     if value is not None and not value.strip():
-        raise ValidationError(_("Inscrição Estadual inválida."))
+         raise ValidationError(_("Inscrição Estadual não pode ser apenas espaços."))
+
 
 def validate_im(value: str):
+    """Valida se a IM, se preenchida, não está em branco."""
     if value is not None and not value.strip():
-        raise ValidationError(_("Inscrição Municipal inválida."))
+         raise ValidationError(_("Inscrição Municipal não pode ser apenas espaços."))
 
-_PHONE_RE = re.compile(r"^\+?\d{8,15}$")
 def validate_phone(value: str):
-    if value and not _PHONE_RE.match(value):
-        raise ValidationError(_("Telefone inválido. Use apenas dígitos."))
+    if not value:
+        return 
+    
+    digits = _only_digits(value)
+    if len(digits) < 8 or len(digits) > 15:
+        raise ValidationError(_("Telefone inválido. Deve conter de 8 a 15 dígitos."))
