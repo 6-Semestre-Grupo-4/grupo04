@@ -10,136 +10,76 @@ skinparam linetype ortho
 ' CLASSES
 ' ===================================
 
-class Permissao {
-    permissao_idPK: UUID
-    nome: String
-    codigo_nome: String
-    content_type_idFK: UUID
-}
-
-class ContentType {
-    content_type_idPK: UUID
-    app_label: String
-    model: String
-    app_label: String()
-}
-
-class Grupo {
-    grupo_idPK: UUID
-    nome: String
-    permissoes_idFK: UUID
-}
-
-class Usuario {
-    usuario_idPK: UUID
-    nome: String()
-    email: String()
-}
-
-class Empresa {
-    empresa_idPK: UUID
-    nome: String()
-}
-
-class Pessoa {
+class Address {
     uuid: UUID
-    company: UUID
-    name: String()
-    type_of: ENUM ('Cliente', 'Fornecedor')
+    zip_code: String
+    street: String
+    number: String
+    complement: String
+    neighborhood: String
+    city: String
+    state: String
 }
 
-class HistoricoPadrao {
-    historico_padrao_idPK: UUID
-    descricao: String()
-    empresa_idFK: UUID
-}
-
-class ContaContabil {
-    conta_contabil_idPK: UUID
-    codigo: String()
-    nome: String()
-    tipo: ENUM ('Sintetica', 'Analitica')
-    empresa_idFK: UUID
-    conta_pai_idFK: UUID
-}
-
-class LancamentoItem {
-    lancamento_item_idPK: UUID
-    valor: String()
-    tipo: ENUM ('Debito', 'Credito')
-    historico_padrao_idFK: UUID
-    conta_contabil_idFK: UUID
-}
-
-class Lancamento {
-    lancamento_idPK: UUID
-    data: Date()
-    objeto_id: String()
-    lancamento_pai_idFK: UUID
-    usuario_idFK: UUID
-    historico_padrao_idFK: UUID
-    empresa_idFK: UUID
-}
-
-class Titulo {
-    titulo_idPK: UUID
-    tipo: ENUM ('Pagar', 'Receber')
-    valor: String()
-    data_vencimento: Data()
-    empresa_idFK: UUID
-    pessoa_idFK: UUID
-}
-
-class Pagamento {
-    pagamento_idPK: UUID
-    valor_liquidacao: String()
-    data_pagamento: Date()
-    juros: String()
-    multa: String()
-    forma_recebimento: ENUM ('Pix', 'Boleto')
-    observacao: String()
-    titulo_idFK: UUID
+class Company {
+    uuid: UUID
+    CNPJ: String
+    fantasy_name: String
+    social_reason: String
+    opening_date: Date
+    logo: String
+    cnae: String
+    address: Address
+    type_of: ENUM ['Client', 'Supplier', 'Both']
+    email: String
+    phone: String
 }
 
 
-' ===================================
-' RELACIONAMENTOS (Corrigidos com labels/papéis)
-' ===================================
 
-' Os rótulos foram reintroduzidos usando a sintaxe padrão : [rótulo]
+class BillingPlan {
+    uuid: UUID
+    name: String
+    description: String
+}
 
-Permissao "N" -up- "1" ContentType
-Permissao "N" -- "N" Grupo
-Usuario "N" -- "N" Grupo
-Usuario "N" -- "N" Permissao
-Empresa "1" -- "N" Grupo
-Empresa "1" -- "N" Pessoa
-Empresa "1" -- "N" HistoricoPadrao
-Empresa "1" -- "N" ContaContabil
-
-ContaContabil "N" -- "1" ContaContabil
-
-HistoricoPadrao "1" -right- "N" Lancamento
-
-' CORREÇÃO: "Analitica" deve ser parte do rótulo
-LancamentoItem "N" -right- "1" ContaContabil
-
-LancamentoItem "N" -down- "1" HistoricoPadrao
-
-' CORREÇÃO: "por" deve ser parte do rótulo
-LancamentoItem "N" -left- "1" Lancamento
-
-Titulo "N" -- "1" Pessoa
-Titulo "N" -- "1" Empresa
-Titulo "1" -- "N" Pagamento
-
-' Relacionamento de dependência (pontilhado) com rótulo
-Titulo "1" .down. "N" Lancamento
-
-' ===================================
-' NOTAS (Adicionadas para clareza visual, sem syntax errors)
-' ===================================
+class BillingAccount {
+    uuid: UUID
+    nome: String
+    billingPlan: BillingPlan
+    type_of: ENUM['analytic', 'synthetic']
+    classification: ENUM['1', '2', '3', '4', '5']
+    billingAccount_parent: BillingAccount
+    company: Company
+}
 
 
+class Title {
+    uuid: UUID
+    description: String
+    amount: Decimal
+    payable_billingAccount: BillingAccount
+    receivable_billingAccount: BillingAccount
+    expiration_date: Date
+    active: Boolean
+    recorrente: Boolean
+    recorrence_period: ENUM ['daily', 'weekly', 'monthly', 'yearly']
+    installments: Integer
+}
 
-@enduml
+class Entry {
+    uuid: UUID
+    title: Title
+    description: String
+    type_of: ENUM ['Income', 'Expense']
+    amount: Decimal
+    date: Date
+}
+
+Company "1" -- "1" Address
+Company "1" -- "1" BillingAccount : company
+BillingPlan "1" -- "0..*" BillingAccount
+BillingAccount "1" -- "0..*" BillingAccount : parent
+BillingAccount "1" -- "0..*" Title : payable/receivable
+Title "1" -- "0..*" Entry
+

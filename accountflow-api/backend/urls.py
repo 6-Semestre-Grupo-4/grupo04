@@ -17,10 +17,12 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from backend.views import PersonList, PersonDetail
+from backend.views import AddressList, AddressDetail, CompanyList, CompanyDetail
 
 
 urlpatterns = [
-    path('person/', PersonList.as_view(), name='person-list'),
-    path('person/<uuid:pk>/', PersonDetail.as_view(), name='person-detail'),
+    path('address/', AddressList.as_view(), name='address-list'),
+    path('address/<uuid:pk>/', AddressDetail.as_view(), name='address-detail'),
+    path('company/', CompanyList.as_view(), name='company-list'),
+    path('company/<uuid:pk>/', CompanyDetail.as_view(), name='company-detail'),
 ]
