@@ -33,3 +33,11 @@ Ao executar este comando, você será guiado por um **questionário interativo**
 ---
 
 > Ao seguir esses passos, sua mensagem de commit estará automaticamente no padrão correto, garantindo que seu código seja aprovado no pipeline de forma rápida.
+
+## Rodar teste
+
+Dentro da pasta do `accountflow-api` rodar:
+
+```python
+python manage.py test backend
+```
