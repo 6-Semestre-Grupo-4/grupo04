@@ -38,4 +38,13 @@ class Company(models.Model):
     @property
     def zip_code(self):
         return self.address.zip_code
+    
+class BillingPlan(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.name} - {self.description}"
+
 
