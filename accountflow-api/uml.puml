@@ -35,8 +35,6 @@ class Company {
     phone: String
 }
 
-
-
 class BillingPlan {
     uuid: UUID
     name: String
