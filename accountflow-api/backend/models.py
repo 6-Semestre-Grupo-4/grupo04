@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.core.exceptions import ValidationError
 
 class Address(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -46,5 +47,97 @@ class BillingPlan(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.description}"
+
+class BillingAccount(models.Model):
+    class AccountType(models.TextChoices):
+        ANALYTIC = 'analytic', 'Analítica'
+        SYNTHETIC = 'synthetic', 'Sintética'
+    
+    MAX_LEVEL = 5
+
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    company = models.ForeignKey('Company', on_delete=models.CASCADE, related_name='billing_accounts')
+    billing_plan = models.ForeignKey('BillingPlan', on_delete=models.PROTECT, related_name='billing_accounts')
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    account_type = models.CharField(max_length=10, choices=AccountType.choices, editable=False)
+    is_active = models.BooleanField(default=True)
+
+    classification = models.PositiveSmallIntegerField(editable=False)
+    code = models.CharField(max_length=30, unique=True, editable=False)
+
+    def __str__(self):
+        return f'{self.code} - {self.name}'
+    
+    # --- Calculo de classificação ---
+    def get_level(self):
+        level = 1
+        parent = self.parent
+        while parent:
+            level += 1
+            parent = parent.parent
+        return level
+    
+    # --- Gerar código de classificação completo ex: 1.1.1.2.03
+    def generate_account_code(self):
+        # Contas raiz, sem pai
+        if not self.parent:
+            siblings  = (
+                BillingAccount.objects.filter(
+                billing_plan=self.billing_plan, parent__isnull=True
+            ).count() 
+            + 1
+            )
+            return f"{siblings}"
+        
+        # Herdando a conta pai
+        parent_code = self.parent.code
+
+        #Contando os niveis
+        siblings = BillingAccount.objects.filter(parent=self.parent).count() +1
+
+        #Calcular a hierarquia dinamicamente
+        level = self.get_level()
+        padding = max(2, level)
+
+        suffix = str(siblings).zfill(padding)
+        return f'{parent_code}.{suffix}'
+    
+    def clean(self):
+        super().clean()
+    
+            # Coerência entre empresa e plano
+        if self.parent:
+            if self.parent.company != self.company:
+                raise ValidationError("A conta pai pertence a outra empresa.")
+            if self.parent.billing_plan != self.billing_plan:
+                raise ValidationError("A conta pai pertence a outro plano de contas.")
+
+        # Calcula nível e valida limite de level
+        self.classification = self.get_level()
+        if self.classification > self.MAX_LEVEL:
+            raise ValidationError(
+                f"A profundidade máxima permitida é de {self.MAX_LEVEL} níveis."
+            )
+
+        # Regras contábeis de tipo
+        if self.account_type == self.AccountType.ANALYTIC:
+            if not self.parent:
+                raise ValidationError("Conta analítica deve ter uma conta pai sintética.")
+            if self.parent.account_type == self.AccountType.ANALYTIC:
+                raise ValidationError("Conta pai não pode ser analítica.")
+        elif self.account_type == self.AccountType.SYNTHETIC:
+            if self.parent and self.parent.account_type == self.AccountType.ANALYTIC:
+                raise ValidationError("Conta sintética não pode ter pai analítico.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        if not self.code:
+            self.code = self.generate_account_code()
+        self.classification = self.get_level()
+        super().save(*args, **kwargs)
+
+    
+
 
 
