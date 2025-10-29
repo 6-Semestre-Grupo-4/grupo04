@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from backend.views import AddressList, AddressDetail, CompanyList, CompanyDetail, BillingPlanList, BillingPlanDetail
+from backend.views import AddressList, AddressDetail, CompanyList, CompanyDetail, BillingPlanList, BillingPlanDetail, BillingAccountList, BillingAccountDetail
 
 
 urlpatterns = [
@@ -27,4 +27,6 @@ urlpatterns = [
     path('company/<uuid:pk>/', CompanyDetail.as_view(), name='company-detail'),
     path('billing-plan/', BillingPlanList.as_view(), name='billing-plan-list'),
     path('billing-plan/<uuid:pk>/', BillingPlanDetail.as_view(), name='billing-plan-detail'),
+    path('billing-account/', BillingAccountList.as_view(), name='billing-account-list'),
+    path('billing-account/<uuid:pk>/', BillingAccountDetail.as_view(), name='billing-account-detail')
 ]

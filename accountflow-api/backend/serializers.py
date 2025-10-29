@@ -5,6 +5,7 @@ from .models import (
     Address,
     Company,
     BillingPlan,
+    BillingAccount,
 )
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -20,4 +21,9 @@ class CompanySerializer(serializers.ModelSerializer):
 class BillingPlanSerializer(serializers.ModelSerializer):
     class Meta: 
         model = BillingPlan
+        fields = '__all__'
+
+class BillingAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BillingAccount
         fields = '__all__'
