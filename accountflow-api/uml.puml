@@ -44,11 +44,13 @@ class BillingPlan {
 class BillingAccount {
     uuid: UUID
     nome: String
-    billingPlan: BillingPlan
-    type_of: ENUM['analytic', 'synthetic']
-    classification: ENUM['1', '2', '3', '4', '5']
-    billingAccount_parent: BillingAccount
+    account_type: TextChoices['analytic', 'synthetic']
+    classification: Integer
+    code: String
+    is_active: Boolean
     company: Company
+    billingPlan: BillingPlan
+    parent: BillingAccount
 }
 
 

@@ -34,7 +34,7 @@ class BillingPlanAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(BillingPlan.objects.count(), 2)
         self.assertEqual(response.data['name'], 'Plano Contabil')
-        print("[TEST_CREATE] Teste realizado com sucesso!")
+        print("[TEST_CREATE] Plano contábil criado com sucesso!")
     
     def test_create_billing_plan_invalid_payload(self):
         """
@@ -45,34 +45,37 @@ class BillingPlanAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(BillingPlan.objects.count(), 1)
-        print("[TEST_INVALID_CREATE] Teste realizado com sucesso!")
+        print("[TEST_INVALID_CREATE] Validação de nome vazio funcionando!")
     
-    def test_get_billing_plan_Detail_success(self):
+    def test_get_billing_plan_detail_success(self):
         """
-        Critério de aceite 3: Como usuário gostaria de buscar um plano pelo id
+        Critério: Como usuário, desejo consultar um plano contábil pelo seu UUID.
+        Esperado: 200 OK + dados corretos do plano retornados.
         """
-        print('Escrever Teste 3')
+        print("[ESCREVER_TEST_3] Escrever teste para GET /billing-plan/<uuid> (esperado 200).")
         pass
 
-    def test_get_billing_plant_Detail_not_found(self):
+    def test_get_billing_plan_detail_not_found(self):
         """
-        Critério de aceite 4: Como sistema devo retornar 404 NOT FOUND para UUID invalido
+        Critério: Como sistema, devo retornar 404 NOT FOUND para UUID inexistente.
+        Esperado: 404 NOT FOUND.
         """
-        print('Escrever Teste 4')
+        print("[ESCREVER_TEST_4] Escrever teste para GET com UUID inexistente (esperado 404).")
         pass
 
     def test_update_billing_plan_success(self):
         """
-        Critério de aceite 5: Como usuário gostaria de atualizar o nome do plano contabil
+        Critério: Como usuário, desejo atualizar o nome e a descrição de um plano contábil existente.
+        Esperado: 200 OK + valores atualizados persistidos.
         """
-        print('Escrever Teste 5')
+        print("[ESCREVER_TEST_5] Escrever teste para PUT /billing-plan/<uuid> (esperado 200).")
         pass
-    
+
     def test_delete_billing_plan_success(self):
         """
-        Critério de aceite 5: Como usuário gostaria de deletar um plano contabil
-        Obs: Um plano de contas só pode ser deletado se não tiver nenhuma conta contabil associada
+        Critério: Como usuário, desejo deletar um plano contábil sem contas associadas.
+        Esperado: 204 NO CONTENT + remoção efetiva do registro.
+        Obs: Um plano só pode ser removido se não houver contas vinculadas.
         """
-        print('Escrever Teste 6')
+        print("[ESCREVER_TEST_6] Escrever teste para DELETE /billing-plan/<uuid> (esperado 204).")
         pass
-    
