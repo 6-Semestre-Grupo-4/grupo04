@@ -9,6 +9,7 @@ skinparam linetype ortho
 ' ===================================
 ' CLASSES
 ' ===================================
+package "backend.models" {
 
 class Address {
     uuid: UUID
@@ -53,18 +54,27 @@ class BillingAccount {
     parent: BillingAccount
 }
 
+class Preset {
+    uuid: UUID
+    name: String
+    description: String
+    payable_billingAccount: BillingAccount
+    receivable_billingAccount: BillingAccount
+    has_transitory_account: Boolean
+    transitory_billingAccount: BillingAccount
+}
 
 class Title {
     uuid: UUID
     description: String
     amount: Decimal
-    payable_billingAccount: BillingAccount
-    receivable_billingAccount: BillingAccount
-    expiration_date: Date
     active: Boolean
-    recorrente: Boolean
+    recorrence: Boolean
+    expiration_date: Date
     recorrence_period: ENUM ['daily', 'weekly', 'monthly', 'yearly']
     installments: Integer
+    preset: Preset
+    fees_percentage_monthly: Decimal
 }
 
 class Entry {
@@ -73,9 +83,13 @@ class Entry {
     description: String
     type_of: ENUM ['Income', 'Expense']
     amount: Decimal
-    date: Date
+    paid_at: Date (readonly)
+    date_expirations: Date (readonly cadastrado automaticamente pela recorrencia)
+    payment_method: ENUM ['Cash', 'Credit Card', 'Debit Card', 'Bank Transfer', 'Pix']
+    status: ENUM ['Pending', 'Paid', 'Overdue']
 }
 
+}
 Company "1" -- "1" Address
 Company "1" -- "1" BillingAccount : company
 BillingPlan "1" -- "0..*" BillingAccount
@@ -83,3 +97,4 @@ BillingAccount "1" -- "0..*" BillingAccount : parent
 BillingAccount "1" -- "0..*" Title : payable/receivable
 Title "1" -- "0..*" Entry
 
+Preset "1" -- "0..*" Title

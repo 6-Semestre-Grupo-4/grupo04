@@ -1,8 +1,9 @@
 import uuid
 from django.db import models
 from django.core.exceptions import ValidationError
+from .mixins import ModelBasedMixin
 
-class Address(models.Model):
+class Address(ModelBasedMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     zip_code = models.CharField(max_length=255)
     street = models.CharField(max_length=255)
@@ -15,7 +16,7 @@ class Address(models.Model):
     def __str__(self):
         return f"{self.zip_code} - ({self.city}/{self.state})"
 
-class Company(models.Model):
+class Company(ModelBasedMixin):
     class CompanyType(models.TextChoices):
         CLIENT = 'Client', 'Client'
         SUPPLIER = 'Supplier', 'Supplier'
@@ -39,8 +40,8 @@ class Company(models.Model):
     @property
     def zip_code(self):
         return self.address.zip_code
-    
-class BillingPlan(models.Model):
+
+class BillingPlan(ModelBasedMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
@@ -48,11 +49,11 @@ class BillingPlan(models.Model):
     def __str__(self):
         return f"{self.name} - {self.description}"
 
-class BillingAccount(models.Model):
+class BillingAccount(ModelBasedMixin):
     class AccountType(models.TextChoices):
         ANALYTIC = 'analytic', 'Analítica'
         SYNTHETIC = 'synthetic', 'Sintética'
-    
+
     MAX_LEVEL = 5
 
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -68,7 +69,7 @@ class BillingAccount(models.Model):
 
     def __str__(self):
         return f'{self.code} - {self.name}'
-    
+
     # --- Calculo de classificação ---
     def get_level(self):
         level = 1
@@ -77,7 +78,7 @@ class BillingAccount(models.Model):
             level += 1
             parent = parent.parent
         return level
-    
+
     # --- Gerar código de classificação completo ex: 1.1.1.2.03
     def generate_account_code(self):
         # Contas raiz, sem pai
@@ -85,11 +86,11 @@ class BillingAccount(models.Model):
             siblings  = (
                 BillingAccount.objects.filter(
                 billing_plan=self.billing_plan, parent__isnull=True
-            ).count() 
+            ).count()
             + 1
             )
             return f"{siblings}"
-        
+
         # Herdando a conta pai
         parent_code = self.parent.code
 
@@ -102,10 +103,10 @@ class BillingAccount(models.Model):
 
         suffix = str(siblings).zfill(padding)
         return f'{parent_code}.{suffix}'
-    
+
     def clean(self):
         super().clean()
-    
+
             # Coerência entre empresa e plano
         if self.parent:
             if self.parent.company != self.company:
@@ -136,8 +137,3 @@ class BillingAccount(models.Model):
             self.code = self.generate_account_code()
         self.classification = self.get_level()
         super().save(*args, **kwargs)
-
-    
-
-
-

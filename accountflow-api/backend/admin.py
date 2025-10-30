@@ -2,13 +2,17 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from backend.models import Address, Company, BillingPlan, BillingAccount
 
+class ReadOnly(ModelAdmin):
+    def get_readonly_fields(self, request, obj=None):
+        return super().get_readonly_fields(request, obj) + ("created_at", "updated_at")
 
-class AddressAdmin(ModelAdmin):
+
+class AddressAdmin(ReadOnly):
     list_display = ('street', 'city', 'state', 'zip_code')
     search_fields = ('street', 'city', 'state')
 
 
-class CompanyAdmin(ModelAdmin):
+class CompanyAdmin(ReadOnly):
     list_display = ('fantasy_name', 'social_reason', 'cnpj', 'type_of',)
     search_fields = ('fantasy_name', 'social_reason', 'cnpj', 'type_of',)
     list_filter = ('fantasy_name',)
