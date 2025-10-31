@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.core.exceptions import ValidationError
 from .mixins import ModelBasedMixin
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Address(ModelBasedMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -64,7 +65,11 @@ class BillingAccount(ModelBasedMixin):
     account_type = models.CharField(max_length=10, choices=AccountType.choices, editable=False)
     is_active = models.BooleanField(default=True)
 
-    classification = models.PositiveSmallIntegerField(editable=False)
+    classification = models.PositiveSmallIntegerField(
+        editable=False,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=1
+)
     code = models.CharField(max_length=30, unique=True, editable=False)
 
     def __str__(self):
@@ -137,3 +142,36 @@ class BillingAccount(ModelBasedMixin):
             self.code = self.generate_account_code()
         self.classification = self.get_level()
         super().save(*args, **kwargs)
+
+
+class Preset(ModelBasedMixin):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    payable_account = models.ForeignKey(BillingAccount, on_delete=models.PROTECT, related_name='payable_presets')
+    receivable_account = models.ForeignKey(BillingAccount, on_delete=models.PROTECT, related_name='receivable_presets')
+
+    def __str__(self):
+        return f"{self.name}"
+
+class Title(ModelBasedMixin):
+    class TitleType(models.TextChoices):
+        INCOME = 'income', 'Income'
+        EXPENSE = 'expense', 'Expense'
+
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    description = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    active = models.BooleanField(default=True)
+    recorrence = models.BooleanField(default=False)
+    expiration_date =  models.DateField()
+    recorrence_period = models.CharField(max_length=50, blank=True, null=True)
+    installments = models.PositiveIntegerField(blank=True, null=True)
+    fees_percentage_monthly = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0.00,
+        validators=[MinValueValidator(0.00), MaxValueValidator(1.00)]
+    )
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='titles')
+    type_of = models.CharField(max_length=10, choices=TitleType.choices)

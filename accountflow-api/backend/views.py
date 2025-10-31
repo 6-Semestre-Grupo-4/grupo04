@@ -6,9 +6,9 @@ from rest_framework import status
 
 
 # Modelos Personalizados
-from .models import Address, Company, BillingPlan, BillingAccount
+from .models import Address, Company, BillingPlan, BillingAccount, Preset, Title
 
-from .serializers import AddressSerializer, CompanySerializer, BillingPlanSerializer, BillingAccountSerializer
+from .serializers import AddressSerializer, CompanySerializer, BillingPlanSerializer, BillingAccountSerializer, PresetSerializer, TitleSerializer
 
 def get_object_by_pk(model, pk):
     try:
@@ -102,7 +102,7 @@ class BillingPlanDetail(APIView):
         item = get_object_by_pk(BillingPlan, pk)
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
 class BillingAccountList(APIView):
     def get(self, request, format=None):
         items = BillingAccount.objects.all()
@@ -114,7 +114,7 @@ class BillingAccountList(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 class BillingAccountDetail(APIView):
     def get(self, request, pk, format=None):
         item = get_object_by_pk(BillingAccount, pk)
@@ -131,3 +131,63 @@ class BillingAccountDetail(APIView):
         item = get_object_by_pk(BillingAccount, pk)
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class PresetList(APIView):
+    def get(self, request, format=None):
+        items = Preset.objects.all()
+        serializer = PresetSerializer(items, many=True)
+        return Response(serializer.data)
+    def post(self, request, format=None):
+        serializer = PresetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PresetDetail(APIView):
+    def get(self, request, pk, format=None):
+        item = get_object_by_pk(Preset, pk)
+        serializer = PresetSerializer(item)
+        return Response(serializer.data)
+    def put(self, request, pk, format=None):
+        item = get_object_by_pk(Preset, pk)
+        serializer = PresetSerializer(item, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, pk, format=None):
+        item = get_object_by_pk(Preset, pk)
+        item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class TitleList(APIView):
+    def get(self, request, format=None):
+        items = Title.objects.all()
+        serializer = TitleSerializer(items, many=True)
+        return Response(serializer.data)
+    def post(self, request, format=None):
+        serializer = TitleSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TitleDetail(APIView):
+    def get(self, request, pk, format=None):
+        item = get_object_by_pk(Title, pk)
+        serializer = TitleSerializer(item)
+        return Response(serializer.data)
+    def put(self, request, pk, format=None):
+        item = get_object_by_pk(Title, pk)
+        serializer = TitleSerializer(item, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, pk, format=None):
+        item = get_object_by_pk(Title, pk)
+        item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
