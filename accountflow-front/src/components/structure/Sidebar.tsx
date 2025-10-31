@@ -16,7 +16,7 @@ const menuItems = [
   { label: 'Início', icon: AiFillHome, href: `${route}home` },
   { label: 'Pessoas', icon: IoPeople, href: `${route}people` },
   { label: 'Empresas', icon: RiBuilding2Fill, href: `${route}company` },
-  { label: 'Plano de Contas', icon: MdOutlineAccountTree, href: `${route}account-plan` },
+  { label: 'Plano de Contas', icon: MdOutlineAccountTree, href: `${route}billing-plans` },
   { label: 'Usuários', icon: FaUserShield, href: `${route}access-management` },
   { label: 'Configurações', icon: FaCog, href: `${route}system-settings` },
 ];
