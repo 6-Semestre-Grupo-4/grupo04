@@ -1,0 +1,31 @@
+{
+  "name": "accountflow",
+  "version": "1.0.0",
+  "description": "Para manter nosso histórico de commits organizado e legível, usamos o [**Commitizen**](https://commitizen.github.io/cz-cli/) e as convenções do [**Conventional Commits**](https://www.conventionalcommits.org/pt-br/v1.0.0/).   Isso garante que todas as mensagens de commit sigam um padrão e facilita a geração de changelogs e o versionamento automático.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "commit": "git-cz"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/6-Semestre-Grupo-4/grupo04.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/6-Semestre-Grupo-4/grupo04/issues"
+  },
+  "homepage": "https://github.com/6-Semestre-Grupo-4/grupo04#readme",
+  "devDependencies": {
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

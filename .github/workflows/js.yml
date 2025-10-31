@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: ['main', 'dev']
+  pull_request:
+    branches: ['main', 'dev']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Code Quality
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install commitlint
+        run: |
+          npm install -g @commitlint/cli @commitlint/config-conventional
+          npm install -g prettier
+
+      - name: Create commitlint config
+        run: |
+          echo "extends: ['@commitlint/config-conventional']" > .commitlintrc.yaml
+
+      - name: Validate PR Commits with commitlint
+        if: github.event_name == 'pull_request'
+        run: |
+          npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+      - name: Validate Push Commits with commitlint
+        if: github.event_name == 'push'
+        run: |
+          npx commitlint --from ${{ github.event.before }} --to ${{ github.event.after }} --verbose
+
+      - name: Install Prettier
+        run: npm install -g prettier
+
+      - name: Create .prettierrc
+        run: |
+          echo '{
+            'singleQuote': true,
+            'trailingComma': 'all',
+            'semi': true,
+            'printWidth': 120,
+            'tabWidth': 2,
+            'endOfLine': 'auto'
+          }' > .prettierrc
+
+      - name: Create .prettierignore
+        run: |
+          echo 'node_modules\nbuild\ndist\n' > .prettierignore
+
+      - name: Run Prettier and show formatting diffs
+        run: |
+          prettier '**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}' --write
+          git diff --color --exit-code
