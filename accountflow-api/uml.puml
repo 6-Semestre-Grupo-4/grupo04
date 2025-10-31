@@ -1,0 +1,85 @@
+@startuml UML - AccountFlow
+
+title UML - AccountFlow
+header Grupo 04 | October 23, 2025
+
+' Configuração para layout ortogonal (linhas retas)
+skinparam linetype ortho
+
+' ===================================
+' CLASSES
+' ===================================
+
+class Address {
+    uuid: UUID
+    zip_code: String
+    street: String
+    number: String
+    complement: String
+    neighborhood: String
+    city: String
+    state: String
+}
+
+class Company {
+    uuid: UUID
+    CNPJ: String
+    fantasy_name: String
+    social_reason: String
+    opening_date: Date
+    logo: String
+    cnae: String
+    address: Address
+    type_of: ENUM ['Client', 'Supplier', 'Both']
+    email: String
+    phone: String
+}
+
+class BillingPlan {
+    uuid: UUID
+    name: String
+    description: String
+}
+
+class BillingAccount {
+    uuid: UUID
+    nome: String
+    account_type: TextChoices['analytic', 'synthetic']
+    classification: Integer
+    code: String
+    is_active: Boolean
+    company: Company
+    billingPlan: BillingPlan
+    parent: BillingAccount
+}
+
+
+class Title {
+    uuid: UUID
+    description: String
+    amount: Decimal
+    payable_billingAccount: BillingAccount
+    receivable_billingAccount: BillingAccount
+    expiration_date: Date
+    active: Boolean
+    recorrente: Boolean
+    recorrence_period: ENUM ['daily', 'weekly', 'monthly', 'yearly']
+    installments: Integer
+}
+
+class Entry {
+    uuid: UUID
+    title: Title
+    description: String
+    type_of: ENUM ['Income', 'Expense']
+    amount: Decimal
+    date: Date
+}
+
+Company "1" -- "1" Address
+Company "1" -- "1" BillingAccount : company
+BillingPlan "1" -- "0..*" BillingAccount
+BillingAccount "1" -- "0..*" BillingAccount : parent
+BillingAccount "1" -- "0..*" Title : payable/receivable
+Title "1" -- "0..*" Entry
+
