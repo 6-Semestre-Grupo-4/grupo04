@@ -7,6 +7,7 @@ services:
       - '3000:3000'
     volumes:
       - ./accountflow-front:/app
+      - /app/node_modules
 
   backend:
     build:
