@@ -62,7 +62,7 @@ class BillingAccount(ModelBasedMixin):
     company = models.ForeignKey('Company', on_delete=models.CASCADE, related_name='billing_accounts')
     billing_plan = models.ForeignKey('BillingPlan', on_delete=models.PROTECT, related_name='billing_accounts')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
-    account_type = models.CharField(max_length=10, choices=AccountType.choices, editable=False)
+    account_type = models.CharField(max_length=10, choices=AccountType.choices)
     is_active = models.BooleanField(default=True)
 
     classification = models.PositiveSmallIntegerField(
