@@ -97,11 +97,7 @@ export default function BillingAccountPage() {
     const payload = {
       name: newAccount.name.trim(),
       account_type:
-        newAccount.type_of === 'Analítica'
-          ? 'analytic'
-          : newAccount.type_of === 'Sintética'
-          ? 'synthetic'
-          : null,
+        newAccount.type_of === 'Analítica' ? 'analytic' : newAccount.type_of === 'Sintética' ? 'synthetic' : null,
       parent: newAccount.parentId || null,
       billing_plan: uuid,
       company: 'e546a54b-1191-4d55-829c-2d6dd74a6b85',
@@ -158,11 +154,7 @@ export default function BillingAccountPage() {
       name: account.name,
       parentId: account.parent || '',
       type_of:
-        account.account_type === 'analytic'
-          ? 'Analítica'
-          : account.account_type === 'synthetic'
-          ? 'Sintética'
-          : '',
+        account.account_type === 'analytic' ? 'Analítica' : account.account_type === 'synthetic' ? 'Sintética' : '',
       company: account.company,
     });
     setShowModal(true);
@@ -203,11 +195,7 @@ export default function BillingAccountPage() {
           </td>
           <td className="px-6 py-4">{acc.code || '-'}</td>
           <td className="px-6 py-4">
-            {acc.account_type === 'analytic'
-              ? 'Analítica'
-              : acc.account_type === 'synthetic'
-              ? 'Sintética'
-              : '-'}
+            {acc.account_type === 'analytic' ? 'Analítica' : acc.account_type === 'synthetic' ? 'Sintética' : '-'}
           </td>
           <td className="px-6 py-4 flex gap-3">
             <button onClick={() => openEditModal(acc)} className="text-primary hover:text-primary-900 cursor-pointer">
@@ -217,7 +205,7 @@ export default function BillingAccountPage() {
               <FiTrash2 size={16} />
             </button>
           </td>
-        </tr>
+        </tr>,
       );
 
       if (isExpanded && acc.billingAccount_parent) {
@@ -235,10 +223,19 @@ export default function BillingAccountPage() {
           <p className="text-gray-500">Gerencie as contas deste plano.</p>
         </div>
         <div className="flex gap-2">
-          <Button className='cursor-pointer bg-gray-200 hover:bg-gray-100 text-gray-700' onClick={() => router.push('/pages/billing-plans')}>
+          <Button
+            className="cursor-pointer bg-gray-200 hover:bg-gray-100 text-gray-700"
+            onClick={() => router.push('/pages/billing-plans')}
+          >
             Voltar
           </Button>
-          <Button className='bg-[#0b2034] hover:bg-[#12314d] cursor-pointer' onClick={() => { setEditingAccount(null); setShowModal(true); }}>
+          <Button
+            className="bg-[#0b2034] hover:bg-[#12314d] cursor-pointer"
+            onClick={() => {
+              setEditingAccount(null);
+              setShowModal(true);
+            }}
+          >
             Nova Conta
           </Button>
         </div>
@@ -270,18 +267,14 @@ export default function BillingAccountPage() {
 
       <Modal show={showModal} onClose={() => setShowModal(false)}>
         <div className="p-6 space-y-4">
-          <h2 className="text-xl font-bold text-gray-900">
-            {editingAccount ? 'Editar Conta' : 'Nova Conta'}
-          </h2>
+          <h2 className="text-xl font-bold text-gray-900">{editingAccount ? 'Editar Conta' : 'Nova Conta'}</h2>
 
           <div>
             <Label htmlFor="name">Descrição</Label>
             <TextInput
               id="name"
               value={newAccount.name}
-              onChange={(e) =>
-                setNewAccount((prev) => ({ ...prev, name: e.target.value.toUpperCase() }))
-              }
+              onChange={(e) => setNewAccount((prev) => ({ ...prev, name: e.target.value.toUpperCase() }))}
             />
           </div>
 
@@ -307,9 +300,7 @@ export default function BillingAccountPage() {
             <select
               id="type_of"
               value={newAccount.type_of}
-              onChange={(e) =>
-                setNewAccount((prev) => ({ ...prev, type_of: e.target.value as TypeOfAccount }))
-              }
+              onChange={(e) => setNewAccount((prev) => ({ ...prev, type_of: e.target.value as TypeOfAccount }))}
               className="w-full border rounded px-2 py-1"
             >
               <option value="">Selecione...</option>
@@ -319,10 +310,13 @@ export default function BillingAccountPage() {
           </div>
 
           <div className="flex justify-end gap-2 mt-4">
-            <Button className='bg-[#0b2034] hover:bg-[#12314d] text-white cursor-pointer' onClick={saveAccount}>
+            <Button className="bg-[#0b2034] hover:bg-[#12314d] text-white cursor-pointer" onClick={saveAccount}>
               {editingAccount ? 'Salvar Alterações' : 'Salvar'}
             </Button>
-            <Button className='bg-gray-200 hover:bg-gray-100 text-gray-700 cursor-pointer' onClick={() => setShowModal(false)}>
+            <Button
+              className="bg-gray-200 hover:bg-gray-100 text-gray-700 cursor-pointer"
+              onClick={() => setShowModal(false)}
+            >
               Cancelar
             </Button>
           </div>
@@ -341,13 +335,7 @@ export default function BillingAccountPage() {
         />
       )}
 
-      {toast && (
-        <ToastNotification
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {toast && <ToastNotification message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 }

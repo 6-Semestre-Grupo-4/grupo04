@@ -44,21 +44,14 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
         name: editing.name,
         parentId: editing.parent || '',
         type_of:
-          editing.account_type === 'analytic'
-            ? 'Analítica'
-            : editing.account_type === 'synthetic'
-            ? 'Sintética'
-            : '',
+          editing.account_type === 'analytic' ? 'Analítica' : editing.account_type === 'synthetic' ? 'Sintética' : '',
       });
     } else {
       setForm({ name: '', parentId: '', type_of: '' });
     }
   }, [editing]);
 
-  const generateParentOptions = (
-    list: BillingAccount[],
-    level = 0
-  ): { uuid: string; label: string }[] => {
+  const generateParentOptions = (list: BillingAccount[], level = 0): { uuid: string; label: string }[] => {
     const map: { uuid: string; label: string }[] = [];
     list.forEach((acc) => {
       map.push({ uuid: acc.uuid, label: `${'--'.repeat(level)} ${acc.name}` });
@@ -87,9 +80,7 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
   return (
     <Modal show={show} onClose={onClose}>
       <div className="p-6 space-y-4">
-        <h2 className="text-xl font-bold text-gray-900">
-          {editing ? 'Editar Conta Contábil' : 'Nova Conta Contábil'}
-        </h2>
+        <h2 className="text-xl font-bold text-gray-900">{editing ? 'Editar Conta Contábil' : 'Nova Conta Contábil'}</h2>
 
         <div>
           <Label htmlFor="name">Descrição</Label>
@@ -97,9 +88,7 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
             id="name"
             value={form.name}
             maxLength={255}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, name: e.target.value.toUpperCase() }))
-            }
+            onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value.toUpperCase() }))}
             placeholder="Ex: ATIVO CIRCULANTE"
           />
         </div>
@@ -109,9 +98,7 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
           <select
             id="parentId"
             value={form.parentId}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, parentId: e.target.value }))
-            }
+            onChange={(e) => setForm((prev) => ({ ...prev, parentId: e.target.value }))}
             className="w-full border rounded px-2 py-1"
           >
             <option value="">Nenhuma (Conta Principal)</option>

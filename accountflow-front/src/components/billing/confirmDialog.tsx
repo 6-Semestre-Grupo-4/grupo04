@@ -25,12 +25,7 @@ export default function ConfirmDialog({
   loading = false,
 }: ConfirmDialogProps) {
   return (
-    <Modal
-      show={show}
-      onClose={onCancel}
-      size="md"
-      className="!rounded-2xl"
-    >
+    <Modal show={show} onClose={onCancel} size="md" className="!rounded-2xl">
       <div className="p-6 space-y-5 text-center bg-white rounded-2xl shadow-lg border border-gray-200">
         <div className="flex justify-center">
           <HiExclamationTriangle className="h-14 w-14 text-yellow-400" />

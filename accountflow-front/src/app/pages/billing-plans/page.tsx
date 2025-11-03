@@ -35,7 +35,6 @@ export default function BillingPlansPage() {
 
   const handleSave = async (plan: { name: string; description: string }, uuid?: string) => {
     try {
-
       if (!plan.name.trim() || !plan.description.trim()) {
         setToast({ message: 'Preencha todos os campos obrigatórios.', type: 'warning' });
         return;
@@ -89,21 +88,18 @@ export default function BillingPlansPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Planos de Contas</h1>
           <p className="text-gray-500">Selecione um plano para gerenciar suas contas.</p>
         </div>
-        <Button className='bg-[#0b2034] hover:bg-[#12314d] dark:bg-[#0b2034] dark:hover:bg-[#12314d] cursor-pointer' onClick={handleNew}>
+        <Button
+          className="bg-[#0b2034] hover:bg-[#12314d] dark:bg-[#0b2034] dark:hover:bg-[#12314d] cursor-pointer"
+          onClick={handleNew}
+        >
           Novo Plano
         </Button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         {billingPlans.map((plan) => (
-          <div
-            key={plan.uuid}
-            className="relative p-4 bg-white shadow rounded-lg border hover:shadow-md transition"
-          >
-            <div
-              className="cursor-pointer"
-              onClick={() => router.push(`billing-plans/${plan.uuid}`)}
-            >
+          <div key={plan.uuid} className="relative p-4 bg-white shadow rounded-lg border hover:shadow-md transition">
+            <div className="cursor-pointer" onClick={() => router.push(`billing-plans/${plan.uuid}`)}>
               <h2 className="text-lg font-bold text-gray-900">{plan.name}</h2>
               <p className="text-gray-500 text-sm mt-1">{plan.description}</p>
             </div>
@@ -135,18 +131,11 @@ export default function BillingPlansPage() {
         ))}
 
         {billingPlans.length === 0 && (
-          <p className="text-gray-400 text-center col-span-full py-6">
-            Nenhum plano cadastrado ainda.
-          </p>
+          <p className="text-gray-400 text-center col-span-full py-6">Nenhum plano cadastrado ainda.</p>
         )}
       </div>
 
-      <BillingPlanForm
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        onSave={handleSave}
-        editing={editingPlan}
-      />
+      <BillingPlanForm show={showModal} onClose={() => setShowModal(false)} onSave={handleSave} editing={editingPlan} />
 
       {confirmDialog?.show && (
         <ConfirmDialog
@@ -161,13 +150,7 @@ export default function BillingPlansPage() {
         />
       )}
 
-      {toast && (
-        <ToastNotification
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {toast && <ToastNotification message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 }
