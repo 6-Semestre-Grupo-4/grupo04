@@ -1,38 +1,85 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Modal, Label, TextInput } from 'flowbite-react';
-
-type BillingPlan = {
-  uuid: string;
-  name: string;
-  description: string;
-};
+import { Button } from 'flowbite-react';
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
+import ToastNotification from '@/components/billing/toastNotification';
+import BillingPlanForm from '@/components/billing/billingPlanForm';
+import ConfirmDialog from '@/components/billing/confirmDialog';
+import { BillingPlan } from '@/types/billingPlan';
+import { getBillingPlans, saveBillingPlan, deleteBillingPlan } from '@/services/billingPlanService';
 
 export default function BillingPlansPage() {
   const router = useRouter();
-  const [billingPlans, setBillingPlans] = useState<BillingPlan[]>([
-    { uuid: 'plan-001', name: 'Plano Principal', description: 'Plano de contas padrão' },
-    { uuid: 'plan-002', name: 'Plano Secundário', description: 'Plano adicional para fornecedores' },
-  ]);
 
+  const [billingPlans, setBillingPlans] = useState<BillingPlan[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [newPlan, setNewPlan] = useState({ name: '', description: '' });
+  const [editingPlan, setEditingPlan] = useState<BillingPlan | null>(null);
 
-  const addPlan = () => {
-    if (!newPlan.name.trim()) {
-      alert('Informe o nome do plano.');
-      return;
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'warning' } | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{ show: boolean; uuid?: string } | null>(null);
+
+  const fetchPlans = async () => {
+    try {
+      const data = await getBillingPlans();
+      setBillingPlans(data);
+    } catch {
+      setToast({ message: 'Erro ao buscar planos.', type: 'error' });
     }
-    const plan: BillingPlan = {
-      uuid: crypto.randomUUID(),
-      name: newPlan.name,
-      description: newPlan.description,
-    };
-    setBillingPlans((prev) => [...prev, plan]);
-    setShowModal(false);
-    setNewPlan({ name: '', description: '' });
+  };
+
+  useEffect(() => {
+    fetchPlans();
+  }, []);
+
+  const handleSave = async (plan: { name: string; description: string }, uuid?: string) => {
+    try {
+
+      if (!plan.name.trim() || !plan.description.trim()) {
+        setToast({ message: 'Preencha todos os campos obrigatórios.', type: 'warning' });
+        return;
+      }
+
+      await saveBillingPlan(plan, uuid);
+      setToast({
+        message: uuid ? 'Plano atualizado com sucesso!' : 'Plano cadastrado com sucesso!',
+        type: 'success',
+      });
+
+      setShowModal(false);
+      setEditingPlan(null);
+      fetchPlans();
+    } catch {
+      setToast({ message: 'Erro ao salvar o plano.', type: 'error' });
+    }
+  };
+
+  const confirmDelete = (uuid: string) => {
+    setConfirmDialog({ show: true, uuid });
+  };
+
+  const handleDelete = async () => {
+    if (!confirmDialog?.uuid) return;
+    try {
+      await deleteBillingPlan(confirmDialog.uuid);
+      setToast({ message: 'Plano excluído com sucesso!', type: 'success' });
+      fetchPlans();
+    } catch {
+      setToast({ message: 'Erro ao excluir o plano.', type: 'error' });
+    } finally {
+      setConfirmDialog(null);
+    }
+  };
+
+  const handleEdit = (plan: BillingPlan) => {
+    setEditingPlan(plan);
+    setShowModal(true);
+  };
+
+  const handleNew = () => {
+    setEditingPlan(null);
+    setShowModal(true);
   };
 
   return (
@@ -42,7 +89,7 @@ export default function BillingPlansPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Planos de Contas</h1>
           <p className="text-gray-500">Selecione um plano para gerenciar suas contas.</p>
         </div>
-        <Button color="blue" onClick={() => setShowModal(true)}>
+        <Button className='bg-[#0b2034] hover:bg-[#12314d] dark:bg-[#0b2034] dark:hover:bg-[#12314d] cursor-pointer' onClick={handleNew}>
           Novo Plano
         </Button>
       </div>
@@ -51,44 +98,76 @@ export default function BillingPlansPage() {
         {billingPlans.map((plan) => (
           <div
             key={plan.uuid}
-            className="p-4 bg-white shadow rounded-lg hover:shadow-md cursor-pointer border"
-            onClick={() => router.push(`billing-plans/${plan.uuid}`)}
+            className="relative p-4 bg-white shadow rounded-lg border hover:shadow-md transition"
           >
-            <h2 className="text-lg font-bold text-gray-900">{plan.name}</h2>
-            <p className="text-gray-500 text-sm mt-1">{plan.description}</p>
+            <div
+              className="cursor-pointer"
+              onClick={() => router.push(`billing-plans/${plan.uuid}`)}
+            >
+              <h2 className="text-lg font-bold text-gray-900">{plan.name}</h2>
+              <p className="text-gray-500 text-sm mt-1">{plan.description}</p>
+            </div>
+
+            <div className="absolute top-3 right-3 flex gap-3">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEdit(plan);
+                }}
+                className="text-primary hover:text-primary-900 cursor-pointer"
+                title="Editar"
+              >
+                <FiEdit2 size={16} />
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  confirmDelete(plan.uuid);
+                }}
+                className="text-red-600 hover:text-red-800 cursor-pointer"
+                title="Excluir"
+              >
+                <FiTrash2 size={16} />
+              </button>
+            </div>
           </div>
         ))}
+
+        {billingPlans.length === 0 && (
+          <p className="text-gray-400 text-center col-span-full py-6">
+            Nenhum plano cadastrado ainda.
+          </p>
+        )}
       </div>
 
-      {/* Modal de criação de novo plano */}
-      <Modal show={showModal} onClose={() => setShowModal(false)}>
-        <div className="p-6 space-y-4">
-          <h2 className="text-xl font-bold text-gray-900">Novo Plano de Contas</h2>
+      <BillingPlanForm
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        onSave={handleSave}
+        editing={editingPlan}
+      />
 
-          <div>
-            <Label htmlFor="planName">Nome</Label>
-            <TextInput
-              id="planName"
-              value={newPlan.name}
-              onChange={(e) => setNewPlan((prev) => ({ ...prev, name: e.target.value }))}
-            />
-          </div>
+      {confirmDialog?.show && (
+        <ConfirmDialog
+          show={confirmDialog.show}
+          title="Excluir plano de contas"
+          message="Tem certeza que deseja excluir este plano? Esta ação não poderá ser desfeita."
+          confirmText="Excluir"
+          cancelText="Cancelar"
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDialog(null)}
+          loading={false}
+        />
+      )}
 
-          <div>
-            <Label htmlFor="planDesc">Descrição</Label>
-            <TextInput
-              id="planDesc"
-              value={newPlan.description}
-              onChange={(e) => setNewPlan((prev) => ({ ...prev, description: e.target.value }))}
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 mt-4">
-            <Button color="blue" onClick={addPlan}>Salvar</Button>
-            <Button color="gray" onClick={() => setShowModal(false)}>Cancelar</Button>
-          </div>
-        </div>
-      </Modal>
+      {toast && (
+        <ToastNotification
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
