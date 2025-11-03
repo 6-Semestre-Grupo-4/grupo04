@@ -7,10 +7,18 @@ import { getBillingAccounts } from '@/services/billingAccountSevice';
 
 type TypeOfAccount = 'Sintética' | 'Analítica' | '';
 
+type BillingAccountPayload = {
+  name: string;
+  account_type: 'analytic' | 'synthetic';
+  parent: string | null;
+  billing_plan: string;
+  company: string;
+};
+
 type Props = {
   show: boolean;
   onClose: () => void;
-  onSave: (data: any, uuid?: string) => void;
+  onSave: (data: BillingAccountPayload, uuid?: string) => void;
   editing?: BillingAccount | null;
   planId: string;
 };
@@ -65,7 +73,7 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
   const handleSave = () => {
     if (!form.name.trim() || !form.type_of) return;
 
-    const payload = {
+    const payload: BillingAccountPayload = {
       name: form.name.trim(),
       account_type: form.type_of === 'Analítica' ? 'analytic' : 'synthetic',
       parent: form.parentId || null,
