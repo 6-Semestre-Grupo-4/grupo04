@@ -22,7 +22,6 @@ class Company(ModelBasedMixin):
         CLIENT = 'Client', 'Client'
         SUPPLIER = 'Supplier', 'Supplier'
 
-
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     cnpj = models.CharField(max_length=20, unique=True)
     fantasy_name = models.CharField(max_length=255)
@@ -59,18 +58,16 @@ class BillingAccount(ModelBasedMixin):
 
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
-    company = models.ForeignKey('Company', on_delete=models.CASCADE, related_name='billing_accounts')
     billing_plan = models.ForeignKey('BillingPlan', on_delete=models.PROTECT, related_name='billing_accounts')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     account_type = models.CharField(max_length=10, choices=AccountType.choices)
     is_active = models.BooleanField(default=True)
 
-    classification = models.PositiveSmallIntegerField(
-        editable=False,
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
-        default=1
-)
-    code = models.CharField(max_length=30, unique=True, editable=False)
+    classification = models.PositiveSmallIntegerField(editable=False)
+    code = models.CharField(max_length=30, editable=False)
+
+    class Meta:
+        unique_together = ('billing_plan', 'code') 
 
     def __str__(self):
         return f'{self.code} - {self.name}'
@@ -100,7 +97,11 @@ class BillingAccount(ModelBasedMixin):
         parent_code = self.parent.code
 
         #Contando os niveis
-        siblings = BillingAccount.objects.filter(parent=self.parent).count() +1
+        siblings = (
+            BillingAccount.objects.filter(
+                parent=self.parent
+            ).count() +1
+        )
 
         #Calcular a hierarquia dinamicamente
         level = self.get_level()
@@ -113,11 +114,8 @@ class BillingAccount(ModelBasedMixin):
         super().clean()
 
             # Coerência entre empresa e plano
-        if self.parent:
-            if self.parent.company != self.company:
-                raise ValidationError("A conta pai pertence a outra empresa.")
-            if self.parent.billing_plan != self.billing_plan:
-                raise ValidationError("A conta pai pertence a outro plano de contas.")
+        if self.parent and self.parent.billing_plan != self.billing_plan:
+            raise ValidationError("A conta pai pertence a outro plano de contas.")
 
         # Calcula nível e valida limite de level
         self.classification = self.get_level()
@@ -141,8 +139,7 @@ class BillingAccount(ModelBasedMixin):
         if not self.code:
             self.code = self.generate_account_code()
         self.classification = self.get_level()
-        super().save(*args, **kwargs)
-
+        super().save(*args, **kwargs)   
 
 class Preset(ModelBasedMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

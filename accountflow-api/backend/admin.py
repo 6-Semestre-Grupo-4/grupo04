@@ -23,8 +23,8 @@ class BillingPlanAdmin(ReadOnly):
     list_filter=('name',)
 
 class BillingAccountAdmin(ReadOnly):
-    list_display=('name', 'billing_plan_id', 'company_id', 'account_type', 'parent', 'is_active')
-    search_fields=('name', 'billing_plan_id', 'company_id', 'account_type', 'parent', 'is_active')
+    list_display=('name', 'billing_plan_id', 'account_type', 'parent', 'is_active')
+    search_fields=('name', 'billing_plan_id', 'account_type', 'parent', 'is_active')
     list_filter=('name', 'account_type')
     readonly_fields=('code','classification')
 
