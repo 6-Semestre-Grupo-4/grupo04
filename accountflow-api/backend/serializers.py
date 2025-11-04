@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User, Group, Permission
-from django.contrib.contenttypes.models import ContentType
 from .models import (
     Address,
     Company,
     BillingPlan,
     BillingAccount,
+    Preset,
+    Title,
 )
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -19,11 +19,21 @@ class CompanySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class BillingPlanSerializer(serializers.ModelSerializer):
-    class Meta: 
+    class Meta:
         model = BillingPlan
         fields = '__all__'
 
 class BillingAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = BillingAccount
+        fields = '__all__'
+
+class PresetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Preset
+        fields = '__all__'
+
+class TitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Title
         fields = '__all__'

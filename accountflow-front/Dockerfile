@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["npx", "next", "dev"]
+CMD ["npx", "next", "dev", "--turbopack", "-H", "0.0.0.0"]
