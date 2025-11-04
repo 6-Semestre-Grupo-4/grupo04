@@ -19,8 +19,13 @@ class BillingPlanAdmin(ModelAdmin):
     list_filter=('name',)
 
 class BillingAccountAdmin(ModelAdmin):
+<<<<<<< HEAD
     list_display=('name', 'billing_plan_id', 'company_id', 'account_type', 'parent', 'is_active')
     search_fields=('name', 'billing_plan_id', 'company_id', 'account_type', 'parent', 'is_active')
+=======
+    list_display=('name', 'billing_plan_id', 'account_type', 'parent', 'is_active')
+    search_fields=('name', 'billing_plan_id', 'account_type', 'parent', 'is_active')
+>>>>>>> billing-account-model
     list_filter=('name', 'account_type')
     readonly_fields=('code','classification')
 
