@@ -8,6 +8,8 @@ import { MdAccountTree } from 'react-icons/md';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import ToastNotification from '@/components/billing/toastNotification';
 import ConfirmDialog from '@/components/billing/confirmDialog';
+// ALTERADO: Importar todas as funções necessárias do serviço
+import { getBillingAccounts, saveBillingAccount, deleteBillingAccount } from '@/services/billingAccountSevice';
 
 type TypeOfAccount = 'Sintética' | 'Analítica' | '';
 
@@ -30,26 +32,19 @@ export default function BillingAccountPage() {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [showModal, setShowModal] = useState(false);
   const [editingAccount, setEditingAccount] = useState<BillingAccount | null>(null);
-
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'warning' } | null>(null);
-
   const [confirmDialog, setConfirmDialog] = useState<{ show: boolean; accountId?: string } | null>(null);
 
   const [newAccount, setNewAccount] = useState({
     name: '',
     parentId: '',
     type_of: '' as TypeOfAccount,
-    company: 'company-001',
   });
-
-  const API_URL = 'http://localhost:8000/api/v1/billing-account/';
 
   const fetchAccounts = async () => {
     if (!uuid) return;
     try {
-      const res = await fetch(`${API_URL}?billing_plan_id=${uuid}`);
-      if (!res.ok) throw new Error('Erro ao buscar contas');
-      const data: BillingAccount[] = await res.json();
+      const data: BillingAccount[] = await getBillingAccounts(uuid);
       setAccounts(buildTree(data));
     } catch (err) {
       console.error(err);
@@ -62,6 +57,7 @@ export default function BillingAccountPage() {
   }, [uuid]);
 
   const buildTree = (flatList: BillingAccount[]): BillingAccount[] => {
+    // ... (Sua função buildTree está correta, sem alterações) ...
     const map: Record<string, BillingAccount> = {};
     const roots: BillingAccount[] = [];
 
@@ -76,7 +72,6 @@ export default function BillingAccountPage() {
         roots.push(map[item.uuid]);
       }
     });
-
     return roots;
   };
 
@@ -96,29 +91,22 @@ export default function BillingAccountPage() {
 
     const payload = {
       name: newAccount.name.trim(),
-      account_type:
-        newAccount.type_of === 'Analítica' ? 'analytic' : newAccount.type_of === 'Sintética' ? 'synthetic' : null,
+      account_type: (newAccount.type_of === 'Analítica' ? 'analytic' : 'synthetic') as 'analytic' | 'synthetic',
       parent: newAccount.parentId || null,
       billing_plan: uuid,
-      company: 'e546a54b-1191-4d55-829c-2d6dd74a6b85',
     };
 
     try {
-      const method = editingAccount ? 'PUT' : 'POST';
-      const url = editingAccount ? `${API_URL}${editingAccount.uuid}/` : API_URL;
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error(`Erro ${res.status}`);
+      if (editingAccount) {
+        await saveBillingAccount(payload, editingAccount.uuid);
+      } else {
+        await saveBillingAccount(payload);
+      }
 
       setShowModal(false);
       setEditingAccount(null);
       setNewAccount({ name: '', parentId: '', type_of: '', company: newAccount.company });
-      fetchAccounts();
+      fetchAccounts(); // Recarrega os dados
       setToast({
         message: editingAccount ? 'Conta atualizada com sucesso!' : 'Conta cadastrada com sucesso!',
         type: 'success',
@@ -133,12 +121,14 @@ export default function BillingAccountPage() {
     setConfirmDialog({ show: true, accountId });
   };
 
+  // ALTERADO: handleDelete agora usa 'deleteBillingAccount' do serviço
   const handleDelete = async () => {
     if (!confirmDialog?.accountId) return;
     try {
-      const res = await fetch(`${API_URL}${confirmDialog.accountId}/`, { method: 'DELETE' });
-      if (!res.ok) throw new Error(`Erro ${res.status}`);
-      fetchAccounts();
+      // Usa a função do serviço (axios) que já envia o token
+      await deleteBillingAccount(confirmDialog.accountId);
+
+      fetchAccounts(); // Recarrega os dados
       setToast({ message: 'Conta excluída com sucesso!', type: 'success' });
     } catch (err) {
       console.error(err);
@@ -149,6 +139,7 @@ export default function BillingAccountPage() {
   };
 
   const openEditModal = (account: BillingAccount) => {
+    // ... (Sua função openEditModal está correta, sem alterações) ...
     setEditingAccount(account);
     setNewAccount({
       name: account.name,
@@ -161,6 +152,7 @@ export default function BillingAccountPage() {
   };
 
   const generateParentOptions = (accountList: BillingAccount[], level = 0): { uuid: string; label: string }[] => {
+    // ... (Sua função generateParentOptions está correta, sem alterações) ...
     let options: { uuid: string; label: string }[] = [];
     accountList.forEach((acc) => {
       options.push({ uuid: acc.uuid, label: `${'--'.repeat(level)} ${acc.name}` });
@@ -172,6 +164,7 @@ export default function BillingAccountPage() {
   };
 
   const renderRows = (accountList: BillingAccount[], level: number): React.ReactNode[] => {
+    // ... (Sua função renderRows está correta, sem alterações) ...
     const rows: React.ReactNode[] = [];
     accountList.forEach((acc) => {
       const isExpanded = expandedRows.has(acc.uuid);
@@ -216,6 +209,7 @@ export default function BillingAccountPage() {
   };
 
   return (
+    // ... (Todo o seu JSX está correto, sem alterações) ...
     <div className="container mx-auto p-6">
       <div className="mb-4 flex items-center justify-between">
         <div>
@@ -233,6 +227,7 @@ export default function BillingAccountPage() {
             className="bg-[#0b2034] hover:bg-[#12314d] cursor-pointer"
             onClick={() => {
               setEditingAccount(null);
+              setNewAccount({ name: '', parentId: '', type_of: '', company: 'company-001' }); // Resetar o formulário
               setShowModal(true);
             }}
           >

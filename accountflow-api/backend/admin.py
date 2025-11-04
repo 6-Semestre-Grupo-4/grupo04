@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
+from backend.forms import BillingAccountForm
 from backend.models import Address, Company, BillingPlan, BillingAccount, Preset, Title
 
 class ReadOnly(ModelAdmin):
@@ -21,6 +22,7 @@ class BillingPlanAdmin(ReadOnly):
     list_display=('name', 'description')
     search_fields=('name',)
     list_filter=('name',)
+
 
 class BillingAccountAdmin(ReadOnly):
     list_display=('name', 'billing_plan_id', 'account_type', 'parent', 'is_active')

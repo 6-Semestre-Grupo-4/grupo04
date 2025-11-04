@@ -58,7 +58,7 @@ class BillingAccount(ModelBasedMixin):
 
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
-    billing_plan = models.ForeignKey('BillingPlan', on_delete=models.PROTECT, related_name='billing_accounts')
+    billing_plan = models.ForeignKey('BillingPlan', on_delete=models.PROTECT, related_name='billing_plan')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     account_type = models.CharField(max_length=10, choices=AccountType.choices)
     is_active = models.BooleanField(default=True)
