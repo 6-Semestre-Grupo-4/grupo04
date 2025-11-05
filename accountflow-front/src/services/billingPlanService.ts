@@ -1,25 +1,50 @@
-const API_URL = 'http://localhost:8000/api/v1/billing-plan/';
+// Importe sua instância configurada do Axios
+import api from '@/services/api';
+
+type BillingPlanPayload = {
+  name: string;
+  description: string;
+};
+
+// URL do endpoint (sem o domínio, que já está no 'api')
+const ENDPOINT_URL = 'billing-plan/';
 
 export async function getBillingPlans() {
-  const res = await fetch(API_URL);
-  if (!res.ok) throw new Error('Erro ao buscar planos');
-  return res.json();
+  try {
+    // 1. Use api.get()
+    // 2. A resposta já vem em res.data
+    const res = await api.get(ENDPOINT_URL);
+    return res.data;
+  } catch (error) {
+    console.error('Erro ao buscar planos:', error);
+    throw new Error('Erro ao buscar planos');
+  }
 }
 
-export async function saveBillingPlan(plan: { name: string; description: string }, uuid?: string) {
-  const url = uuid ? `${API_URL}${uuid}/` : API_URL;
-  const method = uuid ? 'PUT' : 'POST';
-
-  const res = await fetch(url, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(plan),
-  });
-  if (!res.ok) throw new Error('Erro ao salvar plano');
-  return res.json();
+export async function saveBillingPlan(plan: BillingPlanPayload, uuid?: string) {
+  try {
+    if (uuid) {
+      // 3. Use api.put() para atualizar
+      const res = await api.put(`${ENDPOINT_URL}${uuid}/`, plan);
+      return res.data;
+    } else {
+      // 4. Use api.post() para criar
+      const res = await api.post(ENDPOINT_URL, plan);
+      return res.data;
+    }
+  } catch (error) {
+    console.error('Erro ao salvar plano:', error);
+    throw new Error('Erro ao salvar plano');
+  }
 }
 
 export async function deleteBillingPlan(uuid: string) {
-  const res = await fetch(`${API_URL}${uuid}/`, { method: 'DELETE' });
-  if (!res.ok) throw new Error('Erro ao excluir plano');
+  try {
+    // 5. Use api.delete()
+    //    Não há 'return' pois o DELETE retorna 204 No Content
+    await api.delete(`${ENDPOINT_URL}${uuid}/`);
+  } catch (error) {
+    console.error('Erro ao excluir plano:', error);
+    throw new Error('Erro ao excluir plano');
+  }
 }

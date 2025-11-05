@@ -1,9 +1,10 @@
 from django.http import Http404
-from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status
 
-
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
 
 # Modelos Personalizados
 from .models import Address, Company, BillingPlan, BillingAccount, Preset, Title
@@ -16,26 +17,36 @@ def get_object_by_pk(model, pk):
     except model.DoesNotExist:
         raise Http404
 
-class AddressList(APIView):
+class AddressList(GenericAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [DjangoModelPermissions]
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+
     def get(self, request, format=None):
-        items = Address.objects.all()
-        serializer = AddressSerializer(items, many=True)
+        items = self.get_queryset()
+        serializer = self.serializer_class(items, many=True)
         return Response(serializer.data)
     def post(self, request, format=None):
-        serializer = AddressSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class AddressDetail(APIView):
+class AddressDetail(GenericAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [DjangoModelPermissions]
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+
     def get(self, request, pk, format=None):
         item = get_object_by_pk(Address, pk)
-        serializer = AddressSerializer(item)
+        serializer = self.serializer_class(item)
         return Response(serializer.data)
     def put(self, request, pk, format=None):
         item = get_object_by_pk(Address, pk)
-        serializer = AddressSerializer(item, data=request.data)
+        serializer = self.serializer_class(item, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -45,26 +56,36 @@ class AddressDetail(APIView):
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class CompanyList(APIView):
+class CompanyList(GenericAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [DjangoModelPermissions]
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+
     def get(self, request, format=None):
-        items = Company.objects.all()
-        serializer = CompanySerializer(items, many=True)
+        items = self.get_queryset()
+        serializer = self.serializer_class(items, many=True)
         return Response(serializer.data)
     def post(self, request, format=None):
-        serializer = CompanySerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class CompanyDetail(APIView):
+class CompanyDetail(GenericAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [DjangoModelPermissions]
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+
     def get(self, request, pk, format=None):
         item = get_object_by_pk(Company, pk)
-        serializer = CompanySerializer(item)
+        serializer = self.serializer_class(item)
         return Response(serializer.data)
     def put(self, request, pk, format=None):
         item = get_object_by_pk(Company, pk)
-        serializer = CompanySerializer(item, data=request.data)
+        serializer = self.serializer_class(item, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -74,26 +95,36 @@ class CompanyDetail(APIView):
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class BillingPlanList(APIView):
+class BillingPlanList(GenericAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [DjangoModelPermissions]
+    queryset = BillingPlan.objects.all()
+    serializer_class = BillingPlanSerializer
+
     def get(self, request, format=None):
-        items = BillingPlan.objects.all()
-        serializer = BillingPlanSerializer(items, many=True)
+        items = self.get_queryset()
+        serializer = self.serializer_class(items, many=True)
         return Response(serializer.data)
     def post(self, request, format=None):
-        serializer = BillingPlanSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class BillingPlanDetail(APIView):
+class BillingPlanDetail(GenericAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [DjangoModelPermissions]
+    queryset = BillingPlan.objects.all()
+    serializer_class = BillingPlanSerializer
+
     def get(self, request, pk, format=None):
         item = get_object_by_pk(BillingPlan, pk)
-        serializer = BillingPlanSerializer(item)
+        serializer = self.serializer_class(item)
         return Response(serializer.data)
     def put(self, request, pk, format=None):
         item = get_object_by_pk(BillingPlan, pk)
-        serializer = BillingPlanSerializer(item, data=request.data)
+        serializer = self.serializer_class(item, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -103,26 +134,36 @@ class BillingPlanDetail(APIView):
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class BillingAccountList(APIView):
+class BillingAccountList(GenericAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [DjangoModelPermissions]
+    queryset = BillingAccount.objects.all()
+    serializer_class = BillingAccountSerializer
+
     def get(self, request, format=None):
-        items = BillingAccount.objects.all()
-        serializer = BillingAccountSerializer(items, many=True)
+        items = self.get_queryset()
+        serializer = self.serializer_class(items, many=True)
         return Response(serializer.data)
     def post(self, request, format=None):
-        serializer = BillingAccountSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class BillingAccountDetail(APIView):
+class BillingAccountDetail(GenericAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [DjangoModelPermissions]
+    queryset = BillingAccount.objects.all()
+    serializer_class = BillingAccountSerializer
+
     def get(self, request, pk, format=None):
         item = get_object_by_pk(BillingAccount, pk)
-        serializer = BillingAccountSerializer(item)
+        serializer = self.serializer_class(item)
         return Response(serializer.data)
     def put(self, request, pk, format=None):
         item= get_object_by_pk(BillingAccount, pk)
-        serializer = BillingAccountSerializer(item, data=request.data)
+        serializer = self.serializer_class(item, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -132,26 +173,47 @@ class BillingAccountDetail(APIView):
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class PresetList(APIView):
+class BillingAccountListDetail(GenericAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    queryset = BillingAccount.objects.all()
+    serializer_class = BillingAccountSerializer
+
+    def get(self, request, pk, format=None):
+        items = self.get_queryset().filter(billing_plan=pk)
+        serializer = self.serializer_class(items, many=True)
+        return Response(serializer.data)
+
+class PresetList(GenericAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [DjangoModelPermissions]
+    queryset = Preset.objects.all()
+    serializer_class = PresetSerializer
+
     def get(self, request, format=None):
-        items = Preset.objects.all()
-        serializer = PresetSerializer(items, many=True)
+        items = self.get_queryset()
+        serializer = self.serializer_class(items, many=True)
         return Response(serializer.data)
     def post(self, request, format=None):
-        serializer = PresetSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class PresetDetail(APIView):
+class PresetDetail(GenericAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [DjangoModelPermissions]
+    queryset = Preset.objects.all()
+    serializer_class = PresetSerializer
+
     def get(self, request, pk, format=None):
         item = get_object_by_pk(Preset, pk)
-        serializer = PresetSerializer(item)
+        serializer = self.serializer_class(item)
         return Response(serializer.data)
     def put(self, request, pk, format=None):
         item = get_object_by_pk(Preset, pk)
-        serializer = PresetSerializer(item, data=request.data)
+        serializer = self.serializer_class(item, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -161,27 +223,37 @@ class PresetDetail(APIView):
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class TitleList(APIView):
+class TitleList(GenericAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [DjangoModelPermissions]
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+
     def get(self, request, format=None):
-        items = Title.objects.all()
-        serializer = TitleSerializer(items, many=True)
+        items = self.get_queryset()
+        serializer = self.serializer_class(items, many=True)
         return Response(serializer.data)
     def post(self, request, format=None):
-        serializer = TitleSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TitleDetail(APIView):
+class TitleDetail(GenericAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [DjangoModelPermissions]
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+
     def get(self, request, pk, format=None):
         item = get_object_by_pk(Title, pk)
-        serializer = TitleSerializer(item)
+        serializer = self.serializer_class(item)
         return Response(serializer.data)
     def put(self, request, pk, format=None):
         item = get_object_by_pk(Title, pk)
-        serializer = TitleSerializer(item, data=request.data)
+        serializer = self.serializer_class(item, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -191,3 +263,22 @@ class TitleDetail(APIView):
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+class LogoutView(GenericAPIView):
+    """
+    View para fazer logout e invalidar o token do usuário.
+    """
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        try:
+            # Simplesmente deleta o token de autenticação do usuário
+            request.user.auth_token.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            # Trata qualquer erro inesperado
+            return Response(
+                {"error": "Failed to logout"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
