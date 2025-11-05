@@ -144,4 +144,15 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # Define TokenAuthentication como o padrão global
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        # Exige que todos os usuários estejam logados por padrão
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
+
 from .jazzmin import *
