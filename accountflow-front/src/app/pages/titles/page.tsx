@@ -1,5 +1,8 @@
 'use client';
 
+
+
+
 import { useState, useEffect } from 'react';
 import { Button, Badge, TextInput } from 'flowbite-react';
 import { HiPlus, HiSearch } from 'react-icons/hi';
@@ -9,6 +12,7 @@ import TitleForm from '@/components/titles/TitleForm';
 import ConfirmDialog from '@/components/billing/confirmDialog';
 import { Title } from '@/types/title';
 import { getTitles, saveTitle, deleteTitle, getCompanies } from '@/services/titleService';
+import { Company } from '@/types/company';
 
 const getStatusBadge = (active: boolean) =>
   active ? (
@@ -27,7 +31,7 @@ const getTypeLabel = (type: string) => (type === 'income' ? 'Receita' : type ===
 
 export default function TitlesPage() {
   const [titles, setTitles] = useState<Title[]>([]);
-  const [companies, setCompanies] = useState<any[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingTitle, setEditingTitle] = useState<Title | null>(null);
   const [searchTerm, setSearchTerm] = useState('');

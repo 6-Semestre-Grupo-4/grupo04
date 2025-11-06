@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react';
 import { Label, TextInput, Button } from 'flowbite-react';
 import { FiRepeat, FiDollarSign, FiCalendar, FiType, FiAlertTriangle } from 'react-icons/fi';
 import { Title } from '@/types/title';
+import { Company } from '@/types/company';
 
 interface TitleFormProps {
   show: boolean;
   onClose: () => void;
   onSave: (title: any, uuid?: string) => void;
   title?: Title | null;
-  companies: any[];
+  companies: Company[];
 }
 
 export default function TitleForm({ show, onClose, onSave, title, companies }: TitleFormProps) {

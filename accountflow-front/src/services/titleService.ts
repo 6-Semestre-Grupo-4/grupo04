@@ -1,3 +1,4 @@
+import { Company } from '@/types/company';
 import api from './api';
 import { Title } from '@/types/title';
 
@@ -20,7 +21,7 @@ export const deleteTitle = async (uuid: string): Promise<void> => {
   await api.delete(`/title/${uuid}/`);
 };
 
-export const getCompanies = async (): Promise<any[]> => {
+export const getCompanies = async (): Promise<Company[]> => {
   const response = await api.get('/company/');
   return response.data;
 };
