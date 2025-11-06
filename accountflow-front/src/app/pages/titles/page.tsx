@@ -1,8 +1,5 @@
 'use client';
 
-
-
-
 import { useState, useEffect } from 'react';
 import { Button, Badge, TextInput } from 'flowbite-react';
 import { HiPlus, HiSearch } from 'react-icons/hi';

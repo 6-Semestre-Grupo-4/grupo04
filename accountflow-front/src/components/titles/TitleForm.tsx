@@ -131,7 +131,9 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
                     id="company"
                     value={form.company}
                     onChange={(e) => setForm({ ...form, company: e.target.value })}
-                    className={`custom-select ${companies.length === 0 ? 'loading' : ''} ${!form.company && toast ? 'error' : ''}`}
+                    className={`custom-select ${companies.length === 0 ? 'loading' : ''} ${
+                      !form.company && toast ? 'error' : ''
+                    }`}
                     data-placeholder={!form.company ? 'true' : 'false'}
                     required
                   >
