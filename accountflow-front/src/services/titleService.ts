@@ -7,7 +7,7 @@ export const getTitles = async (): Promise<Title[]> => {
   return response.data;
 };
 
-export const saveTitle = async (title: any, uuid?: string): Promise<Title> => {
+export const saveTitle = async (title: Title, uuid?: string): Promise<Title> => {
   if (uuid) {
     const response = await api.put(`/title/${uuid}/`, title);
     return response.data;

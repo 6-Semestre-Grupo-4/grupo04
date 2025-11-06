@@ -66,7 +66,7 @@ export default function TitlesPage() {
     fetchCompanies();
   }, []);
 
-  const handleSave = async (title: any, uuid?: string) => {
+  const handleSave = async (title: Title, uuid?: string) => {
     try {
       await saveTitle(title, uuid);
       setToast({

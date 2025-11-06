@@ -9,7 +9,7 @@ import { Company } from '@/types/company';
 interface TitleFormProps {
   show: boolean;
   onClose: () => void;
-  onSave: (title: any, uuid?: string) => void;
+  onSave: (title: Title, uuid?: string) => void;
   title?: Title | null;
   companies: Company[];
 }
