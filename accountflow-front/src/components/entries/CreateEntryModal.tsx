@@ -24,14 +24,14 @@ export function CreateEntryModal({ isOpen, onClose, onSave, titles }: CreateEntr
     description: '',
     type_of: 'Income',
     amount: 0,
-    date: ''
+    date: '',
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'number' ? Number(value) : value
+      [name]: type === 'number' ? Number(value) : value,
     }));
   };
 
@@ -44,7 +44,7 @@ export function CreateEntryModal({ isOpen, onClose, onSave, titles }: CreateEntr
       description: '',
       type_of: 'Income',
       amount: 0,
-      date: ''
+      date: '',
     });
   };
 
@@ -52,24 +52,16 @@ export function CreateEntryModal({ isOpen, onClose, onSave, titles }: CreateEntr
     <Modal show={isOpen} onClose={onClose}>
       <form onSubmit={handleSubmit} className="p-6">
         <div className="mb-6">
-          <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-4">
-            Novo Lançamento
-          </h3>
-          
+          <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-4">Novo Lançamento</h3>
+
           <div className="space-y-6">
             <div>
               <div className="mb-2 block">
                 <Label htmlFor="title">Título</Label>
               </div>
-              <Select
-                id="title"
-                name="title"
-                required
-                value={formData.title}
-                onChange={handleInputChange}
-              >
+              <Select id="title" name="title" required value={formData.title} onChange={handleInputChange}>
                 <option value="">Selecione um título</option>
-                {titles.map(title => (
+                {titles.map((title) => (
                   <option key={title.uuid} value={title.uuid}>
                     {title.description}
                   </option>
@@ -95,13 +87,7 @@ export function CreateEntryModal({ isOpen, onClose, onSave, titles }: CreateEntr
               <div className="mb-2 block">
                 <Label htmlFor="type_of">Tipo</Label>
               </div>
-              <Select
-                id="type_of"
-                name="type_of"
-                required
-                value={formData.type_of}
-                onChange={handleInputChange}
-              >
+              <Select id="type_of" name="type_of" required value={formData.type_of} onChange={handleInputChange}>
                 <option value="Income">Receita</option>
                 <option value="Expense">Despesa</option>
               </Select>

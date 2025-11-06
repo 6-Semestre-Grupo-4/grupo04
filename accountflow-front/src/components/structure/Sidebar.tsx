@@ -12,7 +12,6 @@ import Logo from '@/assets/images/logos/sideLogo.png';
 
 const route = '/pages/';
 
-
 import { BsCashCoin } from 'react-icons/bs';
 import { HiDocumentText } from 'react-icons/hi';
 
@@ -65,17 +64,17 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
       style={{ background: 'var(--color-surface)' }}
     >
       <ThemeProvider theme={customTheme}>
-        <Sidebar 
-          aria-label="Sidebar items" 
+        <Sidebar
+          aria-label="Sidebar items"
           className="h-full w-[12rem] md:w-50"
           style={{ background: 'var(--color-surface)' }}
         >
           <div className="mb-8 flex justify-center p-4">
-            <Image 
-              src={Logo} 
-              alt="Accountflow logo" 
-              width={150} 
-              height={30} 
+            <Image
+              src={Logo}
+              alt="Accountflow logo"
+              width={150}
+              height={30}
               className="transition-transform duration-300 hover:scale-105"
             />
           </div>
@@ -91,9 +90,10 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                     active={isActive}
                     onClick={() => router.push(item.href)}
                     className={`
-                      ${isActive 
-                        ? 'bg-gradient-to-r from-[var(--color-primary)]/10 to-[var(--color-secondary)]/10 text-[var(--color-primary)] border-l-4 border-[var(--color-primary)]' 
-                        : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-border)]/50'
+                      ${
+                        isActive
+                          ? 'bg-gradient-to-r from-[var(--color-primary)]/10 to-[var(--color-secondary)]/10 text-[var(--color-primary)] border-l-4 border-[var(--color-primary)]'
+                          : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-border)]/50'
                       }
                     `}
                   >

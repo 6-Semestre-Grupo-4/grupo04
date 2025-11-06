@@ -10,8 +10,6 @@ import ConfirmDialog from '@/components/billing/confirmDialog';
 import { Title } from '@/types/title';
 import { getTitles, saveTitle, deleteTitle, getCompanies } from '@/services/titleService';
 
-
-
 const getStatusBadge = (active: boolean) =>
   active ? (
     <span className="status-badge status-active">
@@ -25,8 +23,7 @@ const getStatusBadge = (active: boolean) =>
     </span>
   );
 
-const getTypeLabel = (type: string) =>
-  type === 'income' ? 'Receita' : type === 'expense' ? 'Despesa' : 'Indefinido';
+const getTypeLabel = (type: string) => (type === 'income' ? 'Receita' : type === 'expense' ? 'Despesa' : 'Indefinido');
 
 export default function TitlesPage() {
   const [titles, setTitles] = useState<Title[]>([]);
@@ -40,7 +37,6 @@ export default function TitlesPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'warning' } | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ show: boolean; uuid?: string } | null>(null);
 
-
   const fetchTitles = async () => {
     try {
       const data = await getTitles();
@@ -52,7 +48,7 @@ export default function TitlesPage() {
 
   const fetchCompanies = async () => {
     try {
-      const data = await getCompanies();  
+      const data = await getCompanies();
       setCompanies(data);
     } catch {
       console.error('Erro ao carregar empresas');
@@ -60,7 +56,7 @@ export default function TitlesPage() {
   };
 
   const getCompanyName = (companyId: string) => {
-    const company = companies.find(c => c.uuid === companyId);
+    const company = companies.find((c) => c.uuid === companyId);
     return company?.fantasy_name || 'N/A';
   };
 
@@ -68,7 +64,6 @@ export default function TitlesPage() {
     fetchTitles();
     fetchCompanies();
   }, []);
-
 
   const handleSave = async (title: any, uuid?: string) => {
     try {
@@ -100,7 +95,6 @@ export default function TitlesPage() {
     }
   };
 
-
   const filteredTitles = titles.filter((title) => {
     const matchesSearch = title.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === 'all' || title.type_of === filterType;
@@ -112,13 +106,17 @@ export default function TitlesPage() {
   });
 
   return (
-    <div className="container mx-auto px-4 py-8 min-h-screen" style={{ background: 'var(--background)', color: 'var(--color-text)' }}>
+    <div
+      className="container mx-auto px-4 py-8 min-h-screen"
+      style={{ background: 'var(--background)', color: 'var(--color-text)' }}
+    >
       <div className="card-enhanced rounded-xl p-6 space-y-6 animate-[fade-in_0.5s_ease-in-out]">
-
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gradient mb-2">Títulos</h1>
-            <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Gerencie receitas e despesas cadastradas com facilidade.</p>
+            <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+              Gerencie receitas e despesas cadastradas com facilidade.
+            </p>
           </div>
 
           <Button
@@ -132,7 +130,6 @@ export default function TitlesPage() {
             Novo Título
           </Button>
         </div>
-
 
         <div className="flex flex-col md:flex-row gap-4">
           <TextInput
@@ -169,10 +166,12 @@ export default function TitlesPage() {
           </div>
         </div>
 
-
         <div className="overflow-x-auto rounded-lg card-enhanced">
           <table className="w-full text-sm divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="text-xs uppercase" style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
+            <thead
+              className="text-xs uppercase"
+              style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
+            >
               <tr>
                 <th className="px-6 py-3">Descrição</th>
                 <th className="px-6 py-3">Empresa</th>
@@ -190,11 +189,7 @@ export default function TitlesPage() {
             <tbody>
               {filteredTitles.length > 0 ? (
                 filteredTitles.map((title) => (
-                  <tr
-                    key={title.uuid}
-                    className="border-b"
-                    style={{ borderColor: 'var(--color-border)' }}
-                  >
+                  <tr key={title.uuid} className="border-b" style={{ borderColor: 'var(--color-border)' }}>
                     <td className="px-6 py-4 font-medium">{title.description}</td>
                     <td className="px-6 py-4">
                       {typeof title.company === 'string' ? getCompanyName(title.company) : 'N/A'}
@@ -206,31 +201,28 @@ export default function TitlesPage() {
                         currency: 'BRL',
                       }).format(title.amount)}
                     </td>
+                    <td className="px-6 py-4">{new Date(title.expiration_date).toLocaleDateString('pt-BR')}</td>
                     <td className="px-6 py-4">
-                      {new Date(title.expiration_date).toLocaleDateString('pt-BR')}
+                      {title.fees_percentage_monthly ? `${(title.fees_percentage_monthly * 100).toFixed(2)}%` : '0%'}
                     </td>
-                    <td className="px-6 py-4">
-                      {title.fees_percentage_monthly ? 
-                        `${(title.fees_percentage_monthly * 100).toFixed(2)}%` : 
-                        '0%'
-                      }
-                    </td>
-                    <td className="px-6 py-4">
-                      {title.installments || 'À vista'}
-                    </td>
+                    <td className="px-6 py-4">{title.installments || 'À vista'}</td>
                     <td className="px-6 py-4">{getStatusBadge(title.active)}</td>
                     <td className="px-6 py-4">
                       {title.recorrence ? (
                         <Badge color="info" className="text-xs">
-                          {title.recorrence_period ? {
-                            daily: 'Diário',
-                            weekly: 'Semanal',
-                            monthly: 'Mensal',
-                            yearly: 'Anual',
-                          }[title.recorrence_period] || 'Sim' : 'Sim'}
+                          {title.recorrence_period
+                            ? {
+                                daily: 'Diário',
+                                weekly: 'Semanal',
+                                monthly: 'Mensal',
+                                yearly: 'Anual',
+                              }[title.recorrence_period] || 'Sim'
+                            : 'Sim'}
                         </Badge>
                       ) : (
-                        <Badge color="gray" className="text-xs">Não</Badge>
+                        <Badge color="gray" className="text-xs">
+                          Não
+                        </Badge>
                       )}
                     </td>
                     <td className="px-6 py-4 flex justify-center gap-3">
@@ -286,13 +278,7 @@ export default function TitlesPage() {
           />
         )}
 
-        {toast && (
-          <ToastNotification
-            message={toast.message}
-            type={toast.type}
-            onClose={() => setToast(null)}
-          />
-        )}
+        {toast && <ToastNotification message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       </div>
     </div>
   );

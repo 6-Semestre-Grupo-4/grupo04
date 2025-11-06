@@ -72,14 +72,11 @@ export function NavbarComponent({ onMenuClick }: NavbarComponentProps) {
   return (
     <ClientOnly>
       <ThemeProvider theme={customTheme}>
-        <Navbar 
-          fluid 
-          className="bg-[var(--color-surface)] border-[var(--color-border)] shadow-sm"
-        >
+        <Navbar fluid className="bg-[var(--color-surface)] border-[var(--color-border)] shadow-sm">
           <div className="flex items-center gap-3">
-            <Button 
-              onClick={onMenuClick} 
-              color="primary" 
+            <Button
+              onClick={onMenuClick}
+              color="primary"
               className="p-3 rounded-lg md:hidden hover:scale-105 transition-transform duration-200"
             >
               <HiMenu size={20} style={{ color: 'var(--color-text)' }} />
@@ -87,11 +84,11 @@ export function NavbarComponent({ onMenuClick }: NavbarComponentProps) {
 
             <NavbarBrand href="#">
               <div className="self-center whitespace-nowrap text-xl font-semibold md:hidden">
-                <Image 
-                  src={Logo} 
-                  alt="Accountflow logo" 
-                  width={130} 
-                  height={30} 
+                <Image
+                  src={Logo}
+                  alt="Accountflow logo"
+                  width={130}
+                  height={30}
                   className="transition-transform duration-200 hover:scale-105"
                 />
               </div>
@@ -104,9 +101,9 @@ export function NavbarComponent({ onMenuClick }: NavbarComponentProps) {
               inline
               label={
                 <div className="cursor-pointer group">
-                  <Avatar 
-                    alt="User settings" 
-                    rounded 
+                  <Avatar
+                    alt="User settings"
+                    rounded
                     className="ring-2 ring-transparent group-hover:ring-[var(--color-primary)] transition-all duration-200"
                   />
                 </div>
@@ -120,14 +117,14 @@ export function NavbarComponent({ onMenuClick }: NavbarComponentProps) {
                   matheusmorilha04@gmail.com
                 </span>
               </DropdownHeader>
-              <DropdownItem 
+              <DropdownItem
                 className="cursor-pointer hover:bg-[var(--color-border)] transition-colors duration-200"
                 style={{ color: 'var(--color-text)' }}
               >
                 Meu Perfil
               </DropdownItem>
               <DropdownDivider className="border-[var(--color-border)]" />
-              <DropdownItem 
+              <DropdownItem
                 className="cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors duration-200"
                 style={{ color: 'var(--color-text)' }}
               >

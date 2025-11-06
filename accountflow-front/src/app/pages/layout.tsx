@@ -16,9 +16,9 @@ export default function PagesLayout({ children }: { children: React.ReactNode })
       {mounted && <SidebarComponent isOpen={isSidebarOpen} />}
 
       {isSidebarOpen && mounted && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity duration-300" 
-          onClick={() => setSidebarOpen(false)} 
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity duration-300"
+          onClick={() => setSidebarOpen(false)}
         />
       )}
 
@@ -26,13 +26,11 @@ export default function PagesLayout({ children }: { children: React.ReactNode })
         <header className="card-enhanced border-b border-[var(--color-border)] z-20">
           <NavbarComponent onMenuClick={() => setSidebarOpen(!isSidebarOpen)} />
         </header>
-        <main 
-          className="flex-1 p-6 overflow-auto transition-all duration-300" 
+        <main
+          className="flex-1 p-6 overflow-auto transition-all duration-300"
           style={{ background: 'var(--background)', color: 'var(--color-text)' }}
         >
-          <div className="animate-[fade-in_0.5s_ease-in-out]">
-            {children}
-          </div>
+          <div className="animate-[fade-in_0.5s_ease-in-out]">{children}</div>
         </main>
       </div>
     </div>

@@ -67,13 +67,12 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
       return;
     }
 
-
-
     const titleData = {
       ...form,
       amount: parseFloat(form.amount),
-      fees_percentage_monthly: form.fees_percentage_monthly ? 
-        parseFloat((parseFloat(form.fees_percentage_monthly) / 100).toFixed(2)) : 0,
+      fees_percentage_monthly: form.fees_percentage_monthly
+        ? parseFloat((parseFloat(form.fees_percentage_monthly) / 100).toFixed(2))
+        : 0,
       installments: form.installments ? parseInt(form.installments) : null,
     };
 
@@ -143,7 +142,9 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
                         </option>
                       ))
                     ) : (
-                      <option value="" disabled>Carregando empresas...</option>
+                      <option value="" disabled>
+                        Carregando empresas...
+                      </option>
                     )}
                   </select>
                 </div>

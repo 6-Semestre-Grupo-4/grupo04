@@ -28,15 +28,15 @@ export function CreateTitleModal({ isOpen, onClose, onSave, billingAccounts }: C
     amount: 0,
     expiration_date: '',
     active: true,
-    recorrente: false
+    recorrente: false,
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : type === 'number' ? Number(value) : value
+      [name]: type === 'checkbox' ? checked : type === 'number' ? Number(value) : value,
     }));
   };
 
@@ -49,7 +49,7 @@ export function CreateTitleModal({ isOpen, onClose, onSave, billingAccounts }: C
       amount: 0,
       expiration_date: '',
       active: true,
-      recorrente: false
+      recorrente: false,
     });
   };
 
@@ -57,10 +57,8 @@ export function CreateTitleModal({ isOpen, onClose, onSave, billingAccounts }: C
     <Modal show={isOpen} onClose={onClose}>
       <form onSubmit={handleSubmit} className="p-6">
         <div className="mb-6">
-          <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-4">
-            Novo Título
-          </h3>
-          
+          <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-4">Novo Título</h3>
+
           <div className="space-y-6">
             <div>
               <div className="mb-2 block">
@@ -176,7 +174,7 @@ export function CreateTitleModal({ isOpen, onClose, onSave, billingAccounts }: C
                 onChange={handleInputChange}
               >
                 <option value="">Selecione uma conta</option>
-                {billingAccounts.map(account => (
+                {billingAccounts.map((account) => (
                   <option key={account.uuid} value={account.uuid}>
                     {account.name}
                   </option>
@@ -195,7 +193,7 @@ export function CreateTitleModal({ isOpen, onClose, onSave, billingAccounts }: C
                 onChange={handleInputChange}
               >
                 <option value="">Selecione uma conta</option>
-                {billingAccounts.map(account => (
+                {billingAccounts.map((account) => (
                   <option key={account.uuid} value={account.uuid}>
                     {account.name}
                   </option>
