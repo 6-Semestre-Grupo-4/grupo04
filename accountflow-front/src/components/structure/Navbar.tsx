@@ -54,12 +54,12 @@ const handleLogout = async () => {
 const customTheme = createTheme({
   navbar: {
     root: {
-      base: 'bg-gray-100 text-white px-2 py-2.5 sm:px-4 dark:bg-background',
+      base: 'px-4 py-3 backdrop-blur-sm border-b transition-all duration-300',
     },
   },
   button: {
     color: {
-      primary: 'bg-gray-700 hover:bg-gray-500 dark:hover:bg-gray-600',
+      primary: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200',
     },
   },
 });
@@ -70,45 +70,70 @@ interface NavbarComponentProps {
 
 export function NavbarComponent({ onMenuClick }: NavbarComponentProps) {
   return (
-    <ThemeProvider theme={customTheme}>
-      <Navbar fluid rounded>
-        <div className="flex items-center gap-2">
-          <Button onClick={onMenuClick} color="primary" className="p-2 rounded-lg md:hidden">
-            <HiMenu size={24} className="dark:text-white bg-text-black" />
-          </Button>
+    <ClientOnly>
+      <ThemeProvider theme={customTheme}>
+        <Navbar fluid className="bg-[var(--color-surface)] border-[var(--color-border)] shadow-sm">
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={onMenuClick}
+              color="primary"
+              className="p-3 rounded-lg md:hidden hover:scale-105 transition-transform duration-200"
+            >
+              <HiMenu size={20} style={{ color: 'var(--color-text)' }} />
+            </Button>
 
-          <NavbarBrand href="#">
-            <div className="self-center whitespace-nowrap text-xl font-semibold md:hidden">
-              <Image src={Logo} alt="Accountflow logo" width={130} height={30} />
-            </div>
-          </NavbarBrand>
-        </div>
+            <NavbarBrand href="#">
+              <div className="self-center whitespace-nowrap text-xl font-semibold md:hidden">
+                <Image
+                  src={Logo}
+                  alt="Accountflow logo"
+                  width={130}
+                  height={30}
+                  className="transition-transform duration-200 hover:scale-105"
+                />
+              </div>
+            </NavbarBrand>
+          </div>
 
-        <div className="flex md:order-2">
-          {/* Renderizar dropdown apenas no client */}
-          <ClientOnly>
+          <div className="flex md:order-2">
             <Dropdown
               arrowIcon={true}
               inline
               label={
-                <div className="cursor-pointer">
-                  <Avatar alt="User settings" rounded />
+                <div className="cursor-pointer group">
+                  <Avatar
+                    alt="User settings"
+                    rounded
+                    className="ring-2 ring-transparent group-hover:ring-[var(--color-primary)] transition-all duration-200"
+                  />
                 </div>
               }
             >
-              <DropdownHeader>
-                <span className="block text-xs">Matheus Bruckmann Morilha Teles</span>
-                <span className="block truncate text-xs font-medium">matheusmorilha04@gmail.com</span>
+              <DropdownHeader className="bg-[var(--color-surface)] border-b border-[var(--color-border)]">
+                <span className="block text-sm font-medium" style={{ color: 'var(--color-text)' }}>
+                  Matheus Bruckmann
+                </span>
+                <span className="block truncate text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                  matheusmorilha04@gmail.com
+                </span>
               </DropdownHeader>
-              <DropdownItem className="cursor-pointer">Meu Perfil</DropdownItem>
-              <DropdownDivider />
-              <DropdownItem className="cursor-pointer" onClick={handleLogout}>
+              <DropdownItem
+                className="cursor-pointer hover:bg-[var(--color-border)] transition-colors duration-200"
+                style={{ color: 'var(--color-text)' }}
+              >
+                Meu Perfil
+              </DropdownItem>
+              <DropdownDivider className="border-[var(--color-border)]" />
+              <DropdownItem
+                className="cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors duration-200"
+                style={{ color: 'var(--color-text)' }}
+              >
                 Sair
               </DropdownItem>
             </Dropdown>
-          </ClientOnly>
-        </div>
-      </Navbar>
-    </ThemeProvider>
+          </div>
+        </Navbar>
+      </ThemeProvider>
+    </ClientOnly>
   );
 }
