@@ -12,7 +12,10 @@ RUN apk add --no-cache --update \
     musl-dev \
     postgresql-dev \
     bash \
-    tzdata
+    tzdata \
+    graphviz \
+    graphviz-dev
+
 
 WORKDIR /code
 

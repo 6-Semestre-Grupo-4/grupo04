@@ -170,5 +170,6 @@ class Title(ModelBasedMixin):
         default=0.00,
         validators=[MinValueValidator(0.00), MaxValueValidator(1.00)]
     )
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='titles')
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     type_of = models.CharField(max_length=10, choices=TitleType.choices)
+    preset = models.ForeignKey(Preset, on_delete=models.PROTECT, null=True, blank=True)
