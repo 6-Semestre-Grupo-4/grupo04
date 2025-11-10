@@ -2,6 +2,8 @@ import uuid
 from django.db import models
 from django.core.exceptions import ValidationError
 from .mixins import ModelBasedMixin
+from django.db.models import Sum
+from decimal import Decimal
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Address(ModelBasedMixin):
@@ -174,6 +176,13 @@ class Title(ModelBasedMixin):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='titles')
     type_of = models.CharField(max_length=10, choices=TitleType.choices)
 
+    def sync_active_flag(self):
+        total_pago = self.entries.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        ativo = total_pago < self.amount
+        if self.active != ativo:
+            self.active = ativo
+            super().save(update_fields=['active', 'updated_at'])
+    
     def __str__(self):
         return f"{self.description} - R$ {self.amount} ({self.get_type_of_display()})"
 
@@ -232,6 +241,19 @@ class Entry(ModelBasedMixin):
         ]
         ordering = ['-paid_at', 'uuid']
 
+    def save(self, *args, **kwargs):
+        old_title = None
+        if self.pk:
+            old_title = Entry.objects.only("title_id").get(pk=self.pk).title
+        super().save(*args, **kwargs)
+        if old_title and old_title != self.title:
+            old_title.sync_active_flag()
+        self.title.sync_active_flag()
+
+    def delete  (self, *args, **kwargs):  
+        title = self.title
+        super().delete(*args, **kwargs)
+        title.sync_active_flag()
+
     def __str__(self):
         return f"Pagamento: {self.description or self.title.description} - R$ {self.amount}"
-
