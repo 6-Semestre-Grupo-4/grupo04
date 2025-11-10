@@ -204,8 +204,27 @@ class Entry(ModelBasedMixin):
 
     def clean(self):
         super().clean()
+        # Validação de conta analítica
         if self.billing_account and self.billing_account.account_type != BillingAccount.AccountType.ANALYTIC:
             raise ValidationError("Somente contas analíticas podem receber lançamentos.")
+        
+        if self.title and self.amount:
+            from django.db.models import Sum
+            from decimal import Decimal
+            
+            # Validação de overpayment
+            qs = Entry.objects.filter(title=self.title)
+            if self.pk:  
+                qs = qs.exclude(pk=self.pk)
+            
+            total_paid = qs.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            projected_total = total_paid + self.amount
+            
+            if projected_total > self.title.amount:
+                remaining = self.title.amount - total_paid
+                raise ValidationError({
+                    'amount': f'Pagamento excede o valor do título. Restante: R$ {remaining}'
+                })
     
     class Meta:
         indexes = [
@@ -213,4 +232,6 @@ class Entry(ModelBasedMixin):
         ]
         ordering = ['-paid_at', 'uuid']
 
+    def __str__(self):
+        return f"Pagamento: {self.description or self.title.description} - R$ {self.amount}"
 

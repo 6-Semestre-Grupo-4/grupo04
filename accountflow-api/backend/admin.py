@@ -46,7 +46,14 @@ class EntryAdmin(ReadOnly):
     readonly_fields = ('created_at', 'updated_at')
 
     autocomplete_fields = ['title', 'billing_account']
-        
+    
+    def get_readonly_fields(self, request, obj=None):
+        readonly = super().get_readonly_fields(request, obj)
+
+        if obj:
+            return readonly + ('title', 'amount', 'billing_account' ,'paid_at')
+        return readonly
+
     fieldsets = (
         ('Informações Básicas', {
             'fields': ('title', 'description', 'amount')
