@@ -70,7 +70,8 @@ class BillingAccount(ModelBasedMixin):
         unique_together = ('billing_plan', 'code') 
 
     def __str__(self):
-        return f'{self.code} - {self.name}'
+        tipo = "Analítica" if self.account_type == self.AccountType.ANALYTIC else "Sintética"
+        return f'{self.code} - {self.name} ({tipo})'
 
     # --- Calculo de classificação ---
     def get_level(self):
@@ -172,3 +173,44 @@ class Title(ModelBasedMixin):
     )
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='titles')
     type_of = models.CharField(max_length=10, choices=TitleType.choices)
+
+    def __str__(self):
+        return f"{self.description} - R$ {self.amount} ({self.get_type_of_display()})"
+
+class Entry(ModelBasedMixin):
+    class PaymentMethod(models.TextChoices):
+        CASH = 'cash','Cash'
+        DEBIT_CARD = 'debit','Debit'
+        CREDIT_CARD = 'credit','Credit'
+        PIX = 'pix','Pix'
+    
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    description = models.CharField(max_length=255)
+    amount = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2,
+        validators=[MinValueValidator(0.01)])
+    paid_at = models.DateField()
+    payment_method = models.CharField(max_length=15, choices=PaymentMethod.choices)
+
+    title = models.ForeignKey(Title, on_delete=models.PROTECT, related_name='entries')
+    billing_account = models.ForeignKey(
+        BillingAccount,
+        on_delete=models.PROTECT,
+        related_name='entries',
+        null=True, # Fica até o preset ser ajustado
+        blank=True,
+    )
+
+    def clean(self):
+        super().clean()
+        if self.billing_account and self.billing_account.account_type != BillingAccount.AccountType.ANALYTIC:
+            raise ValidationError("Somente contas analíticas podem receber lançamentos.")
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['title', 'paid_at']),
+        ]
+        ordering = ['-paid_at', 'uuid']
+
+
