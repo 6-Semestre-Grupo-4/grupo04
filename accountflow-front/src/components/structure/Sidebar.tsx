@@ -29,6 +29,20 @@ import Logo from '@/assets/images/logos/sideLogo.png';
 
 const route = '/pages/';
 
+import { BsCashCoin } from 'react-icons/bs';
+import { HiDocumentText } from 'react-icons/hi';
+
+const menuItems = [
+  { label: 'Início', icon: AiFillHome, href: `${route}home` },
+  { label: 'Pessoas', icon: IoPeople, href: `${route}people` },
+  { label: 'Empresas', icon: RiBuilding2Fill, href: `${route}companies` },
+  { label: 'Plano de Contas', icon: MdOutlineAccountTree, href: `${route}billing-plans` },
+  { label: 'Títulos', icon: BsCashCoin, href: `${route}titles` },
+  { label: 'Lançamentos', icon: HiDocumentText, href: `${route}entries` },
+  { label: 'Usuários', icon: FaUserShield, href: `${route}access-management` },
+  { label: 'Configurações', icon: FaCog, href: `${route}system-settings` },
+];
+
 interface SidebarProps {
   isOpen: boolean;
 }
