@@ -53,7 +53,7 @@ export const companyService = {
     
     return response.data;
     */
-    
+
     // Mock response
     return {
       uuid: Date.now().toString(),
@@ -69,7 +69,7 @@ export const companyService = {
     const response = await api.get('/companies/');
     return response.data;
     */
-    
+
     // Mock response
     return [];
   },
@@ -81,7 +81,7 @@ export const companyService = {
     const response = await api.get(`/companies/${id}/`);
     return response.data;
     */
-    
+
     // Mock response
     return null;
   },
@@ -114,7 +114,7 @@ export const companyService = {
     
     return response.data;
     */
-    
+
     // Mock response
     return { id, ...companyData, updated_at: new Date().toISOString() };
   },
@@ -126,7 +126,7 @@ export const companyService = {
     const response = await api.delete(`/companies/${id}/`);
     return response.data;
     */
-    
+
     // Mock response
     return { success: true };
   },
