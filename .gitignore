@@ -62,3 +62,4 @@ __pycache__/
 
 *.sqlite3
 db.sqlite3
+accountflow-api/models.puml

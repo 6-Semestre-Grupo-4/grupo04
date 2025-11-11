@@ -74,7 +74,7 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
       fees_percentage_monthly: form.fees_percentage_monthly
         ? parseFloat((parseFloat(form.fees_percentage_monthly) / 100).toFixed(2))
         : 0,
-      installments: form.installments ? parseInt(form.installments) : null,
+      installments: form.installments ? parseInt(form.installments) : 1,
     };
 
     onSave(titleData, title?.uuid);
