@@ -2,6 +2,8 @@ import uuid
 from django.db import models
 from django.core.exceptions import ValidationError
 from .mixins import ModelBasedMixin
+from django.db.models import Sum
+from decimal import Decimal
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Address(ModelBasedMixin):
@@ -70,7 +72,8 @@ class BillingAccount(ModelBasedMixin):
         unique_together = ('billing_plan', 'code') 
 
     def __str__(self):
-        return f'{self.code} - {self.name}'
+        tipo = "Analítica" if self.account_type == self.AccountType.ANALYTIC else "Sintética"
+        return f'{self.code} - {self.name} ({tipo})'
 
     # --- Calculo de classificação ---
     def get_level(self):
@@ -173,3 +176,85 @@ class Title(ModelBasedMixin):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     type_of = models.CharField(max_length=10, choices=TitleType.choices)
     preset = models.ForeignKey(Preset, on_delete=models.PROTECT, null=True, blank=True)
+
+    def sync_active_flag(self):
+        total_pago = self.entries.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        ativo = total_pago < self.amount
+        if self.active != ativo:
+            self.active = ativo
+            super().save(update_fields=['active', 'updated_at'])
+    
+    def __str__(self):
+        return f"{self.description} - R$ {self.amount} ({self.get_type_of_display()})"
+
+class Entry(ModelBasedMixin):
+    class PaymentMethod(models.TextChoices):
+        CASH = 'cash','Cash'
+        DEBIT_CARD = 'debit','Debit'
+        CREDIT_CARD = 'credit','Credit'
+        PIX = 'pix','Pix'
+    
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    description = models.CharField(max_length=255)
+    amount = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2,
+        validators=[MinValueValidator(0.01)])
+    paid_at = models.DateField()
+    payment_method = models.CharField(max_length=15, choices=PaymentMethod.choices)
+
+    title = models.ForeignKey(Title, on_delete=models.PROTECT, related_name='entries')
+    billing_account = models.ForeignKey(
+        BillingAccount,
+        on_delete=models.PROTECT,
+        related_name='entries',
+        null=True, # Fica até o preset ser ajustado
+        blank=True,
+    )
+
+    def clean(self):
+        super().clean()
+        # Validação de conta analítica
+        if self.billing_account and self.billing_account.account_type != BillingAccount.AccountType.ANALYTIC:
+            raise ValidationError("Somente contas analíticas podem receber lançamentos.")
+        
+        if self.title and self.amount:
+            from django.db.models import Sum
+            from decimal import Decimal
+            
+            # Validação de overpayment
+            qs = Entry.objects.filter(title=self.title)
+            if self.pk:  
+                qs = qs.exclude(pk=self.pk)
+            
+            total_paid = qs.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            projected_total = total_paid + self.amount
+            
+            if projected_total > self.title.amount:
+                remaining = self.title.amount - total_paid
+                raise ValidationError({
+                    'amount': f'Pagamento excede o valor do título. Restante: R$ {remaining}'
+                })
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['title', 'paid_at']),
+        ]
+        ordering = ['-paid_at', 'uuid']
+
+    def save(self, *args, **kwargs):
+        old_title = None
+        if self.pk:
+            old_title = Entry.objects.only("title_id").get(pk=self.pk).title
+        super().save(*args, **kwargs)
+        if old_title and old_title != self.title:
+            old_title.sync_active_flag()
+        self.title.sync_active_flag()
+
+    def delete  (self, *args, **kwargs):  
+        title = self.title
+        super().delete(*args, **kwargs)
+        title.sync_active_flag()
+
+    def __str__(self):
+        return f"Pagamento: {self.description or self.title.description} - R$ {self.amount}"
