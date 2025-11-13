@@ -33,19 +33,19 @@ export default function ToastNotification({ message, type = 'info', onClose }: T
   const getIcon = () => {
     switch (type) {
       case 'success':
-        return <HiCheckCircle className="w-5 h-5 mr-2" />;
+        return <HiCheckCircle className="mr-2 h-5 w-5" />;
       case 'error':
-        return <HiXCircle className="w-5 h-5 mr-2" />;
+        return <HiXCircle className="mr-2 h-5 w-5" />;
       case 'warning':
-        return <HiExclamationCircle className="w-5 h-5 mr-2" />;
+        return <HiExclamationCircle className="mr-2 h-5 w-5" />;
       default:
-        return <HiInformationCircle className="w-5 h-5 mr-2" />;
+        return <HiInformationCircle className="mr-2 h-5 w-5" />;
     }
   };
 
   return (
     <div
-      className={`fixed top-5 right-5 z-50 flex items-center border rounded-lg px-4 py-3 shadow-md animate-fade-in ${getStyles()}`}
+      className={`animate-fade-in fixed top-5 right-5 z-50 flex items-center rounded-lg border px-4 py-3 shadow-md ${getStyles()}`}
       role="alert"
     >
       {getIcon()}

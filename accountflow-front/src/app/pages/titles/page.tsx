@@ -108,13 +108,13 @@ export default function TitlesPage() {
 
   return (
     <div
-      className="container mx-auto px-4 py-8 min-h-screen"
+      className="container mx-auto min-h-screen px-4 py-8"
       style={{ background: 'var(--background)', color: 'var(--color-text)' }}
     >
-      <div className="card-enhanced rounded-xl p-6 space-y-6 animate-[fade-in_0.5s_ease-in-out]">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="card-enhanced animate-[fade-in_0.5s_ease-in-out] space-y-6 rounded-xl p-6">
+        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gradient mb-2">Títulos</h1>
+            <h1 className="text-gradient mb-2 text-3xl font-bold">Títulos</h1>
             <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
               Gerencie receitas e despesas cadastradas com facilidade.
             </p>
@@ -125,14 +125,14 @@ export default function TitlesPage() {
               setEditingTitle(null);
               setShowModal(true);
             }}
-            className="btn-primary font-medium flex items-center gap-2 px-6 py-3 rounded-lg text-white shadow-lg"
+            className="btn-primary flex items-center gap-2 rounded-lg px-6 py-3 font-medium text-white shadow-lg"
           >
-            <HiPlus className="w-5 h-5" />
+            <HiPlus className="h-5 w-5" />
             Novo Título
           </Button>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col gap-4 md:flex-row">
           <TextInput
             placeholder="Digite para buscar"
             value={searchTerm}
@@ -167,8 +167,8 @@ export default function TitlesPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg card-enhanced">
-          <table className="w-full text-sm divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="card-enhanced overflow-x-auto rounded-lg">
+          <table className="w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
             <thead
               className="text-xs uppercase"
               style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
@@ -226,20 +226,20 @@ export default function TitlesPage() {
                         </Badge>
                       )}
                     </td>
-                    <td className="px-6 py-4 flex justify-center gap-3">
+                    <td className="flex justify-center gap-3 px-6 py-4">
                       <button
                         onClick={() => {
                           setEditingTitle(title);
                           setShowModal(true);
                         }}
-                        className="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 hover:scale-110 transition-all duration-200 dark:bg-blue-500 dark:hover:bg-blue-600"
+                        className="rounded-lg bg-blue-600 p-2 text-white transition-all duration-200 hover:scale-110 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
                         title="Editar"
                       >
                         <FiEdit2 size={16} />
                       </button>
                       <button
                         onClick={() => confirmDelete(title.uuid)}
-                        className="p-2 rounded-lg bg-red-600 text-white hover:bg-red-700 hover:scale-110 transition-all duration-200 dark:bg-red-500 dark:hover:bg-red-600"
+                        className="rounded-lg bg-red-600 p-2 text-white transition-all duration-200 hover:scale-110 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
                         title="Excluir"
                       >
                         <FiTrash2 size={16} />
@@ -249,7 +249,7 @@ export default function TitlesPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={10} className="text-center py-8 text-gray-400">
+                  <td colSpan={10} className="py-8 text-center text-gray-400">
                     Nenhum título cadastrado ainda.
                   </td>
                 </tr>

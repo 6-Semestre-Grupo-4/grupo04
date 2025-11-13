@@ -30,7 +30,7 @@ export default function BillingPlanForm({ show, onClose, onSave, editing }: Prop
 
   return (
     <Modal show={show} onClose={onClose}>
-      <div className="p-6 space-y-4 bg-white dark:bg-white">
+      <div className="space-y-4 bg-white p-6 dark:bg-white">
         <h2 className="text-xl font-bold text-gray-900">
           {editing ? 'Editar Plano de Contas' : 'Novo Plano de Contas'}
         </h2>
@@ -57,11 +57,11 @@ export default function BillingPlanForm({ show, onClose, onSave, editing }: Prop
           />
         </div>
 
-        <div className="flex justify-end gap-2 mt-4">
-          <Button className="bg-[#0b2034] hover:bg-[#12314d] text-white cursor-pointer" onClick={handleSave}>
+        <div className="mt-4 flex justify-end gap-2">
+          <Button className="cursor-pointer bg-[#0b2034] text-white hover:bg-[#12314d]" onClick={handleSave}>
             {editing ? 'Salvar Alterações' : 'Salvar'}
           </Button>
-          <Button className="bg-gray-200 hover:bg-gray-100 text-gray-700 cursor-pointer" onClick={onClose}>
+          <Button className="cursor-pointer bg-gray-200 text-gray-700 hover:bg-gray-100" onClick={onClose}>
             Cancelar
           </Button>
         </div>

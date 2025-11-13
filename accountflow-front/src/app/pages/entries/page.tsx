@@ -64,9 +64,9 @@ export default function EntriesPage() {
   return (
     <div className="container mx-auto px-4">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Lançamentos</h1>
+        <h1 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">Lançamentos</h1>
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div className="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div className="flex flex-1 gap-4">
             <div className="w-full md:w-96">
               <TextInput
@@ -100,9 +100,9 @@ export default function EntriesPage() {
           />
         </div>
 
-        <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
-          <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+          <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+            <thead className="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400">
               <tr>
                 <th scope="col" className="px-6 py-3">
                   Descrição
@@ -125,7 +125,7 @@ export default function EntriesPage() {
               {filteredEntries.map((entry) => (
                 <tr
                   key={entry.uuid}
-                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                  className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
                 >
                   <td className="px-6 py-4">{entry.description}</td>
                   <td className="px-6 py-4">{getTypeBadge(entry.type_of)}</td>

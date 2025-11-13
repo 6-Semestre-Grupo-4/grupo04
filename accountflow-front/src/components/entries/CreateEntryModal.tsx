@@ -52,7 +52,7 @@ export function CreateEntryModal({ isOpen, onClose, onSave, titles }: CreateEntr
     <Modal show={isOpen} onClose={onClose}>
       <form onSubmit={handleSubmit} className="p-6">
         <div className="mb-6">
-          <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-4">Novo Lançamento</h3>
+          <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Novo Lançamento</h3>
 
           <div className="space-y-6">
             <div>

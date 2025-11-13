@@ -172,17 +172,17 @@ export default function BillingAccountPage() {
       const paddingLeft = level * 24 + 16;
 
       rows.push(
-        <tr key={acc.uuid} className="bg-white border-b hover:bg-gray-50">
-          <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap" style={{ paddingLeft }}>
+        <tr key={acc.uuid} className="border-b bg-white hover:bg-gray-50">
+          <td className="px-6 py-4 font-medium whitespace-nowrap text-gray-900" style={{ paddingLeft }}>
             <div className="flex items-center">
               {hasChildren ? (
-                <button onClick={() => toggleRow(acc.uuid)} className="mr-2 p-1 rounded-full hover:bg-gray-100">
+                <button onClick={() => toggleRow(acc.uuid)} className="mr-2 rounded-full p-1 hover:bg-gray-100">
                   {isExpanded ? <HiOutlineChevronDown size={16} /> : <HiOutlineChevronRight size={16} />}
                 </button>
               ) : (
-                <span className="w-[24px] mr-2" />
+                <span className="mr-2 w-[24px]" />
               )}
-              <MdAccountTree className="w-4 h-4 mr-2 text-gray-500" />
+              <MdAccountTree className="mr-2 h-4 w-4 text-gray-500" />
               {acc.name}
             </div>
           </td>
@@ -190,15 +190,15 @@ export default function BillingAccountPage() {
           <td className="px-6 py-4">
             {acc.account_type === 'analytic' ? 'Analítica' : acc.account_type === 'synthetic' ? 'Sintética' : '-'}
           </td>
-          <td className="px-6 py-4 flex gap-3">
+          <td className="flex gap-3 px-6 py-4">
             <button onClick={() => openEditModal(acc)} className="text-primary hover:text-primary-900 cursor-pointer">
               <FiEdit2 size={16} />
             </button>
-            <button onClick={() => confirmDelete(acc.uuid)} className="text-red-600 hover:text-red-800 cursor-pointer">
+            <button onClick={() => confirmDelete(acc.uuid)} className="cursor-pointer text-red-600 hover:text-red-800">
               <FiTrash2 size={16} />
             </button>
           </td>
-        </tr>,
+        </tr>
       );
 
       if (isExpanded && acc.billingAccount_parent) {
@@ -213,18 +213,18 @@ export default function BillingAccountPage() {
     <div className="container mx-auto p-6">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">Plano de Contas</h1>
+          <h1 className="mb-1 text-2xl font-bold text-gray-900">Plano de Contas</h1>
           <p className="text-gray-500">Gerencie as contas deste plano.</p>
         </div>
         <div className="flex gap-2">
           <Button
-            className="cursor-pointer bg-gray-200 hover:bg-gray-100 text-gray-700"
+            className="cursor-pointer bg-gray-200 text-gray-700 hover:bg-gray-100"
             onClick={() => router.push('/pages/billing-plans')}
           >
             Voltar
           </Button>
           <Button
-            className="bg-[#0b2034] hover:bg-[#12314d] cursor-pointer"
+            className="cursor-pointer bg-[#0b2034] hover:bg-[#12314d]"
             onClick={() => {
               setEditingAccount(null);
               setNewAccount({ name: '', parentId: '', type_of: '', company: 'company-001' }); // Resetar o formulário
@@ -237,8 +237,8 @@ export default function BillingAccountPage() {
       </div>
 
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table className="w-full text-sm text-left text-gray-500">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+        <table className="w-full text-left text-sm text-gray-500">
+          <thead className="bg-gray-50 text-xs text-gray-700 uppercase">
             <tr>
               <th className="px-6 py-3">Conta</th>
               <th className="px-6 py-3">Classificação</th>
@@ -251,7 +251,7 @@ export default function BillingAccountPage() {
               renderRows(accounts, 0)
             ) : (
               <tr>
-                <td colSpan={4} className="text-center py-6 text-gray-400">
+                <td colSpan={4} className="py-6 text-center text-gray-400">
                   Nenhuma conta cadastrada.
                 </td>
               </tr>
@@ -261,7 +261,7 @@ export default function BillingAccountPage() {
       </div>
 
       <Modal show={showModal} onClose={() => setShowModal(false)}>
-        <div className="p-6 space-y-4">
+        <div className="space-y-4 p-6">
           <h2 className="text-xl font-bold text-gray-900">{editingAccount ? 'Editar Conta' : 'Nova Conta'}</h2>
 
           <div>
@@ -279,7 +279,7 @@ export default function BillingAccountPage() {
               id="parentId"
               value={newAccount.parentId}
               onChange={(e) => setNewAccount((prev) => ({ ...prev, parentId: e.target.value }))}
-              className="w-full border rounded px-2 py-1"
+              className="w-full rounded border px-2 py-1"
             >
               <option value="">Nenhuma (Conta Principal)</option>
               {generateParentOptions(accounts).map((opt) => (
@@ -296,7 +296,7 @@ export default function BillingAccountPage() {
               id="type_of"
               value={newAccount.type_of}
               onChange={(e) => setNewAccount((prev) => ({ ...prev, type_of: e.target.value as TypeOfAccount }))}
-              className="w-full border rounded px-2 py-1"
+              className="w-full rounded border px-2 py-1"
             >
               <option value="">Selecione...</option>
               <option value="Sintética">Sintética</option>
@@ -304,12 +304,12 @@ export default function BillingAccountPage() {
             </select>
           </div>
 
-          <div className="flex justify-end gap-2 mt-4">
-            <Button className="bg-[#0b2034] hover:bg-[#12314d] text-white cursor-pointer" onClick={saveAccount}>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button className="cursor-pointer bg-[#0b2034] text-white hover:bg-[#12314d]" onClick={saveAccount}>
               {editingAccount ? 'Salvar Alterações' : 'Salvar'}
             </Button>
             <Button
-              className="bg-gray-200 hover:bg-gray-100 text-gray-700 cursor-pointer"
+              className="cursor-pointer bg-gray-200 text-gray-700 hover:bg-gray-100"
               onClick={() => setShowModal(false)}
             >
               Cancelar

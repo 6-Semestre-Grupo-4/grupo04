@@ -84,8 +84,8 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/20 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="mx-4 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white shadow-xl dark:bg-gray-800">
+        <div className="flex items-center justify-between border-b border-gray-200 p-6 dark:border-gray-700">
           <div className="flex items-center gap-2">
             <FiType className="text-blue-500" />
             <h3 className="text-lg font-semibold">{title ? 'Editar Título' : 'Novo Título'}</h3>
@@ -97,7 +97,7 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
 
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <Label htmlFor="description">Descrição *</Label>
                 <TextInput
@@ -208,7 +208,7 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
             </div>
 
             <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={form.active}
@@ -218,7 +218,7 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
                 <span>Ativo</span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={form.recorrence}
@@ -252,7 +252,7 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
           </form>
         </div>
 
-        <div className="flex justify-end gap-2 p-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex justify-end gap-2 border-t border-gray-200 p-6 dark:border-gray-700">
           <Button color="gray" onClick={onClose}>
             Cancelar
           </Button>
