@@ -24,6 +24,8 @@ export default function HistoryPresetsPage() {
   const [presets, setPresets] = useState<Preset[]>([]);
   const [plans, setPlans] = useState<BillingPlan[]>([]);
   const [accounts, setAccounts] = useState<BillingAccount[]>([]);
+  const [modalAccounts, setModalAccounts] = useState<BillingAccount[]>([]);
+
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState<Preset | null>(null);
   const [loading, setLoading] = useState(false);
@@ -38,8 +40,6 @@ export default function HistoryPresetsPage() {
   });
 
   const [filterPlan, setFilterPlan] = useState('');
-  const [filterDebit, setFilterDebit] = useState('');
-  const [filterCredit, setFilterCredit] = useState('');
   const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
@@ -68,17 +68,12 @@ export default function HistoryPresetsPage() {
 
         const unique = Array.from(new Map(allAccs.map((acc) => [acc.uuid, acc])).values());
         setAccounts(unique);
-      } catch {
-        console.error('Erro ao carregar contas globais.');
-      }
+      } catch {}
     }
-
     loadAllAccounts();
   }, []);
 
   const filteredPresets = presets.filter((preset) => {
-    const debitMatch = filterDebit ? preset.payable_account === filterDebit : true;
-    const creditMatch = filterCredit ? preset.receivable_account === filterCredit : true;
     const planMatch = filterPlan ? preset.billing_plan === filterPlan : true;
 
     const search = searchText.trim().toLowerCase();
@@ -86,10 +81,10 @@ export default function HistoryPresetsPage() {
       ? preset.name.toLowerCase().includes(search) || preset.description.toLowerCase().includes(search)
       : true;
 
-    return debitMatch && creditMatch && planMatch && searchMatch;
+    return planMatch && searchMatch;
   });
 
-  function handleOpenModal(preset?: Preset) {
+  async function handleOpenModal(preset?: Preset) {
     if (preset) {
       setEditing(preset);
       setForm({
@@ -99,6 +94,9 @@ export default function HistoryPresetsPage() {
         payable_account: preset.payable_account,
         receivable_account: preset.receivable_account,
       });
+
+      const data = await getAccountsByPlan(preset.billing_plan);
+      setModalAccounts(data);
     } else {
       setEditing(null);
       setForm({
@@ -108,7 +106,9 @@ export default function HistoryPresetsPage() {
         payable_account: '',
         receivable_account: '',
       });
+      setModalAccounts([]);
     }
+
     setOpenModal(true);
   }
 
@@ -169,16 +169,7 @@ export default function HistoryPresetsPage() {
         </Button>
       </div>
 
-      <div
-        className="
-    mb-10 
-    p-6 
-    rounded-2xl 
-    bg-white dark:bg-gray-900 
-    border border-gray-200 dark:border-gray-700 
-    shadow-sm
-  "
-      >
+      <div className="mb-10 p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Filtros</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -187,12 +178,7 @@ export default function HistoryPresetsPage() {
             <Select
               value={filterPlan}
               onChange={(e) => setFilterPlan(e.target.value)}
-              className="
-          rounded-xl 
-          bg-gray-50 dark:bg-gray-800 
-          border border-gray-300 dark:border-gray-700 
-          text-gray-800 dark:text-gray-200
-        "
+              className="rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200"
             >
               <option value="">Todos os planos...</option>
               {plans.map((p) => (
@@ -206,38 +192,21 @@ export default function HistoryPresetsPage() {
           <div className="flex flex-col">
             <Label className="mb-1 text-gray-600 dark:text-gray-400 text-sm">Buscar</Label>
 
-            <div
-              className="
-          relative flex items-center 
-          bg-gray-50 dark:bg-gray-800 
-          rounded-xl 
-          border border-gray-300 dark:border-gray-700
-        "
-            >
+            <div className="relative flex items-center bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-300 dark:border-gray-700">
               <FiArrowRight size={18} className="absolute left-3 text-gray-400 dark:text-gray-500" />
 
               <TextInput
                 placeholder="Nome ou descrição..."
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                className="
-            w-full pl-10 
-            bg-transparent 
-            text-gray-800 dark:text-gray-200
-          "
+                className="w-full pl-10 bg-transparent text-gray-800 dark:text-gray-200"
               />
             </div>
           </div>
 
           <div className="flex items-end justify-start md:justify-end">
             <Button
-              className="
-          px-6 py-2 rounded-xl
-          bg-gray-200 hover:bg-gray-300 
-          dark:bg-gray-700 dark:hover:bg-gray-600 
-          text-gray-900 dark:text-gray-200
-          shadow-sm
-        "
+              className="px-6 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-200 shadow-sm"
               onClick={() => {
                 setFilterPlan('');
                 setSearchText('');
@@ -253,12 +222,7 @@ export default function HistoryPresetsPage() {
         {filteredPresets.map((h) => (
           <div
             key={h.uuid}
-            className="
-              p-6 rounded-xl bg-white dark:bg-gray-900 
-              border border-gray-200 dark:border-gray-700 
-              shadow-sm hover:shadow-xl hover:scale-[1.02] 
-              transition-all duration-200 group cursor-pointer
-            "
+            className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-200 group cursor-pointer"
           >
             <div className="flex justify-between items-start">
               <div>
@@ -270,7 +234,6 @@ export default function HistoryPresetsPage() {
                 <button
                   onClick={() => handleOpenModal(h)}
                   className="p-1 bg-white/60 dark:bg-gray-700/50 rounded-md shadow-sm hover:scale-105 transition"
-                  title="Editar"
                 >
                   <FiEdit2 size={18} />
                 </button>
@@ -278,20 +241,13 @@ export default function HistoryPresetsPage() {
                 <button
                   onClick={() => handleDelete(h)}
                   className="p-1 bg-white/60 dark:bg-gray-700/50 rounded-md shadow-sm hover:scale-105 transition"
-                  title="Excluir"
                 >
                   <FiTrash2 size={18} />
                 </button>
               </div>
             </div>
 
-            <div
-              className="
-                mt-5 flex items-center justify-between p-4 rounded-lg 
-                bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700
-                shadow-inner
-              "
-            >
+            <div className="mt-5 flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-inner">
               <span className="font-semibold text-red-600 dark:text-red-300">
                 {getAccountName(h, h.payable_account, 'payable')}
               </span>
@@ -306,9 +262,7 @@ export default function HistoryPresetsPage() {
         ))}
 
         {filteredPresets.length === 0 && (
-          <div className="text-center col-span-full text-gray-400 py-10">
-            Nenhum histórico encontrado com os filtros atuais.
-          </div>
+          <div className="text-center col-span-full text-gray-400 py-10">Nenhum histórico encontrado.</div>
         )}
       </div>
 
@@ -333,14 +287,23 @@ export default function HistoryPresetsPage() {
               <Label>Plano de Contas</Label>
               <Select
                 value={form.billing_plan}
-                onChange={(e) =>
+                onChange={async (e) => {
+                  const planUUID = e.target.value;
+
                   setForm({
                     ...form,
-                    billing_plan: e.target.value,
+                    billing_plan: planUUID,
                     payable_account: '',
                     receivable_account: '',
-                  })
-                }
+                  });
+
+                  if (planUUID) {
+                    const data = await getAccountsByPlan(planUUID);
+                    setModalAccounts(data);
+                  } else {
+                    setModalAccounts([]);
+                  }
+                }}
               >
                 <option value="">Selecione...</option>
                 {plans.map((p) => (
@@ -360,7 +323,7 @@ export default function HistoryPresetsPage() {
                     onChange={(e) => setForm({ ...form, payable_account: e.target.value })}
                   >
                     <option value="">Selecione...</option>
-                    {accounts.map((acc) => (
+                    {modalAccounts.map((acc) => (
                       <option key={acc.uuid} value={acc.uuid}>
                         {acc.code} - {acc.name}
                       </option>
@@ -375,7 +338,7 @@ export default function HistoryPresetsPage() {
                     onChange={(e) => setForm({ ...form, receivable_account: e.target.value })}
                   >
                     <option value="">Selecione...</option>
-                    {accounts.map((acc) => (
+                    {modalAccounts.map((acc) => (
                       <option key={acc.uuid} value={acc.uuid}>
                         {acc.code} - {acc.name}
                       </option>
