@@ -6,9 +6,9 @@ import { Button, Modal, Label, TextInput } from 'flowbite-react';
 import { HiOutlineChevronRight, HiOutlineChevronDown } from 'react-icons/hi';
 import { MdAccountTree } from 'react-icons/md';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
-import ToastNotification from '@/components/billing/toastNotification';
+import ToastNotification from '@/components/toastNotification';
 import ConfirmDialog from '@/components/billing/confirmDialog';
-// ALTERADO: Importar todas as funções necessárias do serviço
+
 import { getBillingAccounts, saveBillingAccount, deleteBillingAccount } from '@/services/billingAccountSevice';
 
 type TypeOfAccount = 'Sintética' | 'Analítica' | '';
@@ -20,7 +20,6 @@ type BillingAccount = {
   code: string;
   parent: string | null;
   billingAccount_parent?: BillingAccount[];
-  company: string;
   billing_plan: string;
 };
 
@@ -32,6 +31,7 @@ export default function BillingAccountPage() {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [showModal, setShowModal] = useState(false);
   const [editingAccount, setEditingAccount] = useState<BillingAccount | null>(null);
+
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'warning' } | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ show: boolean; accountId?: string } | null>(null);
 
@@ -46,8 +46,7 @@ export default function BillingAccountPage() {
     try {
       const data: BillingAccount[] = await getBillingAccounts(uuid);
       setAccounts(buildTree(data));
-    } catch (err) {
-      console.error(err);
+    } catch {
       setToast({ message: 'Erro ao carregar contas.', type: 'error' });
     }
   };
@@ -57,7 +56,6 @@ export default function BillingAccountPage() {
   }, [uuid]);
 
   const buildTree = (flatList: BillingAccount[]): BillingAccount[] => {
-    // ... (Sua função buildTree está correta, sem alterações) ...
     const map: Record<string, BillingAccount> = {};
     const roots: BillingAccount[] = [];
 
@@ -72,6 +70,7 @@ export default function BillingAccountPage() {
         roots.push(map[item.uuid]);
       }
     });
+
     return roots;
   };
 
@@ -105,14 +104,14 @@ export default function BillingAccountPage() {
 
       setShowModal(false);
       setEditingAccount(null);
-      setNewAccount({ name: '', parentId: '', type_of: '', company: newAccount.company });
-      fetchAccounts(); // Recarrega os dados
+      setNewAccount({ name: '', parentId: '', type_of: '' });
+      fetchAccounts();
+
       setToast({
         message: editingAccount ? 'Conta atualizada com sucesso!' : 'Conta cadastrada com sucesso!',
         type: 'success',
       });
-    } catch (err) {
-      console.error(err);
+    } catch {
       setToast({ message: 'Erro ao salvar a conta.', type: 'error' });
     }
   };
@@ -121,17 +120,14 @@ export default function BillingAccountPage() {
     setConfirmDialog({ show: true, accountId });
   };
 
-  // ALTERADO: handleDelete agora usa 'deleteBillingAccount' do serviço
   const handleDelete = async () => {
     if (!confirmDialog?.accountId) return;
-    try {
-      // Usa a função do serviço (axios) que já envia o token
-      await deleteBillingAccount(confirmDialog.accountId);
 
-      fetchAccounts(); // Recarrega os dados
+    try {
+      await deleteBillingAccount(confirmDialog.accountId);
+      fetchAccounts();
       setToast({ message: 'Conta excluída com sucesso!', type: 'success' });
-    } catch (err) {
-      console.error(err);
+    } catch {
       setToast({ message: 'Erro ao excluir a conta.', type: 'error' });
     } finally {
       setConfirmDialog(null);
@@ -139,63 +135,106 @@ export default function BillingAccountPage() {
   };
 
   const openEditModal = (account: BillingAccount) => {
-    // ... (Sua função openEditModal está correta, sem alterações) ...
     setEditingAccount(account);
     setNewAccount({
       name: account.name,
       parentId: account.parent || '',
       type_of:
         account.account_type === 'analytic' ? 'Analítica' : account.account_type === 'synthetic' ? 'Sintética' : '',
-      company: account.company,
     });
     setShowModal(true);
   };
 
-  const generateParentOptions = (accountList: BillingAccount[], level = 0): { uuid: string; label: string }[] => {
-    // ... (Sua função generateParentOptions está correta, sem alterações) ...
-    let options: { uuid: string; label: string }[] = [];
-    accountList.forEach((acc) => {
-      options.push({ uuid: acc.uuid, label: `${'--'.repeat(level)} ${acc.name}` });
-      if (acc.billingAccount_parent && acc.billingAccount_parent.length > 0) {
-        options = [...options, ...generateParentOptions(acc.billingAccount_parent, level + 1)];
+  const generateParentOptions = (list: BillingAccount[], level = 0): { uuid: string; label: string }[] => {
+    let options: any[] = [];
+
+    list.forEach((acc) => {
+      options.push({
+        uuid: acc.uuid,
+        label: `${'— '.repeat(level)}${acc.name}`,
+      });
+
+      if (acc.billingAccount_parent?.length) {
+        options.push(...generateParentOptions(acc.billingAccount_parent, level + 1));
       }
     });
+
     return options;
   };
 
   const renderRows = (accountList: BillingAccount[], level: number): React.ReactNode[] => {
-    // ... (Sua função renderRows está correta, sem alterações) ...
     const rows: React.ReactNode[] = [];
+
     accountList.forEach((acc) => {
       const isExpanded = expandedRows.has(acc.uuid);
-      const hasChildren = acc.billingAccount_parent && acc.billingAccount_parent.length > 0;
-      const paddingLeft = level * 24 + 16;
+      const hasChildren = acc.billingAccount_parent?.length;
+      const paddingLeft = level * 28 + 16;
 
       rows.push(
-        <tr key={acc.uuid} className="bg-white border-b hover:bg-gray-50">
-          <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap" style={{ paddingLeft }}>
+        <tr
+          key={acc.uuid}
+          className="group bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/70 transition"
+        >
+          <td
+            className="px-6 py-4 font-medium whitespace-nowrap text-gray-800 dark:text-gray-100"
+            style={{ paddingLeft }}
+          >
             <div className="flex items-center">
               {hasChildren ? (
-                <button onClick={() => toggleRow(acc.uuid)} className="mr-2 p-1 rounded-full hover:bg-gray-100">
+                <button
+                  onClick={() => toggleRow(acc.uuid)}
+                  className="
+                    mr-2 p-1 
+                    rounded-md 
+                    hover:bg-gray-200 dark:hover:bg-gray-700
+                    transition
+                  "
+                >
                   {isExpanded ? <HiOutlineChevronDown size={16} /> : <HiOutlineChevronRight size={16} />}
                 </button>
               ) : (
                 <span className="w-[24px] mr-2" />
               )}
-              <MdAccountTree className="w-4 h-4 mr-2 text-gray-500" />
+
+              <MdAccountTree className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
+
               {acc.name}
             </div>
           </td>
-          <td className="px-6 py-4">{acc.code || '-'}</td>
-          <td className="px-6 py-4">
-            {acc.account_type === 'analytic' ? 'Analítica' : acc.account_type === 'synthetic' ? 'Sintética' : '-'}
+
+          <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{acc.code || '-'}</td>
+
+          <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
+            {acc.account_type === 'analytic' ? 'Analítica' : 'Sintética'}
           </td>
-          <td className="px-6 py-4 flex gap-3">
-            <button onClick={() => openEditModal(acc)} className="text-primary hover:text-primary-900 cursor-pointer">
-              <FiEdit2 size={16} />
+
+          <td className="px-6 py-4 flex gap-3 items-center">
+            <button
+              onClick={() => openEditModal(acc)}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="
+      p-1 bg-white/60 dark:bg-gray-700/50 
+      rounded-md shadow-sm 
+      hover:bg-white dark:hover:bg-gray-600
+      hover:scale-105 transition
+    "
+              title="Editar"
+            >
+              <FiEdit2 size={18} />
             </button>
-            <button onClick={() => confirmDelete(acc.uuid)} className="text-red-600 hover:text-red-800 cursor-pointer">
-              <FiTrash2 size={16} />
+
+            <button
+              onClick={() => confirmDelete(acc.uuid)}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="
+      p-1 bg-white/60 dark:bg-gray-700/50 
+      rounded-md shadow-sm 
+      hover:bg-white dark:hover:bg-gray-600
+      hover:scale-105 transition
+    "
+              title="Excluir"
+            >
+              <FiTrash2 size={18} />
             </button>
           </td>
         </tr>,
@@ -205,29 +244,40 @@ export default function BillingAccountPage() {
         rows.push(...renderRows(acc.billingAccount_parent, level + 1));
       }
     });
+
     return rows;
   };
 
   return (
-    // ... (Todo o seu JSX está correto, sem alterações) ...
-    <div className="container mx-auto p-6">
-      <div className="mb-4 flex items-center justify-between">
+    <div className="p-10 min-h-screen transition-all">
+      <div className="flex justify-between items-center mb-10">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">Plano de Contas</h1>
-          <p className="text-gray-500">Gerencie as contas deste plano.</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Plano de Contas</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Gerencie as contas contábeis deste plano.</p>
         </div>
-        <div className="flex gap-2">
+
+        <div className="flex gap-3">
           <Button
-            className="cursor-pointer bg-gray-200 hover:bg-gray-100 text-gray-700"
+            className="
+              bg-gray-200 hover:bg-gray-300 
+              dark:bg-gray-700 dark:hover:bg-gray-600 
+              text-gray-800 dark:text-gray-200
+              shadow-sm
+            "
             onClick={() => router.push('/pages/billing-plans')}
           >
             Voltar
           </Button>
+
           <Button
-            className="bg-[#0b2034] hover:bg-[#12314d] cursor-pointer"
+            className="
+              bg-gray-900 hover:bg-black 
+              dark:bg-gray-800 dark:hover:bg-gray-700 
+              text-white shadow-md
+            "
             onClick={() => {
               setEditingAccount(null);
-              setNewAccount({ name: '', parentId: '', type_of: '', company: 'company-001' }); // Resetar o formulário
+              setNewAccount({ name: '', parentId: '', type_of: '' });
               setShowModal(true);
             }}
           >
@@ -236,9 +286,9 @@ export default function BillingAccountPage() {
         </div>
       </div>
 
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table className="w-full text-sm text-left text-gray-500">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+      <div className="relative overflow-x-auto shadow-md border border-gray-200 dark:border-gray-700 rounded-xl">
+        <table className="w-full text-sm text-left">
+          <thead className="text-xs font-semibold uppercase bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
             <tr>
               <th className="px-6 py-3">Conta</th>
               <th className="px-6 py-3">Classificação</th>
@@ -246,12 +296,13 @@ export default function BillingAccountPage() {
               <th className="px-6 py-3">Ações</th>
             </tr>
           </thead>
+
           <tbody>
             {accounts.length > 0 ? (
               renderRows(accounts, 0)
             ) : (
               <tr>
-                <td colSpan={4} className="text-center py-6 text-gray-400">
+                <td colSpan={4} className="text-center py-8 text-gray-400 dark:text-gray-500">
                   Nenhuma conta cadastrada.
                 </td>
               </tr>
@@ -260,26 +311,31 @@ export default function BillingAccountPage() {
         </table>
       </div>
 
-      <Modal show={showModal} onClose={() => setShowModal(false)}>
-        <div className="p-6 space-y-4">
-          <h2 className="text-xl font-bold text-gray-900">{editingAccount ? 'Editar Conta' : 'Nova Conta'}</h2>
+      <Modal show={showModal} onClose={() => setShowModal(false)} size="lg" popup>
+        <div className="p-8 bg-white dark:bg-gray-800 rounded-xl space-y-5">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {editingAccount ? 'Editar Conta' : 'Nova Conta'}
+          </h2>
 
           <div>
-            <Label htmlFor="name">Descrição</Label>
+            <Label>Descrição</Label>
             <TextInput
-              id="name"
               value={newAccount.name}
-              onChange={(e) => setNewAccount((prev) => ({ ...prev, name: e.target.value.toUpperCase() }))}
+              onChange={(e) => setNewAccount((prev) => ({ ...prev, name: e.target.value }))}
+              className="uppercase"
             />
           </div>
 
           <div>
-            <Label htmlFor="parentId">Conta Pai (opcional)</Label>
+            <Label>Conta Pai (opcional)</Label>
             <select
-              id="parentId"
               value={newAccount.parentId}
-              onChange={(e) => setNewAccount((prev) => ({ ...prev, parentId: e.target.value }))}
-              className="w-full border rounded px-2 py-1"
+              onChange={(e) => setNewAccount({ ...newAccount, parentId: e.target.value })}
+              className="
+                w-full border rounded-lg p-2 
+                bg-gray-50 dark:bg-gray-900 
+                dark:border-gray-700
+              "
             >
               <option value="">Nenhuma (Conta Principal)</option>
               {generateParentOptions(accounts).map((opt) => (
@@ -291,12 +347,15 @@ export default function BillingAccountPage() {
           </div>
 
           <div>
-            <Label htmlFor="type_of">Tipo de Conta</Label>
+            <Label>Tipo de Conta</Label>
             <select
-              id="type_of"
               value={newAccount.type_of}
-              onChange={(e) => setNewAccount((prev) => ({ ...prev, type_of: e.target.value as TypeOfAccount }))}
-              className="w-full border rounded px-2 py-1"
+              onChange={(e) => setNewAccount({ ...newAccount, type_of: e.target.value as TypeOfAccount })}
+              className="
+                w-full border rounded-lg p-2 
+                bg-gray-50 dark:bg-gray-900 
+                dark:border-gray-700
+              "
             >
               <option value="">Selecione...</option>
               <option value="Sintética">Sintética</option>
@@ -304,12 +363,24 @@ export default function BillingAccountPage() {
             </select>
           </div>
 
-          <div className="flex justify-end gap-2 mt-4">
-            <Button className="bg-[#0b2034] hover:bg-[#12314d] text-white cursor-pointer" onClick={saveAccount}>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              className="
+                bg-gray-900 hover:bg-black 
+                dark:bg-gray-700 dark:hover:bg-gray-600 
+                text-white shadow-md
+              "
+              onClick={saveAccount}
+            >
               {editingAccount ? 'Salvar Alterações' : 'Salvar'}
             </Button>
+
             <Button
-              className="bg-gray-200 hover:bg-gray-100 text-gray-700 cursor-pointer"
+              className="
+                bg-gray-200 hover:bg-gray-300 
+                dark:bg-gray-700 dark:hover:bg-gray-600 
+                text-gray-800 dark:text-gray-200
+              "
               onClick={() => setShowModal(false)}
             >
               Cancelar

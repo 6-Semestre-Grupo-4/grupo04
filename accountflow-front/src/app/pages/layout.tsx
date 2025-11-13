@@ -12,7 +12,7 @@ export default function PagesLayout({ children }: { children: React.ReactNode })
   }, []);
 
   return (
-    <div className="flex h-screen" style={{ background: 'var(--background)' }}>
+    <div className="flex min-h-screen" style={{ background: 'var(--background)' }}>
       {mounted && <SidebarComponent isOpen={isSidebarOpen} />}
 
       {isSidebarOpen && mounted && (

@@ -145,11 +145,28 @@ class Preset(ModelBasedMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
-    payable_account = models.ForeignKey(BillingAccount, on_delete=models.PROTECT, related_name='payable_presets')
-    receivable_account = models.ForeignKey(BillingAccount, on_delete=models.PROTECT, related_name='receivable_presets')
+    payable_account = models.ForeignKey(
+        BillingAccount, on_delete=models.PROTECT, related_name='payable_presets'
+    )
+    receivable_account = models.ForeignKey(
+        BillingAccount, on_delete=models.PROTECT, related_name='receivable_presets'
+    )
+    active = models.BooleanField(default=True)
+
+    # 🔹 novos campos para manter o nome das contas mesmo se forem removidas
+    payable_name = models.CharField(max_length=255, blank=True)
+    receivable_name = models.CharField(max_length=255, blank=True)
+
+    def save(self, *args, **kwargs):
+        # ✅ Sempre salva o nome das contas relacionadas
+        if self.payable_account:
+            self.payable_name = self.payable_account.name
+        if self.receivable_account:
+            self.receivable_name = self.receivable_account.name
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.name}"
+        return self.name
 
 class Title(ModelBasedMixin):
     class TitleType(models.TextChoices):

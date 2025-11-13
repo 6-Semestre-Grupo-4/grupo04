@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button, Badge, TextInput } from 'flowbite-react';
 import { HiPlus, HiSearch } from 'react-icons/hi';
 import { FiEdit2, FiTrash2, FiCheck, FiX, FiAlertTriangle } from 'react-icons/fi';
-import ToastNotification from '@/components/billing/toastNotification';
+import ToastNotification from '@/components/toastNotification';
 import TitleForm from '@/components/titles/TitleForm';
 import ConfirmDialog from '@/components/billing/confirmDialog';
 import { Title } from '@/types/title';

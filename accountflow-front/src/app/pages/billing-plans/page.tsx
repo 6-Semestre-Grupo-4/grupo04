@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'flowbite-react';
-import { FiEdit2, FiTrash2 } from 'react-icons/fi';
-import ToastNotification from '@/components/billing/toastNotification';
+import { FiEdit2, FiTrash2, FiEye } from 'react-icons/fi';
+import ToastNotification from '@/components/toastNotification';
 import BillingPlanForm from '@/components/billing/billingPlanForm';
 import ConfirmDialog from '@/components/billing/confirmDialog';
 import { BillingPlan } from '@/types/billingPlan';
@@ -82,56 +82,78 @@ export default function BillingPlansPage() {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-10 min-h-screen transition-all">
+      <div className="flex justify-between items-center mb-10">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">Planos de Contas</h1>
-          <p className="text-gray-500">Selecione um plano para gerenciar suas contas.</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Planos de Contas</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Gerencie os planos e suas contas estruturadas.</p>
         </div>
+
         <Button
-          className="bg-[#0b2034] hover:bg-[#12314d] dark:bg-[#0b2034] dark:hover:bg-[#12314d] cursor-pointer"
+          className="bg-gray-900 hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700 text-white shadow-md transition-all"
           onClick={handleNew}
         >
           Novo Plano
         </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {billingPlans.map((plan) => (
-          <div key={plan.uuid} className="relative p-4 bg-white shadow rounded-lg border hover:shadow-md transition">
-            <div className="cursor-pointer" onClick={() => router.push(`billing-plans/${plan.uuid}`)}>
-              <h2 className="text-lg font-bold text-gray-900">{plan.name}</h2>
-              <p className="text-gray-500 text-sm mt-1">{plan.description}</p>
+          <div
+            key={plan.uuid}
+            role="button"
+            tabIndex={0}
+            className="
+              p-5 bg-white dark:bg-gray-800 rounded-xl 
+              shadow-sm border border-gray-200 dark:border-gray-700 
+              hover:shadow-xl hover:scale-[1.02] hover:border-gray-400 dark:hover:border-gray-500
+              transition-all duration-200 cursor-pointer relative group
+            "
+            onClick={() => router.push(`billing-plans/${plan.uuid}`)}
+          >
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{plan.name}</h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">{plan.description}</p>
             </div>
 
-            <div className="absolute top-3 right-3 flex gap-3">
+            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleEdit(plan);
                 }}
-                className="text-primary hover:text-primary-900 cursor-pointer"
+                className="p-1 bg-white/60 dark:bg-gray-700/50 rounded-md hover:scale-105 transition"
                 title="Editar"
               >
-                <FiEdit2 size={16} />
+                <FiEdit2 size={18} />
               </button>
-
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   confirmDelete(plan.uuid);
                 }}
-                className="text-red-600 hover:text-red-800 cursor-pointer"
+                className="p-1 bg-white/60 dark:bg-gray-700/50 rounded-md hover:scale-105 transition"
                 title="Excluir"
               >
-                <FiTrash2 size={16} />
+                <FiTrash2 size={18} />
               </button>
+            </div>
+
+            <div
+              className="
+                mt-4 flex items-center gap-2 
+                opacity-0 group-hover:opacity-100 transition
+                text-blue-600 dark:text-blue-400
+              "
+            >
+              <FiEye size={20} />
+              <span className="text-sm font-medium">Ver hierarquia</span>
             </div>
           </div>
         ))}
 
         {billingPlans.length === 0 && (
-          <p className="text-gray-400 text-center col-span-full py-6">Nenhum plano cadastrado ainda.</p>
+          <div className="text-center col-span-full text-gray-400 py-10">Nenhum plano cadastrado ainda.</div>
         )}
       </div>
 
@@ -146,7 +168,6 @@ export default function BillingPlansPage() {
           cancelText="Cancelar"
           onConfirm={handleDelete}
           onCancel={() => setConfirmDialog(null)}
-          loading={false}
         />
       )}
 
