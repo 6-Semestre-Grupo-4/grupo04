@@ -40,7 +40,7 @@ const customTheme = createTheme({
     },
     collapse: {
       button:
-        'group flex w-full items-center rounded-lg p-2 text-base font-medium text-text-muted transition duration-200',
+        'group flex w-full items-center justify-start text-left rounded-lg p-1 text-base font-medium text-text-muted transition duration-200',
       icon: {
         base: 'h-5 w-5',
         open: {
@@ -49,7 +49,7 @@ const customTheme = createTheme({
         },
       },
       label: {
-        base: 'ml-3 flex-1 whitespace-nowrap text-left',
+        base: 'ml-3 w-full items-center justify-start text-left flex-1 whitespace-nowrap text-left',
         icon: {
           base: 'h-5 w-5 transition duration-200 group-hover:scale-110',
           open: {
@@ -61,7 +61,7 @@ const customTheme = createTheme({
       list: 'space-y-1 py-2 pl-3',
     },
     item: {
-      base: 'group flex w-full items-center rounded-lg p-2 text-base font-medium text-text-muted transition duration-200',
+      base: 'group flex w-full items-center justify-start text-left rounded-lg p-1 text-base font-medium text-text-muted transition duration-200',
       active: 'sidebar-item-active',
       icon: {
         base: 'h-5 w-5 flex-shrink-0 transition duration-200 group-hover:scale-110',
@@ -135,7 +135,7 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                     active={pathname === `${route}accounts-payable/create`}
                     onClick={() => router.push(`${route}accounts-payable/create`)}
                   >
-                    Cadastrar
+                    Cadastrar Títulos
                   </SidebarItem>
 
                   <SidebarItem
@@ -143,7 +143,7 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                     active={pathname === `${route}accounts-payable/pay`}
                     onClick={() => router.push(`${route}accounts-payable/pay`)}
                   >
-                    Baixar
+                    Baixar Títulos
                   </SidebarItem>
                 </SidebarCollapse>
 
@@ -159,7 +159,7 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                     active={pathname === `${route}accounts-receivable/create`}
                     onClick={() => router.push(`${route}accounts-receivable/create`)}
                   >
-                    Cadastrar
+                    Cadastrar Títulos
                   </SidebarItem>
 
                   <SidebarItem
@@ -167,7 +167,7 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                     active={pathname === `${route}accounts-receivable/receive`}
                     onClick={() => router.push(`${route}accounts-receivable/receive`)}
                   >
-                    Baixar
+                    Baixar Títulos
                   </SidebarItem>
                 </SidebarCollapse>
               </SidebarCollapse>
