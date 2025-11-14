@@ -21,7 +21,8 @@
   "homepage": "https://github.com/6-Semestre-Grupo-4/grupo04#readme",
   "devDependencies": {
     "commitizen": "^4.3.1",
-    "cz-conventional-changelog": "^3.3.0"
+    "cz-conventional-changelog": "^3.3.0",
+    "typescript": "^5.9.3"
   },
   "config": {
     "commitizen": {
