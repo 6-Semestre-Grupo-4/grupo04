@@ -30,10 +30,10 @@ export default function BillingPlanForm({ show, onClose, onSave, editing }: Prop
 
   return (
     <Modal show={show} onClose={onClose}>
-      <div className="p-6 space-y-4 bg-white dark:bg-white">
-        <h2 className="text-xl font-bold text-gray-900">
+      <div className="p-8 bg-white dark:bg-gray-800 rounded-xl space-y-5">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
           {editing ? 'Editar Plano de Contas' : 'Novo Plano de Contas'}
-        </h2>
+        </h3>
 
         <div>
           <Label htmlFor="name">Nome</Label>
@@ -57,11 +57,14 @@ export default function BillingPlanForm({ show, onClose, onSave, editing }: Prop
           />
         </div>
 
-        <div className="flex justify-end gap-2 mt-4">
-          <Button className="bg-[#0b2034] hover:bg-[#12314d] text-white cursor-pointer" onClick={handleSave}>
+        <div className="flex justify-end gap-3 pt-4">
+          <Button color="gray" onClick={handleSave}>
             {editing ? 'Salvar Alterações' : 'Salvar'}
           </Button>
-          <Button className="bg-gray-200 hover:bg-gray-100 text-gray-700 cursor-pointer" onClick={onClose}>
+          <Button
+            className="bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 text-white shadow-md"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
         </div>

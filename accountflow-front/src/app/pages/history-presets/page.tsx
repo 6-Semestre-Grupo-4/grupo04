@@ -1,24 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Modal, Button, Label, TextInput, Select } from 'flowbite-react';
-import { HiPlus } from 'react-icons/hi';
-import { FiEdit2, FiArrowRight, FiTrash2 } from 'react-icons/fi';
-import { getPresets, savePreset, getBillingPlans, getAccountsByPlan, deletePreset } from '@/services/presetService';
-import { Preset } from '@/types/preset';
+import { Button, Label, TextInput, Select } from 'flowbite-react';
+import { FiArrowRight, FiEdit2, FiTrash2 } from 'react-icons/fi';
+
 import ToastNotification from '@/components/toastNotification';
+import HistoryPresetForm from '@/components/billing/historyPreset';
 
-interface BillingPlan {
-  uuid: string;
-  name: string;
-  description: string;
-}
+import { Preset } from '@/types/preset';
+import { BillingPlan } from '@/types/billingPlan';
+import { BillingAccount } from '@/types/billingAccount';
 
-interface BillingAccount {
-  uuid: string;
-  name: string;
-  code: string;
-}
+import { getPresets, savePreset, deletePreset, getBillingPlans, getAccountsByPlan } from '@/services/presetService';
 
 export default function HistoryPresetsPage() {
   const [presets, setPresets] = useState<Preset[]>([]);
@@ -29,7 +22,7 @@ export default function HistoryPresetsPage() {
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState<Preset | null>(null);
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'warning' } | null>(null);
+  const [toast, setToast] = useState<any>(null);
 
   const [form, setForm] = useState({
     name: '',
@@ -58,33 +51,21 @@ export default function HistoryPresetsPage() {
   useEffect(() => {
     async function loadAllAccounts() {
       try {
-        const allPlans = await getBillingPlans();
-        let allAccs: BillingAccount[] = [];
+        let all: BillingAccount[] = [];
+        const list = await getBillingPlans();
 
-        for (const p of allPlans) {
-          const planAccs = await getAccountsByPlan(p.uuid);
-          allAccs = [...allAccs, ...planAccs];
+        for (const p of list) {
+          const acc = await getAccountsByPlan(p.uuid);
+          all = [...all, ...acc];
         }
 
-        const unique = Array.from(new Map(allAccs.map((acc) => [acc.uuid, acc])).values());
-        setAccounts(unique);
+        setAccounts(all);
       } catch {}
     }
     loadAllAccounts();
   }, []);
 
-  const filteredPresets = presets.filter((preset) => {
-    const planMatch = filterPlan ? preset.billing_plan === filterPlan : true;
-
-    const search = searchText.trim().toLowerCase();
-    const searchMatch = search
-      ? preset.name.toLowerCase().includes(search) || preset.description.toLowerCase().includes(search)
-      : true;
-
-    return planMatch && searchMatch;
-  });
-
-  async function handleOpenModal(preset?: Preset) {
+  function openForm(preset?: Preset) {
     if (preset) {
       setEditing(preset);
       setForm({
@@ -95,8 +76,7 @@ export default function HistoryPresetsPage() {
         receivable_account: preset.receivable_account,
       });
 
-      const data = await getAccountsByPlan(preset.billing_plan);
-      setModalAccounts(data);
+      getAccountsByPlan(preset.billing_plan).then(setModalAccounts);
     } else {
       setEditing(null);
       setForm({
@@ -145,10 +125,23 @@ export default function HistoryPresetsPage() {
     }
   }
 
-  function getAccountName(preset: Preset, uuid: string, type: 'payable' | 'receivable') {
-    return (
-      accounts.find((a) => a.uuid === uuid)?.name || (type === 'payable' ? preset.payable_name : preset.receivable_name)
-    );
+  const filteredPresets = presets.filter((preset) => {
+    const matchPlan = filterPlan ? preset.billing_plan === filterPlan : true;
+    const txt = searchText.trim().toLowerCase();
+
+    const matchText = txt
+      ? preset.name.toLowerCase().includes(txt) || preset.description.toLowerCase().includes(txt)
+      : true;
+
+    return matchPlan && matchText;
+  });
+
+  function getAccountName(uuid: string) {
+    return accounts.find((a) => a.uuid === uuid)?.name || '—';
+  }
+
+  function getPlanName(uuid: string) {
+    return plans.find((p) => p.uuid === uuid)?.name || 'Plano não encontrado';
   }
 
   return (
@@ -163,7 +156,7 @@ export default function HistoryPresetsPage() {
 
         <Button
           className="bg-gray-900 hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700 text-white shadow-md transition-all"
-          onClick={() => handleOpenModal()}
+          onClick={() => openForm()}
         >
           Novo Histórico
         </Button>
@@ -222,40 +215,68 @@ export default function HistoryPresetsPage() {
         {filteredPresets.map((h) => (
           <div
             key={h.uuid}
-            className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-200 group cursor-pointer"
+            className="
+              p-6 rounded-2xl
+              bg-white dark:bg-gray-900
+              border border-gray-200 dark:border-gray-700
+              shadow-sm
+              hover:shadow-lg hover:-translate-y-1
+              transition-all duration-200
+              cursor-pointer
+              group
+            "
           >
-            <div className="flex justify-between items-start">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{h.name}</h2>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">{h.description}</p>
+            <div className="flex justify-between items-start gap-4">
+              <div className="flex-1">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white leading-tight">{h.name}</h2>
+
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 line-clamp-2">{h.description}</p>
+
+                <span
+                  className="
+                  inline-block mt-4 px-3 py-1 text-xs font-medium rounded-lg
+                  bg-blue-100 text-blue-700
+                  dark:bg-blue-900/30 dark:text-blue-300
+                "
+                >
+                  {getPlanName(h.billing_plan)}
+                </span>
               </div>
 
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition">
+              <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
-                  onClick={() => handleOpenModal(h)}
-                  className="p-1 bg-white/60 dark:bg-gray-700/50 rounded-md shadow-sm hover:scale-105 transition"
+                  onClick={() => openForm(h)}
+                  className="
+                    p-2 rounded-lg bg-gray-100 dark:bg-gray-700
+                    hover:bg-gray-200 dark:hover:bg-gray-600
+                    shadow-sm
+                    transition
+                  "
                 >
-                  <FiEdit2 size={18} />
+                  <FiEdit2 size={16} className="text-gray-700 dark:text-gray-300" />
                 </button>
 
                 <button
                   onClick={() => handleDelete(h)}
-                  className="p-1 bg-white/60 dark:bg-gray-700/50 rounded-md shadow-sm hover:scale-105 transition"
+                  className="
+                    p-2 rounded-lg bg-gray-100 dark:bg-gray-700
+                    hover:bg-gray-200 dark:hover:bg-gray-600
+                    shadow-sm
+                    transition
+                  "
                 >
-                  <FiTrash2 size={18} />
+                  <FiTrash2 size={16} />
                 </button>
               </div>
             </div>
 
             <div className="mt-5 flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-inner">
-              <span className="font-semibold text-red-600 dark:text-red-300">
-                {getAccountName(h, h.payable_account, 'payable')}
-              </span>
+              <span className="font-semibold text-red-600 dark:text-red-300">{getAccountName(h.payable_account)}</span>
 
               <FiArrowRight size={22} className="text-gray-500 dark:text-gray-300 mx-3" />
 
               <span className="font-semibold text-green-600 dark:text-green-300">
-                {getAccountName(h, h.receivable_account, 'receivable')}
+                {getAccountName(h.receivable_account)}
               </span>
             </div>
           </div>
@@ -266,104 +287,18 @@ export default function HistoryPresetsPage() {
         )}
       </div>
 
-      <Modal show={openModal} size="lg" onClose={() => setOpenModal(false)} popup>
-        <div className="p-8 bg-white dark:bg-gray-800 rounded-xl space-y-5">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {editing ? 'Editar Histórico' : 'Novo Histórico'}
-          </h3>
-
-          <div className="grid gap-5">
-            <div>
-              <Label>Nome</Label>
-              <TextInput value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            </div>
-
-            <div>
-              <Label>Descrição</Label>
-              <TextInput value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-            </div>
-
-            <div>
-              <Label>Plano de Contas</Label>
-              <Select
-                value={form.billing_plan}
-                onChange={async (e) => {
-                  const planUUID = e.target.value;
-
-                  setForm({
-                    ...form,
-                    billing_plan: planUUID,
-                    payable_account: '',
-                    receivable_account: '',
-                  });
-
-                  if (planUUID) {
-                    const data = await getAccountsByPlan(planUUID);
-                    setModalAccounts(data);
-                  } else {
-                    setModalAccounts([]);
-                  }
-                }}
-              >
-                <option value="">Selecione...</option>
-                {plans.map((p) => (
-                  <option key={p.uuid} value={p.uuid}>
-                    {p.name}
-                  </option>
-                ))}
-              </Select>
-            </div>
-
-            {form.billing_plan && (
-              <div className="grid grid-cols-2 gap-5">
-                <div>
-                  <Label>Conta Débito</Label>
-                  <Select
-                    value={form.payable_account}
-                    onChange={(e) => setForm({ ...form, payable_account: e.target.value })}
-                  >
-                    <option value="">Selecione...</option>
-                    {modalAccounts.map((acc) => (
-                      <option key={acc.uuid} value={acc.uuid}>
-                        {acc.code} - {acc.name}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-
-                <div>
-                  <Label>Conta Crédito</Label>
-                  <Select
-                    value={form.receivable_account}
-                    onChange={(e) => setForm({ ...form, receivable_account: e.target.value })}
-                  >
-                    <option value="">Selecione...</option>
-                    {modalAccounts.map((acc) => (
-                      <option key={acc.uuid} value={acc.uuid}>
-                        {acc.code} - {acc.name}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4">
-            <Button color="gray" onClick={() => setOpenModal(false)}>
-              Cancelar
-            </Button>
-
-            <Button
-              onClick={handleSave}
-              disabled={loading}
-              className="bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 text-white shadow-md"
-            >
-              {loading ? 'Salvando...' : 'Salvar'}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+      <HistoryPresetForm
+        show={openModal}
+        onClose={() => setOpenModal(false)}
+        editing={editing}
+        plans={plans}
+        modalAccounts={modalAccounts}
+        setModalAccounts={setModalAccounts}
+        form={form}
+        setForm={setForm}
+        onSave={handleSave}
+        loading={loading}
+      />
 
       {toast && <ToastNotification message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
