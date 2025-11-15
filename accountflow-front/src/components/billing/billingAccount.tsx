@@ -12,7 +12,6 @@ type BillingAccountPayload = {
   account_type: 'analytic' | 'synthetic';
   parent: string | null;
   billing_plan: string;
-  company: string;
 };
 
 type Props = {
@@ -78,7 +77,6 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
       account_type: form.type_of === 'Analítica' ? 'analytic' : 'synthetic',
       parent: form.parentId || null,
       billing_plan: planId,
-      company: 'e546a54b-1191-4d55-829c-2d6dd74a6b85',
     };
 
     onSave(payload, editing?.uuid);

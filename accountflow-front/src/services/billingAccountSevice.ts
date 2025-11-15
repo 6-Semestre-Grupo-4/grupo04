@@ -1,4 +1,3 @@
-// Assumindo que 'api' é sua instância do Axios
 import api from '@/services/api';
 
 type BillingAccountPayload = {
@@ -10,15 +9,10 @@ type BillingAccountPayload = {
 
 export async function getBillingAccounts(planId: string) {
   try {
-    // 1. O Axios coloca dados de query string no objeto 'params'
-    const res = await api.get('billing-account/', {
-      params: { billing_plan_id: planId },
-    });
-    // 2. A resposta do Axios está em 'res.data'
+    const res = await api.get(`billing-account/by-plan/${planId}/`);
     return res.data;
   } catch (error) {
     console.error('Erro ao buscar contas:', error);
-    // 3. Lançar um novo erro para o componente React poder capturá-lo
     throw new Error('Erro ao buscar contas');
   }
 }
