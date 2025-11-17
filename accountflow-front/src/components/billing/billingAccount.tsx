@@ -61,7 +61,7 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
   const generateParentOptions = (list: BillingAccount[], level = 0): { uuid: string; label: string }[] => {
     const map: { uuid: string; label: string }[] = [];
     list.forEach((acc) => {
-      map.push({ uuid: acc.uuid, label: `${'--'.repeat(level)} ${acc.name}` });
+      map.push({ uuid: acc.uuid, label: `${'  '.repeat(level)}${acc.code} - ${acc.name}` });
       if (acc.billingAccount_parent && acc.billingAccount_parent.length > 0) {
         map.push(...generateParentOptions(acc.billingAccount_parent, level + 1));
       }

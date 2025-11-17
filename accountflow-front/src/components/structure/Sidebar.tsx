@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import {
   Sidebar,
   SidebarItem,
@@ -76,10 +77,11 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
   const router = useRouter();
 
   const isOperationsActive =
-    pathname.startsWith(`${route}accounts-payable`) || pathname.startsWith(`${route}accounts-receivable`);
+    pathname.startsWith(`${route}operations/accounts-payable`) ||
+    pathname.startsWith(`${route}operations/accounts-receivable`);
 
-  const isAccountsPayableActive = pathname.startsWith(`${route}accounts-payable`);
-  const isAccountsReceivableActive = pathname.startsWith(`${route}accounts-receivable`);
+  const isAccountsPayableActive = pathname.startsWith(`${route}operations/accounts-payable`);
+  const isAccountsReceivableActive = pathname.startsWith(`${route}operations/accounts-receivable`);
   const isSettingsActive = pathname.startsWith(`${route}settings`);
 
   return (
@@ -132,16 +134,18 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                 >
                   <SidebarItem
                     icon={FilePlus}
-                    active={pathname === `${route}accounts-payable/create`}
-                    onClick={() => router.push(`${route}accounts-payable/create`)}
+                    as={Link}
+                    href={`${route}operations/accounts-payable/create`}
+                    active={pathname === `${route}operations/accounts-payable/create`}
                   >
                     Cadastrar Títulos
                   </SidebarItem>
 
                   <SidebarItem
                     icon={FileDown}
-                    active={pathname === `${route}accounts-payable/pay`}
-                    onClick={() => router.push(`${route}accounts-payable/pay`)}
+                    as={Link}
+                    href={`${route}operations/accounts-payable/pay`}
+                    active={pathname === `${route}operations/accounts-payable/pay`}
                   >
                     Baixar Títulos
                   </SidebarItem>
@@ -156,16 +160,18 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                 >
                   <SidebarItem
                     icon={FilePlus}
-                    active={pathname === `${route}accounts-receivable/create`}
-                    onClick={() => router.push(`${route}accounts-receivable/create`)}
+                    as={Link}
+                    href={`${route}operations/accounts-receivable/create`}
+                    active={pathname === `${route}operations/accounts-receivable/create`}
                   >
                     Cadastrar Títulos
                   </SidebarItem>
 
                   <SidebarItem
                     icon={FileDown}
-                    active={pathname === `${route}accounts-receivable/receive`}
-                    onClick={() => router.push(`${route}accounts-receivable/receive`)}
+                    as={Link}
+                    href={`${route}operations/accounts-receivable/receive`}
+                    active={pathname === `${route}operations/accounts-receivable/receive`}
                   >
                     Baixar Títulos
                   </SidebarItem>
@@ -181,17 +187,19 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
               >
                 <SidebarItem
                   icon={Network}
-                  active={pathname === `${route}settings/chart-of-accounts`}
-                  onClick={() => router.push(`${route}settings/chart-of-accounts`)}
+                  active={pathname === `${route}settings/billing-plans`}
+                  as={Link}
+                  href={`${route}settings/billing-plans`}
                 >
                   Plano de Contas
                 </SidebarItem>
                 <SidebarItem
                   icon={Landmark}
-                  active={pathname === `${route}settings/preset`}
-                  onClick={() => router.push(`${route}settings/preset`)}
+                  active={pathname === `${route}settings/history-presets`}
+                  as={Link}
+                  href={`${route}settings/history-presets`}
                 >
-                  Preset
+                  Históricos
                 </SidebarItem>
 
                 <SidebarItem
