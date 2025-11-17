@@ -17,6 +17,11 @@ export const saveTitle = async (title: Title, uuid?: string): Promise<Title> => 
   }
 };
 
+export const getTitle = async (uuid: string): Promise<Title> => {
+  const response = await api.get(`/title/${uuid}/`);
+  return response.data;
+};
+
 export const deleteTitle = async (uuid: string): Promise<void> => {
   await api.delete(`/title/${uuid}/`);
 };
