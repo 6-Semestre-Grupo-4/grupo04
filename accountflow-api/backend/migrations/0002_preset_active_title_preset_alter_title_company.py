@@ -16,14 +16,4 @@ class Migration(migrations.Migration):
             name='active',
             field=models.BooleanField(default=True),
         ),
-        migrations.AddField(
-            model_name='title',
-            name='preset',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='backend.preset'),
-        ),
-        migrations.AlterField(
-            model_name='title',
-            name='company',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='backend.company'),
-        ),
     ]

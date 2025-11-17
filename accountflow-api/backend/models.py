@@ -48,6 +48,9 @@ class BillingPlan(ModelBasedMixin):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
 
+    class Meta:
+        indexes = [models.Index(fields=['name'])]
+
     def __str__(self):
         return f"{self.name} - {self.description}"
 
@@ -60,28 +63,36 @@ class BillingAccount(ModelBasedMixin):
 
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
-    billing_plan = models.ForeignKey('BillingPlan', on_delete=models.PROTECT, related_name='billing_plan')
+    billing_plan = models.ForeignKey('BillingPlan', on_delete=models.PROTECT, related_name='accounts')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     account_type = models.CharField(max_length=10, choices=AccountType.choices)
     is_active = models.BooleanField(default=True)
 
-    classification = models.PositiveSmallIntegerField(editable=False)
     code = models.CharField(max_length=30, editable=False)
 
     class Meta:
         unique_together = ('billing_plan', 'code') 
+        indexes = [
+            models.Index(fields=['billing_plan', 'parent']),
+            models.Index(fields=['code']),
+            models.Index(fields=['account_type']),
+        ]
 
     def __str__(self):
         tipo = "Analítica" if self.account_type == self.AccountType.ANALYTIC else "Sintética"
         return f'{self.code} - {self.name} ({tipo})'
 
     # --- Calculo de classificação ---
-    def get_level(self):
+    @property
+    def level(self):
+        if hasattr(self, '_level_cache'):
+            return self._level_cache
         level = 1
         parent = self.parent
         while parent:
             level += 1
             parent = parent.parent
+        self._level_cache = level
         return level
 
     # --- Gerar código de classificação completo ex: 1.1.1.2.03
@@ -91,7 +102,7 @@ class BillingAccount(ModelBasedMixin):
             siblings  = (
                 BillingAccount.objects.filter(
                 billing_plan=self.billing_plan, parent__isnull=True
-            ).count()
+            ).select_for_update().count()
             + 1
             )
             return f"{siblings}"
@@ -103,14 +114,17 @@ class BillingAccount(ModelBasedMixin):
         siblings = (
             BillingAccount.objects.filter(
                 parent=self.parent
-            ).count() +1
+            ).select_for_update().count() 
+            +1
         )
 
         #Calcular a hierarquia dinamicamente
-        level = self.get_level()
-        padding = max(2, level)
+        level = self.level
+        if level <= 3:
+            suffix = str(siblings)
+        else:
+            suffix = str(siblings).zfill(3)
 
-        suffix = str(siblings).zfill(padding)
         return f'{parent_code}.{suffix}'
 
     def clean(self):
@@ -121,11 +135,8 @@ class BillingAccount(ModelBasedMixin):
             raise ValidationError("A conta pai pertence a outro plano de contas.")
 
         # Calcula nível e valida limite de level
-        self.classification = self.get_level()
-        if self.classification > self.MAX_LEVEL:
-            raise ValidationError(
-                f"A profundidade máxima permitida é de {self.MAX_LEVEL} níveis."
-            )
+        if self.level > self.MAX_LEVEL:
+            raise ValidationError(f"A profundidade máxima permitida é de {self.MAX_LEVEL} níveis.")
 
         # Regras contábeis de tipo
         if self.account_type == self.AccountType.ANALYTIC:
@@ -136,13 +147,29 @@ class BillingAccount(ModelBasedMixin):
         elif self.account_type == self.AccountType.SYNTHETIC:
             if self.parent and self.parent.account_type == self.AccountType.ANALYTIC:
                 raise ValidationError("Conta sintética não pode ter pai analítico.")
+        
+        if self.pk and self.account_type == self.AccountType.ANALYTIC:
+            if BillingAccount.objects.filter(parent=self).exists():
+                raise ValidationError(
+                    "Conta analítica não pode possuir contas filhas."
+                )
 
     def save(self, *args, **kwargs):
-        self.full_clean()
-        if not self.code:
-            self.code = self.generate_account_code()
-        self.classification = self.get_level()
-        super().save(*args, **kwargs)   
+        from django.db import transaction
+        with transaction.atomic():
+            self.full_clean()
+            if not self.code:
+                self.code = self.generate_account_code()
+            super().save(*args, **kwargs)   
+    
+    def delete(self, *args, **kwargs):
+        from django.db import transaction
+        with transaction.atomic():
+            if BillingAccount.objects.filter(parent=self).exists():
+                raise ValidationError(
+                    "Exclusão bloqueada: esta conta possui contas filhas."
+                )
+            return super().delete(*args, **kwargs)
 
 class Preset(ModelBasedMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

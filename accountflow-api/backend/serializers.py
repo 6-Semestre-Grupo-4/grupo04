@@ -27,9 +27,14 @@ class BillingPlanSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class BillingAccountSerializer(serializers.ModelSerializer):
+    parent_name = serializers.CharField(source='parent.name', read_only=True, allow_null=True)
+    billing_plan_name = serializers.CharField(source='billing_plan.name', read_only=True)
+
     class Meta:
         model = BillingAccount
-        fields = '__all__'
+        fields = ['uuid', 'name', 'code', 'account_type', 
+                'is_active', 'parent', 'parent_name', 'billing_plan', 'billing_plan_name', 'level']
+        read_only_fields = ['code', ]
 
 class PresetSerializer(serializers.ModelSerializer):
     billing_plan = serializers.SerializerMethodField()
