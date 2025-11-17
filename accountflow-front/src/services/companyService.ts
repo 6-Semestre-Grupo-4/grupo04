@@ -9,19 +9,19 @@ export interface CompanyData {
   email: string;
   phone: string;
   mobile_phone: string;
-  state_registration: string;
-  municipal_registration: string;
   tax_regime: string;
   logo?: File | null;
-  address: {
-    cep: string;
-    street: string;
-    number: string;
-    complement: string;
-    neighborhood: string;
-    city: string;
-    state: string;
-  };
+  address: Address;
+}
+
+export interface Address {
+  cep: string;
+  street: string;
+  number: string;
+  complement: string;
+  neighborhood: string;
+  city: string;
+  state: string;
 }
 
 export const companyService = {

@@ -123,7 +123,7 @@ export default function Companies() {
   };
 
   const handleEdit = (company: Company) => {
-    window.location.href = `/pages/companies/edit/${company.uuid}`;
+    window.location.href = `/pages/company/edit/${company.uuid}`;
   };
 
   const handleDeleteClick = (company: Company) => {
@@ -185,7 +185,7 @@ export default function Companies() {
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Empresas</h1>
             <p className="text-gray-600 dark:text-gray-300 mt-2">Gerencie as empresas cadastradas no sistema</p>
           </div>
-          <Link href="/pages/companies/register">
+          <Link href="/pages/company/register">
             <Button color="blue" className="bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600">
               <FiPlus className="mr-2 h-4 w-4" />
               Nova Empresa
@@ -201,7 +201,7 @@ export default function Companies() {
               <p className="text-gray-600 dark:text-gray-300 mb-6">
                 Comece cadastrando sua primeira empresa no sistema.
               </p>
-              <Link href="/pages/companies/register">
+              <Link href="/pages/company/register">
                 <Button color="blue" className="bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600">
                   <FiPlus className="mr-2 h-4 w-4" />
                   Cadastrar Primeira Empresa

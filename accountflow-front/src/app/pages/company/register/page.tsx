@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, Label, TextInput, Select, Button, FileInput } from 'flowbite-react';
 import { FiSave, FiUpload } from 'react-icons/fi';
+import ToastNotification from '@/components/toastNotification';
 // TODO: Descomentar quando backend estiver pronto
 // import companyService from '@/services/companyService';
 
@@ -161,6 +162,105 @@ export default function CompanyRegister() {
     'TO',
   ];
 
+
+  async function fetchCep(cep: string) {
+    const cleanCep = cep.replace(/\D/g, '');
+
+    if (cleanCep.length !== 8) return null;
+
+    try {
+      const res = await fetch(`https://brasilapi.com.br/api/cep/v1/${cleanCep}`);
+      if (!res.ok) throw new Error("CEP não encontrado");
+      return await res.json();
+    } catch (err) {
+      console.error("Erro ao buscar CEP:", err);
+      return null;
+    }
+  }
+
+
+  const [loadingCep, setLoadingCep] = useState(false);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: 'success' | 'error' | 'info' | 'warning';
+  } | null>(null);
+
+
+  useEffect(() => {
+    const cleanCep = formData.address.cep.replace(/\D/g, '');
+
+    if (cleanCep.length === 8) {
+      setLoadingCep(true);
+
+      fetch(`https://brasilapi.com.br/api/cep/v1/${cleanCep}`)
+        .then(async (res) => {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then((data) => {
+          handleInputChange('address.street', data.street || '');
+          handleInputChange('address.neighborhood', data.neighborhood || '');
+          handleInputChange('address.city', data.city || '');
+          handleInputChange('address.state', data.state || '');
+        })
+        .catch(() => {
+          setToast({
+            message: 'CEP inválido ou não encontrado.',
+            type: 'error',
+          });
+        })
+        .finally(() => {
+          setLoadingCep(false);
+        });
+    }
+  }, [formData.address.cep]);
+
+
+
+  const [loadingCnpj, setLoadingCnpj] = useState(false);
+  useEffect(() => {
+    const cleanCnpj = formData.cnpj.replace(/\D/g, '');
+
+    if (cleanCnpj.length === 14) {
+      setLoadingCnpj(true);
+
+      fetch(`https://brasilapi.com.br/api/cnpj/v1/${cleanCnpj}`)
+        .then(async (res) => {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then((data) => {
+          // Preenche dados principais
+          handleInputChange('social_reason', data.razao_social || '');
+          handleInputChange('fantasy_name', data.nome_fantasia || '');
+          handleInputChange('opening_date', data.data_inicio_atividade || '');
+          handleInputChange('cnae', data.cnae_fiscal || '');
+
+          // Preenche endereço (quando existir)
+          if (data.estabelecimento) {
+            const est = data.estabelecimento;
+
+            handleInputChange('address.cep', est.cep || '');
+            handleInputChange('address.street', est.logradouro || '');
+            handleInputChange('address.number', est.numero || '');
+            handleInputChange('address.complement', est.complemento || '');
+            handleInputChange('address.neighborhood', est.bairro || '');
+            handleInputChange('address.city', est.cidade?.nome || '');
+            handleInputChange('address.state', est.estado?.sigla || '');
+          }
+        })
+        .catch(() => {
+          setToast({
+            message: 'CNPJ inválido ou não encontrado.',
+            type: 'error',
+          });
+        })
+        .finally(() => {
+          setLoadingCnpj(false);
+        });
+    }
+  }, [formData.cnpj]);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="container mx-auto px-4 py-8">
@@ -195,6 +295,10 @@ export default function CompanyRegister() {
                     className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
                     required
                   />
+                  {loadingCnpj && (
+                    <p className="text-sm text-gray-500 mt-1">Buscando dados do CNPJ…</p>
+                  )}
+
                 </div>
 
                 <div className="lg:col-span-2">
@@ -281,50 +385,15 @@ export default function CompanyRegister() {
 
             <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
               <div className="mb-4">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Informações Tributárias</h2>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="state_registration" className="text-gray-700 dark:text-gray-200">
-                    Inscrição Estadual (IE)
-                  </Label>
-                  <TextInput
-                    id="state_registration"
-                    name="state_registration"
-                    value={formData.state_registration}
-                    onChange={(e) => handleInputChange('state_registration', e.target.value)}
-                    placeholder="Informe a inscrição estadual"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="municipal_registration" className="text-gray-700 dark:text-gray-200">
-                    Inscrição Municipal (IM)
-                  </Label>
-                  <TextInput
-                    id="municipal_registration"
-                    name="municipal_registration"
-                    value={formData.municipal_registration}
-                    onChange={(e) => handleInputChange('municipal_registration', e.target.value)}
-                    placeholder="Informe a inscrição municipal"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-                  />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-              <div className="mb-4">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Endereço</h2>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="lg:col-span-1">
+               <div className="lg:col-span-1">
                   <Label htmlFor="cep" className="text-gray-700 dark:text-gray-200">
                     CEP *
                   </Label>
+
                   <TextInput
                     id="cep"
                     name="cep"
@@ -337,7 +406,12 @@ export default function CompanyRegister() {
                     className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
                     required
                   />
+
+                  {loadingCep && (
+                    <p className="text-sm text-gray-500 mt-1">Buscando endereço…</p>
+                  )}
                 </div>
+
 
                 <div className="lg:col-span-2">
                   <Label htmlFor="street" className="text-gray-700 dark:text-gray-200">
@@ -459,23 +533,6 @@ export default function CompanyRegister() {
                 </div>
 
                 <div className="lg:col-span-1">
-                  <Label htmlFor="phone" className="text-gray-700 dark:text-gray-200">
-                    Telefone Fixo
-                  </Label>
-                  <TextInput
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={(e) => {
-                      const maskedValue = applyMask(e.target.value, '(99) 9999-9999');
-                      handleInputChange('phone', maskedValue);
-                    }}
-                    placeholder="(11) 1234-5678"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-                  />
-                </div>
-
-                <div className="lg:col-span-1">
                   <Label htmlFor="mobile_phone" className="text-gray-700 dark:text-gray-200">
                     Celular
                   </Label>
@@ -557,6 +614,8 @@ export default function CompanyRegister() {
           </form>
         </div>
       </div>
+      {toast && <ToastNotification message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
+  
 }
