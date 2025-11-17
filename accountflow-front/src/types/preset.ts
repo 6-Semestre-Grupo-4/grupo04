@@ -7,4 +7,5 @@ export interface Preset {
   payable_name?: string;
   receivable_name?: string;
   billing_plan: string;
+  active: boolean;
 }

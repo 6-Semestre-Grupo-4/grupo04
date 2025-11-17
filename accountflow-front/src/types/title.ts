@@ -12,4 +12,5 @@ export interface Title {
   company: string;
   created_at?: string;
   updated_at?: string;
+  preset?: string | null;
 }
