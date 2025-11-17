@@ -5,8 +5,9 @@ import { Sidebar, SidebarItem, SidebarItemGroup, SidebarItems, createTheme, Them
 import { AiFillHome } from 'react-icons/ai';
 import { IoPeople } from 'react-icons/io5';
 import { MdOutlineAccountTree } from 'react-icons/md';
-import { FaCog, FaUserShield } from 'react-icons/fa';
+import { FaUserShield } from 'react-icons/fa';
 import { RiBuilding2Fill } from 'react-icons/ri';
+import { HiOutlineAdjustmentsHorizontal } from 'react-icons/hi2';
 import Image from 'next/image';
 import Logo from '@/assets/images/logos/sideLogo.png';
 
@@ -20,10 +21,10 @@ const menuItems = [
   { label: 'Pessoas', icon: IoPeople, href: `${route}people` },
   { label: 'Empresas', icon: RiBuilding2Fill, href: `${route}company` },
   { label: 'Plano de Contas', icon: MdOutlineAccountTree, href: `${route}billing-plans` },
+  { label: 'Históricos', icon: HiOutlineAdjustmentsHorizontal, href: `${route}history-presets` },
   { label: 'Títulos', icon: BsCashCoin, href: `${route}titles` },
   { label: 'Lançamentos', icon: HiDocumentText, href: `${route}entries` },
   { label: 'Usuários', icon: FaUserShield, href: `${route}access-management` },
-  { label: 'Configurações', icon: FaCog, href: `${route}system-settings` },
 ];
 
 interface SidebarProps {
