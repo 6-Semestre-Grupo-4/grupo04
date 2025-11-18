@@ -31,7 +31,7 @@ export default function PayableEntriesPage() {
   const loadData = async () => {
     try {
       const allTitles = await getTitles();
-      const openExpenseTitles = allTitles.filter((t) => t.type_of === 'expense' && t.active);
+      const openExpenseTitles = allTitles.filter((t) => t.type_of === 'expense');
       setTitles(openExpenseTitles);
     } catch {
       setToast({ message: 'Erro ao carregar dados.', type: 'error' });
