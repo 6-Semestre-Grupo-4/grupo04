@@ -9,6 +9,14 @@ export function handleApiError(error: unknown, defaultMessage: string): never {
     if (error.response) {
       const status = error.response.status;
       const text = error.response.statusText || 'Erro desconhecido';
+      const details = error.response.data;
+
+      console.error('🔴 API Error:', {
+        message: defaultMessage,
+        status,
+        statusText: text,
+        data: details, 
+      });
 
       throw new Error(`${defaultMessage}: ${status} - ${text}`);
     }
