@@ -13,10 +13,11 @@ export type Entry = {
 };
 
 export type EntryPayload = {
+  title: string;
   description: string;
   amount: number;
-  paid_at?: string | null;
+  paid_at: string | null;
   type_of: 'income' | 'expense';
   payment_method: PaymentMethod;
-  billing_account?: string | null;
+  billing_account?: string;
 };
