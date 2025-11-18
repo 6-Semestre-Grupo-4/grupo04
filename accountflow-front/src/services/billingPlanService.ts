@@ -1,4 +1,3 @@
-// Importe sua instância configurada do Axios
 import api from '@/services/api';
 import { BillingPlan } from '@/types/billingPlan';
 import { handleApiError } from '@/components/utils/HandlerError';
@@ -8,15 +7,26 @@ type BillingPlanPayload = {
   description: string;
 };
 
-// URL do endpoint (sem o domínio, que já está no 'api')
 const ENDPOINT_URL = 'billing-plan/';
+
+type Paginated<T> = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+};
+
+function toArray<T>(data: T[] | Paginated<T> | any): T[] {
+  return Array.isArray(data) ? data : (data?.results ?? []);
+}
 
 export async function getBillingPlans(): Promise<BillingPlan[]> {
   try {
-    const res = await api.get<BillingPlan[]>(ENDPOINT_URL);
-    return res.data;
+    const res = await api.get(ENDPOINT_URL, { params: { page_size: 1000 } });
+    return toArray<BillingPlan>(res.data);
   } catch (error) {
     handleApiError(error, 'Erro ao buscar planos');
+    return [];
   }
 }
 
@@ -29,6 +39,7 @@ export async function saveBillingPlan(plan: BillingPlanPayload, uuid?: string): 
     return res.data;
   } catch (error) {
     handleApiError(error, 'Erro ao salvar plano');
+    throw error;
   }
 }
 
@@ -37,5 +48,6 @@ export async function deleteBillingPlan(uuid: string): Promise<void> {
     await api.delete(`${ENDPOINT_URL}${uuid}/`);
   } catch (error) {
     handleApiError(error, 'Erro ao excluir plano');
+    throw error;
   }
 }
