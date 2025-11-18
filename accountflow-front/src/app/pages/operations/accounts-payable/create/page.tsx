@@ -87,7 +87,7 @@ export default function TitlesPage() {
       setShowModal(false);
       setEditingTitle(null);
       fetchTitles();
-    } catch {
+    } catch (error: any) {
       setToast({ message: 'Erro ao salvar o título.', type: 'error' });
     }
   };
