@@ -53,7 +53,7 @@ export default function ReceivableEntryPage() {
     const loadData = async () => {
       try {
         setLoading(true);
-        
+
         // Buscar título
         const titleData = await getTitle(titleUuid);
         setTitle(titleData);
@@ -71,11 +71,11 @@ export default function ReceivableEntryPage() {
           const foundPreset = presets.find((p: Preset) => p.uuid === titleData.preset);
           if (foundPreset) {
             setPreset(foundPreset);
-            // Pré-selecionar conta do preset (receivable_account)
-            if (foundPreset.receivable_account) {
+            // Pré-selecionar conta do preset (payable_account)
+            if (foundPreset.payable_account) {
               setForm((prev) => ({
                 ...prev,
-                billing_account: foundPreset.receivable_account,
+                billing_account: foundPreset.payable_account as string,
               }));
             }
           }
@@ -119,18 +119,19 @@ export default function ReceivableEntryPage() {
       setSaving(true);
 
       const payload: EntryPayload = {
+        title: titleUuid,
         description: form.description.trim(),
         amount: Number(form.amount || 0),
         paid_at: form.paid_at || null,
         type_of: 'income',
         payment_method: form.payment_method,
-        billing_account: form.billing_account || null,
+        billing_account: form.billing_account,
       };
 
       await saveEntry(titleUuid, payload);
 
       setToast({ message: 'Recebimento registrado com sucesso!', type: 'success' });
-      
+
       // Redirecionar após 1.5s
       setTimeout(() => {
         router.push('/pages/operations/accounts-receivable/receive');
@@ -200,7 +201,7 @@ export default function ReceivableEntryPage() {
           {/* Informações do Título (Somente Leitura) */}
           <div className="card-enhanced space-y-4 rounded-lg p-6">
             <h2 className="text-xl font-semibold">Informações do Título</h2>
-            
+
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <Label>Descrição</Label>

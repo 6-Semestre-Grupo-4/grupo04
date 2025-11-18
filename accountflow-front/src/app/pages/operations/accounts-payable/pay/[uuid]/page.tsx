@@ -53,7 +53,7 @@ export default function PayableEntryPage() {
     const loadData = async () => {
       try {
         setLoading(true);
-        
+
         // Buscar título
         const titleData = await getTitle(titleUuid);
         setTitle(titleData);
@@ -75,7 +75,7 @@ export default function PayableEntryPage() {
             if (foundPreset.payable_account) {
               setForm((prev) => ({
                 ...prev,
-                billing_account: foundPreset.payable_account,
+                billing_account: foundPreset.payable_account as string,
               }));
             }
           }
@@ -115,22 +115,31 @@ export default function PayableEntryPage() {
     e.preventDefault();
     if (!title) return;
 
+    if (!form.billing_account) {
+      setToast({
+        message: 'Selecione uma conta financeira antes de salvar.',
+        type: 'error',
+      });
+      return;
+    }
+
     try {
       setSaving(true);
 
       const payload: EntryPayload = {
+        title: titleUuid,
         description: form.description.trim(),
         amount: Number(form.amount || 0),
-        paid_at: form.paid_at || null,
+        paid_at: form.paid_at,
         type_of: 'expense',
         payment_method: form.payment_method,
-        billing_account: form.billing_account || null,
+        billing_account: form.billing_account,
       };
 
       await saveEntry(titleUuid, payload);
 
       setToast({ message: 'Pagamento registrado com sucesso!', type: 'success' });
-      
+
       // Redirecionar após 1.5s
       setTimeout(() => {
         router.push('/pages/operations/accounts-payable/pay');
@@ -200,7 +209,7 @@ export default function PayableEntryPage() {
           {/* Informações do Título (Somente Leitura) */}
           <div className="card-enhanced space-y-4 rounded-lg p-6">
             <h2 className="text-xl font-semibold">Informações do Título</h2>
-            
+
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <Label>Descrição</Label>
@@ -243,7 +252,7 @@ export default function PayableEntryPage() {
                   <div>
                     <Label>Conta Contábil (Preset)</Label>
                     <TextInput
-                      value={preset.payable_name || 'N/A'}
+                      value={preset.payable_account_name || 'N/A'}
                       disabled
                       className="rounded-lg bg-gray-100 dark:bg-gray-700"
                     />
