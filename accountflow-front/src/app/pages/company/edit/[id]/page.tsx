@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import companyService from '@/services/companyService';
+import ToastNotification from '@/components/toastNotification';
 import { Card, Label, TextInput, Select, Button, FileInput } from 'flowbite-react';
 import { FiSave, FiUpload, FiArrowLeft } from 'react-icons/fi';
 import { useParams, useRouter } from 'next/navigation';
@@ -34,7 +36,6 @@ interface CompanyPayload {
   email: string;
   phone: string;
 
-  mobile_phone: string;
   state_registration: string;
   municipal_registration: string;
   tax_regime: string;
@@ -59,6 +60,7 @@ export default function CompanyEdit() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'warning' } | null>(null);
   const [formData, setFormData] = useState<CompanyPayload>({
     cnpj: '',
     fantasy_name: '',
@@ -67,7 +69,6 @@ export default function CompanyEdit() {
     cnae: '',
     email: '',
     phone: '',
-    mobile_phone: '',
     state_registration: '',
     municipal_registration: '',
     tax_regime: '',
@@ -89,40 +90,48 @@ export default function CompanyEdit() {
 
       try {
         setIsLoadingData(true);
+        const company = await companyService.getById(companyId);
 
-        // TODO: Descomentar quando backend estiver pronto
-        // const company = await companyService.getById(companyId);
-
-        // Dados mockados para demonstração
-        const mockCompany = {
-          uuid: companyId,
-          cnpj: '11.222.333/0001-44',
-          fantasy_name: 'TechFlow Soluções',
-          social_reason: 'TechFlow Soluções em Tecnologia Ltda',
-          opening_date: '2020-01-15',
-          cnae: '6201-5/00',
-          email: 'contato@techflow.com.br',
-          phone: '(11) 3456-7890',
-          mobile_phone: '(11) 99999-8888',
-          state_registration: '123456789',
-          municipal_registration: '987654321',
-          tax_regime: 'simples_nacional',
-          logo: null,
-          address: {
-            cep: '01234-567',
-            street: 'Rua das Flores, 123',
-            number: '123',
-            complement: 'Sala 10',
-            neighborhood: 'Centro',
-            city: 'São Paulo',
-            state: 'SP',
-          },
-        };
-
-        setFormData(mockCompany);
-      } catch (error) {
+        if (company) {
+          // map server company -> form structure, address is already hydrated by service
+          setFormData((prev) => ({
+            ...prev,
+            uuid: company.uuid,
+            cnpj: company.cnpj || prev.cnpj,
+            fantasy_name: company.fantasy_name || prev.fantasy_name,
+            social_reason: company.social_reason || prev.social_reason,
+            opening_date: company.opening_date || prev.opening_date,
+            cnae: company.cnae || prev.cnae,
+            email: company.email || prev.email,
+            phone: company.phone || prev.phone,
+            state_registration: company.state_registration || prev.state_registration,
+            municipal_registration: company.municipal_registration || prev.municipal_registration,
+            tax_regime: company.tax_regime || prev.tax_regime,
+            type_of: company.type_of || prev.type_of,
+            address: {
+              cep: company.address?.cep || prev.address.cep,
+              street: company.address?.street || prev.address.street,
+              number: company.address?.number || prev.address.number,
+              complement: company.address?.complement || prev.address.complement,
+              neighborhood: company.address?.neighborhood || prev.address.neighborhood,
+              city: company.address?.city || prev.address.city,
+              state: company.address?.state || prev.address.state,
+            },
+          }));
+        }
+      } catch (error: any) {
         console.error('Error loading company:', error);
-        alert('Error loading company data.');
+        const respData = error?.response?.data;
+        let message = 'Erro ao carregar dados da empresa.';
+        if (respData) {
+          if (typeof respData === 'string') message = respData;
+          else if (typeof respData === 'object') {
+            message = Object.entries(respData)
+              .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : String(v)}`)
+              .join(' | ');
+          }
+        }
+        setToast({ message, type: 'error' });
       } finally {
         setIsLoadingData(false);
       }
@@ -161,20 +170,23 @@ export default function CompanyEdit() {
     setIsLoading(true);
 
     try {
-      // TODO: Descomentar quando backend estiver pronto
-      // await companyService.update(companyId, formData);
+      await companyService.update(companyId, formData as any);
 
-      // Simulação com dados mockados
-      console.log('Updated company data (MOCK):', formData);
-
-      // Simula delay da API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      alert('Empresa atualizada com sucesso! (MOCK)');
-      router.push('/pages/companies');
+      setToast({ message: 'Empresa atualizada com sucesso!', type: 'success' });
+      setTimeout(() => router.push('/pages/company'), 800);
     } catch (error) {
       console.error('Error updating company:', error);
-      alert('Erro ao atualizar empresa. Tente novamente.');
+      const respData = (error as any)?.response?.data;
+      let message = 'Erro ao atualizar empresa. Tente novamente.';
+      if (respData) {
+        if (typeof respData === 'string') message = respData;
+        else if (typeof respData === 'object') {
+          message = Object.entries(respData)
+            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : String(v)}`)
+            .join(' | ');
+        }
+      }
+      setToast({ message, type: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -185,6 +197,13 @@ export default function CompanyEdit() {
     { value: 'simples_nacional', label: 'Simples Nacional' },
     { value: 'lucro_presumido', label: 'Lucro Presumido' },
     { value: 'lucro_real', label: 'Lucro Real' },
+  ];
+
+  const typeOfOptions = [
+    { value: '', label: 'Selecione um tipo' },
+    { value: 'Client', label: 'Cliente' },
+    { value: 'Supplier', label: 'Fornecedor' },
+    { value: 'Both', label: 'Ambos' },
   ];
 
   const brazilianStates = [
@@ -219,38 +238,39 @@ export default function CompanyEdit() {
 
   if (isLoadingData) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div className="min-h-screen bg-gray-50 transition-colors duration-200 dark:bg-gray-900">
+      {toast && <ToastNotification message={toast.message} type={toast.type as any} onClose={() => setToast(null)} />}
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="mx-auto max-w-6xl">
           <div className="mb-8">
             <Button
               color="gray"
               size="sm"
-              onClick={() => router.push('/pages/companies')}
-              className="mb-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+              onClick={() => router.push('/pages/company')}
+              className="mb-4 bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
             >
               <FiArrowLeft className="mr-2 h-4 w-4" />
               Voltar às Empresas
             </Button>
 
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Editar Empresa</h1>
+            <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Editar Empresa</h1>
             <p className="text-gray-600 dark:text-gray-300">Atualize as informações da empresa abaixo.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
               <div className="mb-4">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Informações da Empresa</h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="lg:col-span-1">
                   <Label htmlFor="cnpj" className="text-gray-700 dark:text-gray-200">
                     CNPJ *
@@ -264,7 +284,7 @@ export default function CompanyEdit() {
                       handleInputChange('cnpj', maskedValue);
                     }}
                     placeholder="00.000.000/0000-00"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -279,7 +299,7 @@ export default function CompanyEdit() {
                     value={formData.social_reason}
                     onChange={(e) => handleInputChange('social_reason', e.target.value)}
                     placeholder="Informe a razão social da empresa"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -294,7 +314,7 @@ export default function CompanyEdit() {
                     value={formData.fantasy_name}
                     onChange={(e) => handleInputChange('fantasy_name', e.target.value)}
                     placeholder="Informe o nome fantasia"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -309,7 +329,7 @@ export default function CompanyEdit() {
                     type="date"
                     value={formData.opening_date}
                     onChange={(e) => handleInputChange('opening_date', e.target.value)}
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -324,7 +344,7 @@ export default function CompanyEdit() {
                     value={formData.cnae}
                     onChange={(e) => handleInputChange('cnae', e.target.value)}
                     placeholder="0000-0/00"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -338,7 +358,7 @@ export default function CompanyEdit() {
                     name="tax_regime"
                     value={formData.tax_regime}
                     onChange={(e) => handleInputChange('tax_regime', e.target.value)}
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   >
                     {taxRegimeOptions.map((option) => (
@@ -348,51 +368,34 @@ export default function CompanyEdit() {
                     ))}
                   </Select>
                 </div>
-              </div>
-            </Card>
-
-            <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-              <div className="mb-4">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Informações Tributárias</h2>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="state_registration" className="text-gray-700 dark:text-gray-200">
-                    Inscrição Estadual (IE)
+                <div className="lg:col-span-3">
+                  <Label htmlFor="type_of" className="text-gray-700 dark:text-gray-200">
+                    Tipo de cliente *
                   </Label>
-                  <TextInput
-                    id="state_registration"
-                    name="state_registration"
-                    value={formData.state_registration}
-                    onChange={(e) => handleInputChange('state_registration', e.target.value)}
-                    placeholder="Informe a inscrição estadual"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="municipal_registration" className="text-gray-700 dark:text-gray-200">
-                    Inscrição Municipal (IM)
-                  </Label>
-                  <TextInput
-                    id="municipal_registration"
-                    name="municipal_registration"
-                    value={formData.municipal_registration}
-                    onChange={(e) => handleInputChange('municipal_registration', e.target.value)}
-                    placeholder="Informe a inscrição municipal"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-                  />
+                  <Select
+                    id="type_of"
+                    name="type_of"
+                    value={formData.type_of}
+                    onChange={(e) => handleInputChange('type_of', e.target.value)}
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    required
+                  >
+                    {typeOfOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Select>
                 </div>
               </div>
             </Card>
 
-            <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
               <div className="mb-4">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Endereço</h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <div className="lg:col-span-1">
                   <Label htmlFor="cep" className="text-gray-700 dark:text-gray-200">
                     CEP *
@@ -406,7 +409,7 @@ export default function CompanyEdit() {
                       handleInputChange('address.cep', maskedValue);
                     }}
                     placeholder="00000-000"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -421,7 +424,7 @@ export default function CompanyEdit() {
                     value={formData.address.street}
                     onChange={(e) => handleInputChange('address.street', e.target.value)}
                     placeholder="Informe o logradouro"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -435,7 +438,7 @@ export default function CompanyEdit() {
                     name="state"
                     value={formData.address.state}
                     onChange={(e) => handleInputChange('address.state', e.target.value)}
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   >
                     <option value="">Selecionar</option>
@@ -457,7 +460,7 @@ export default function CompanyEdit() {
                     value={formData.address.number}
                     onChange={(e) => handleInputChange('address.number', e.target.value)}
                     placeholder="123"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -472,7 +475,7 @@ export default function CompanyEdit() {
                     value={formData.address.complement}
                     onChange={(e) => handleInputChange('address.complement', e.target.value)}
                     placeholder="Apto, sala, etc."
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
 
@@ -486,7 +489,7 @@ export default function CompanyEdit() {
                     value={formData.address.neighborhood}
                     onChange={(e) => handleInputChange('address.neighborhood', e.target.value)}
                     placeholder="Informe o bairro"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -501,19 +504,19 @@ export default function CompanyEdit() {
                     value={formData.address.city}
                     onChange={(e) => handleInputChange('address.city', e.target.value)}
                     placeholder="Informe a cidade"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
               </div>
             </Card>
 
-            <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
               <div className="mb-4">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Contato</h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="lg:col-span-1">
                   <Label htmlFor="email" className="text-gray-700 dark:text-gray-200">
                     Email Principal *
@@ -525,14 +528,14 @@ export default function CompanyEdit() {
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     placeholder="empresa@exemplo.com"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
 
                 <div className="lg:col-span-1">
                   <Label htmlFor="phone" className="text-gray-700 dark:text-gray-200">
-                    Telefone Fixo
+                    Telefone
                   </Label>
                   <TextInput
                     id="phone"
@@ -542,31 +545,14 @@ export default function CompanyEdit() {
                       const maskedValue = applyMask(e.target.value, '(99) 9999-9999');
                       handleInputChange('phone', maskedValue);
                     }}
-                    placeholder="(11) 1234-5678"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-                  />
-                </div>
-
-                <div className="lg:col-span-1">
-                  <Label htmlFor="mobile_phone" className="text-gray-700 dark:text-gray-200">
-                    Celular
-                  </Label>
-                  <TextInput
-                    id="mobile_phone"
-                    name="mobile_phone"
-                    value={formData.mobile_phone}
-                    onChange={(e) => {
-                      const maskedValue = applyMask(e.target.value, '(99) 99999-9999');
-                      handleInputChange('mobile_phone', maskedValue);
-                    }}
-                    placeholder="(11) 99999-9999"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    placeholder="(45) 99999-9999"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
               </div>
             </Card>
 
-            <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
               <div className="mb-4">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Logotipo da Empresa</h2>
               </div>
@@ -584,15 +570,15 @@ export default function CompanyEdit() {
                       const file = e.target.files?.[0] || null;
                       handleFileChange(file);
                     }}
-                    className="bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-700"
                   />
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                     Formatos aceitos: PNG, JPG, JPEG (máximo 5MB)
                   </p>
                 </div>
 
                 {formData.logo && (
-                  <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
                     <FiUpload className="text-green-600 dark:text-green-400" />
                     <span className="text-sm text-gray-700 dark:text-gray-300">
                       Arquivo selecionado: {formData.logo.name}
@@ -606,8 +592,8 @@ export default function CompanyEdit() {
               <Button
                 type="button"
                 color="gray"
-                onClick={() => router.push('/pages/companies')}
-                className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600"
+                onClick={() => router.push('/pages/company')}
+                className="border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
               >
                 Cancelar
               </Button>
@@ -616,7 +602,7 @@ export default function CompanyEdit() {
                 type="submit"
                 color="blue"
                 disabled={isLoading}
-                className="bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white"
+                className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
               >
                 <FiSave className="mr-2 h-4 w-4" />
                 {isLoading ? 'Atualizando...' : 'Atualizar Empresa'}

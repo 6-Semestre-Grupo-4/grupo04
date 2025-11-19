@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { Card, Label, TextInput, Select, Button, FileInput } from 'flowbite-react';
 import { FiSave, FiUpload } from 'react-icons/fi';
 import ToastNotification from '@/components/toastNotification';
-// TODO: Descomentar quando backend estiver pronto
-// import companyService from '@/services/companyService';
+import { useRouter } from 'next/navigation';
+import companyService from '@/services/companyService';
 
 const applyMask = (value: string, mask: string): string => {
   const cleanValue = value.replace(/\D/g, '');
@@ -33,7 +33,7 @@ interface CompanyPayload {
   email: string;
   phone: string;
 
-  mobile_phone: string;
+  phone: string;
   state_registration: string;
   municipal_registration: string;
   tax_regime: string;
@@ -52,6 +52,7 @@ interface CompanyPayload {
 }
 
 export default function CompanyRegister() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<CompanyPayload>({
     cnpj: '',
@@ -61,7 +62,7 @@ export default function CompanyRegister() {
     cnae: '',
     email: '',
     phone: '',
-    mobile_phone: '',
+    phone: '',
     state_registration: '',
     municipal_registration: '',
     tax_regime: '',
@@ -107,19 +108,27 @@ export default function CompanyRegister() {
     setIsLoading(true);
 
     try {
-      // TODO: Descomentar quando backend estiver pronto
-      // const response = await companyService.create(formData);
+      // Chama o backend para criar a empresa
+      const response = await companyService.create(formData as any);
+      console.log('Empresa criada:', response);
 
-      // Simulação com dados mockados
-      console.log('Dados do formulário (MOCK):', formData);
-
-      // Simula delay da API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      alert('Empresa cadastrada com sucesso! (MOCK)');
+      setToast({ message: 'Empresa cadastrada com sucesso!', type: 'success' });
+      // Navega após breve delay para permitir ver o toast
+      setTimeout(() => router.push('/pages/company'), 800);
     } catch (error) {
       console.error('Erro ao cadastrar empresa:', error);
-      alert('Erro ao cadastrar empresa. Tente novamente.');
+      // Tenta extrair erros do backend (DRF) — pode ser objeto de campos ou mensagem
+      const respData = error?.response?.data;
+      let message = 'Erro ao cadastrar empresa. Tente novamente.';
+      if (respData) {
+        if (typeof respData === 'string') message = respData;
+        else if (typeof respData === 'object') {
+          message = Object.entries(respData)
+            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : String(v)}`)
+            .join(' | ');
+        }
+      }
+      setToast({ message, type: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -130,6 +139,14 @@ export default function CompanyRegister() {
     { value: 'simples_nacional', label: 'Simples Nacional' },
     { value: 'lucro_presumido', label: 'Lucro Presumido' },
     { value: 'lucro_real', label: 'Lucro Real' },
+  ];
+
+
+  const typeOfOptions = [
+    { value: '', label: 'Selecione um tipo' },
+    { value: 'Client', label: 'Cliente' },
+    { value: 'Supplier', label: 'Fornecedor' },
+    { value: 'Both', label: 'Ambos' },
   ];
 
   const brazilianStates = [
@@ -162,7 +179,6 @@ export default function CompanyRegister() {
     'TO',
   ];
 
-
   async function fetchCep(cep: string) {
     const cleanCep = cep.replace(/\D/g, '');
 
@@ -170,21 +186,19 @@ export default function CompanyRegister() {
 
     try {
       const res = await fetch(`https://brasilapi.com.br/api/cep/v1/${cleanCep}`);
-      if (!res.ok) throw new Error("CEP não encontrado");
+      if (!res.ok) throw new Error('CEP não encontrado');
       return await res.json();
     } catch (err) {
-      console.error("Erro ao buscar CEP:", err);
+      console.error('Erro ao buscar CEP:', err);
       return null;
     }
   }
-
 
   const [loadingCep, setLoadingCep] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
     type: 'success' | 'error' | 'info' | 'warning';
   } | null>(null);
-
 
   useEffect(() => {
     const cleanCep = formData.address.cep.replace(/\D/g, '');
@@ -214,8 +228,6 @@ export default function CompanyRegister() {
         });
     }
   }, [formData.address.cep]);
-
-
 
   const [loadingCnpj, setLoadingCnpj] = useState(false);
   useEffect(() => {
@@ -262,23 +274,23 @@ export default function CompanyRegister() {
   }, [formData.cnpj]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div className="min-h-screen bg-gray-50 transition-colors duration-200 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="mx-auto max-w-6xl">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Cadastro de Empresa</h1>
+            <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Cadastro de Empresa</h1>
             <p className="text-gray-600 dark:text-gray-300">
               Preencha as informações abaixo para cadastrar uma nova empresa no sistema.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
               <div className="mb-4">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Informações da Empresa</h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="lg:col-span-1">
                   <Label htmlFor="cnpj" className="text-gray-700 dark:text-gray-200">
                     CNPJ *
@@ -292,13 +304,10 @@ export default function CompanyRegister() {
                       handleInputChange('cnpj', maskedValue);
                     }}
                     placeholder="00.000.000/0000-00"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
-                  {loadingCnpj && (
-                    <p className="text-sm text-gray-500 mt-1">Buscando dados do CNPJ…</p>
-                  )}
-
+                  {loadingCnpj && <p className="mt-1 text-sm text-gray-500">Buscando dados do CNPJ…</p>}
                 </div>
 
                 <div className="lg:col-span-2">
@@ -311,7 +320,7 @@ export default function CompanyRegister() {
                     value={formData.social_reason}
                     onChange={(e) => handleInputChange('social_reason', e.target.value)}
                     placeholder="Informe a razão social da empresa"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -326,7 +335,7 @@ export default function CompanyRegister() {
                     value={formData.fantasy_name}
                     onChange={(e) => handleInputChange('fantasy_name', e.target.value)}
                     placeholder="Informe o nome fantasia"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -341,7 +350,7 @@ export default function CompanyRegister() {
                     type="date"
                     value={formData.opening_date}
                     onChange={(e) => handleInputChange('opening_date', e.target.value)}
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -356,7 +365,7 @@ export default function CompanyRegister() {
                     value={formData.cnae}
                     onChange={(e) => handleInputChange('cnae', e.target.value)}
                     placeholder="0000-0/00"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -370,7 +379,7 @@ export default function CompanyRegister() {
                     name="tax_regime"
                     value={formData.tax_regime}
                     onChange={(e) => handleInputChange('tax_regime', e.target.value)}
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   >
                     {taxRegimeOptions.map((option) => (
@@ -380,16 +389,35 @@ export default function CompanyRegister() {
                     ))}
                   </Select>
                 </div>
+                <div className="lg:col-span-3">
+                  <Label htmlFor="type_of" className="text-gray-700 dark:text-gray-200">
+                    Tipo de cliente *
+                  </Label>
+                  <Select
+                    id="type_of"
+                    name="type_of"
+                    value={formData.type_of}
+                    onChange={(e) => handleInputChange('type_of', e.target.value)}
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    required
+                  >
+                    {typeOfOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
               </div>
             </Card>
 
-            <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
               <div className="mb-4">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Endereço</h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-               <div className="lg:col-span-1">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="lg:col-span-1">
                   <Label htmlFor="cep" className="text-gray-700 dark:text-gray-200">
                     CEP *
                   </Label>
@@ -403,15 +431,12 @@ export default function CompanyRegister() {
                       handleInputChange('address.cep', maskedValue);
                     }}
                     placeholder="00000-000"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
 
-                  {loadingCep && (
-                    <p className="text-sm text-gray-500 mt-1">Buscando endereço…</p>
-                  )}
+                  {loadingCep && <p className="mt-1 text-sm text-gray-500">Buscando endereço…</p>}
                 </div>
-
 
                 <div className="lg:col-span-2">
                   <Label htmlFor="street" className="text-gray-700 dark:text-gray-200">
@@ -423,7 +448,7 @@ export default function CompanyRegister() {
                     value={formData.address.street}
                     onChange={(e) => handleInputChange('address.street', e.target.value)}
                     placeholder="Informe o logradouro"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -437,7 +462,7 @@ export default function CompanyRegister() {
                     name="state"
                     value={formData.address.state}
                     onChange={(e) => handleInputChange('address.state', e.target.value)}
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   >
                     <option value="">Selecionar</option>
@@ -459,7 +484,7 @@ export default function CompanyRegister() {
                     value={formData.address.number}
                     onChange={(e) => handleInputChange('address.number', e.target.value)}
                     placeholder="123"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -474,7 +499,7 @@ export default function CompanyRegister() {
                     value={formData.address.complement}
                     onChange={(e) => handleInputChange('address.complement', e.target.value)}
                     placeholder="Apto, sala, etc."
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
 
@@ -488,7 +513,7 @@ export default function CompanyRegister() {
                     value={formData.address.neighborhood}
                     onChange={(e) => handleInputChange('address.neighborhood', e.target.value)}
                     placeholder="Informe o bairro"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
@@ -503,19 +528,19 @@ export default function CompanyRegister() {
                     value={formData.address.city}
                     onChange={(e) => handleInputChange('address.city', e.target.value)}
                     placeholder="Informe a cidade"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
               </div>
             </Card>
 
-            <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
               <div className="mb-4">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Contato</h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="lg:col-span-1">
                   <Label htmlFor="email" className="text-gray-700 dark:text-gray-200">
                     Email Principal *
@@ -527,31 +552,31 @@ export default function CompanyRegister() {
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     placeholder="empresa@exemplo.com"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   />
                 </div>
 
                 <div className="lg:col-span-1">
-                  <Label htmlFor="mobile_phone" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="phone" className="text-gray-700 dark:text-gray-200">
                     Celular
                   </Label>
                   <TextInput
-                    id="mobile_phone"
-                    name="mobile_phone"
-                    value={formData.mobile_phone}
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
                     onChange={(e) => {
                       const maskedValue = applyMask(e.target.value, '(99) 99999-9999');
-                      handleInputChange('mobile_phone', maskedValue);
+                      handleInputChange('phone', maskedValue);
                     }}
                     placeholder="(11) 99999-9999"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
               </div>
             </Card>
 
-            <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
               <div className="mb-4">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Logotipo da Empresa</h2>
               </div>
@@ -569,15 +594,15 @@ export default function CompanyRegister() {
                       const file = e.target.files?.[0] || null;
                       handleFileChange(file);
                     }}
-                    className="bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                    className="border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-700"
                   />
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                     Formatos aceitos: PNG, JPG, JPEG (máximo 5MB)
                   </p>
                 </div>
 
                 {formData.logo && (
-                  <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
                     <FiUpload className="text-green-600 dark:text-green-400" />
                     <span className="text-sm text-gray-700 dark:text-gray-300">
                       Arquivo selecionado: {formData.logo.name}
@@ -596,7 +621,7 @@ export default function CompanyRegister() {
                     window.history.back();
                   }
                 }}
-                className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600"
+                className="border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
               >
                 Cancelar
               </Button>
@@ -605,7 +630,7 @@ export default function CompanyRegister() {
                 type="submit"
                 color="blue"
                 disabled={isLoading}
-                className="bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white"
+                className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
               >
                 <FiSave className="mr-2 h-4 w-4" />
                 {isLoading ? 'Salvando...' : 'Salvar Cadastro'}
@@ -617,5 +642,4 @@ export default function CompanyRegister() {
       {toast && <ToastNotification message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
-  
 }
