@@ -41,18 +41,21 @@ jobs:
         run: |
           npx commitlint --from ${{ github.event.before }} --to ${{ github.event.after }} --verbose
 
-      - name: Install Prettier
-        run: npm install -g prettier
+      - name: Install Prettier and plugins
+        run: |
+          npm install -g prettier
+          npm install -g prettier-plugin-tailwindcss
 
       - name: Create .prettierrc
         run: |
           echo '{
-            'singleQuote': true,
-            'trailingComma': 'all',
-            'semi': true,
-            'printWidth': 120,
-            'tabWidth': 2,
-            'endOfLine': 'auto'
+            "singleQuote": true,
+            "trailingComma": "all",
+            "semi": true,
+            "printWidth": 120,
+            "tabWidth": 2,
+            "endOfLine": "auto",
+            "plugins": ["prettier-plugin-tailwindcss"]
           }' > .prettierrc
 
       - name: Create .prettierignore
