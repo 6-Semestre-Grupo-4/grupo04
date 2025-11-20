@@ -40,9 +40,8 @@ jobs:
         run: |
           npx commitlint --from ${{ github.event.before }} --to ${{ github.event.after }} --verbose
 
-      - name: Install Prettier + Tailwind Plugin
-        run: |
-          npm install -g prettier prettier-plugin-tailwindcss
+      - name: Install dependencies
+        run: npm ci
 
       - name: Create .prettierrc
         run: |
@@ -57,8 +56,8 @@ jobs:
 
       - name: Create .prettierignore
         run: |
-          echo 'node_modules\nbuild\ndist\n' > .prettierignore
+          echo -e 'node_modules\nbuild\ndist\n.next\n*.pyc\n__pycache__\nvenv\n.venv\nmigrations\nstatic\nmedia\ndb.sqlite3\naccountflow-api/staticfiles\naccountflow-api/venv\n.prettier-temp' > .prettierignore
 
       - name: Run Prettier and show formatting diffs
         run: |
-          prettier "**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}" --check
+          npx prettier "**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}" --check
