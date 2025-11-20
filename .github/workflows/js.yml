@@ -40,10 +40,16 @@ jobs:
               run: |
                   npx commitlint --from ${{ github.event.before }} --to ${{ github.event.after }} --verbose
 
+            - name: Install frontend dependencies for Tailwind config
+              working-directory: accountflow-front
+              run: |
+                  npm ci || npm install
+
             - name: Install Prettier and plugins
               run: |
                   npm init -y
                   npm install --save-dev prettier prettier-plugin-tailwindcss
+                  npm install flowbite
 
             - name: Create .prettierrc
               run: |
@@ -62,6 +68,8 @@ jobs:
                   echo -e 'node_modules\nbuild\ndist\n.next\n*.pyc\n__pycache__\nvenv\n.venv\nmigrations\nstatic\nmedia\ndb.sqlite3' > .prettierignore
 
             - name: Run Prettier and show formatting diffs
+              env:
+                  NODE_PATH: ${{ github.workspace }}/accountflow-front/node_modules
               run: |
                   npx prettier '**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}' --write
                   git diff --color --exit-code
