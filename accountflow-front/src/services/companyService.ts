@@ -1,5 +1,16 @@
 import api from './api';
 
+type Paginated<T> = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+};
+
+function toArray<T>(data: T[] | Paginated<T> | any): T[] {
+  return Array.isArray(data) ? data : (data?.results ?? []);
+}
+
 export interface CompanyAddress {
   cep?: string;
   street?: string;
@@ -18,10 +29,10 @@ export interface CompanyData {
   opening_date: string;
   cnae: string;
   email: string;
-  phone?: string;
+  phone: string; // Obrigatório no backend
+  tax_regime: string; // Obrigatório no backend
   state_registration?: string;
   municipal_registration?: string;
-  tax_regime?: string;
   logo?: File | null;
   address?: CompanyAddress;
   type_of?: string; // 'Client' | 'Supplier'
@@ -70,13 +81,12 @@ export const companyService = {
     formData.append('social_reason', companyData.social_reason);
     formData.append('opening_date', companyData.opening_date);
     formData.append('cnae', companyData.cnae);
-    if (companyData.email) formData.append('email', companyData.email);
-    if (companyData.phone) formData.append('phone', companyData.phone);
-    if (companyData.mobile_phone) formData.append('mobile_phone', companyData.mobile_phone);
+    formData.append('email', companyData.email);
+    formData.append('phone', companyData.phone);
+    formData.append('tax_regime', companyData.tax_regime);
     if (companyData.state_registration) formData.append('state_registration', companyData.state_registration);
     if (companyData.municipal_registration)
       formData.append('municipal_registration', companyData.municipal_registration);
-    if (companyData.tax_regime) formData.append('tax_regime', companyData.tax_regime);
 
     // required by model: type_of
     formData.append('type_of', companyData.type_of || 'Client');
@@ -96,8 +106,8 @@ export const companyService = {
 
   // List companies and hydrate address fields (city/state) by fetching address details
   getAll: async () => {
-    const res = await api.get('/company/');
-    const companies = res.data || [];
+    const res = await api.get('/company/', { params: { page_size: 1000 } });
+    const companies = toArray(res.data);
 
     // collect unique address uuids
     const addressUuids = Array.from(new Set(companies.map((c: any) => c.address).filter(Boolean)));
@@ -168,8 +178,7 @@ export const companyService = {
     if (companyData.opening_date) formData.append('opening_date', companyData.opening_date);
     if (companyData.cnae) formData.append('cnae', companyData.cnae);
     if (companyData.email) formData.append('email', companyData.email);
-    if (companyData.phone) formData.append('phone', companyData.phone as string);
-    if (companyData.mobile_phone) formData.append('mobile_phone', companyData.mobile_phone as string);
+    if (companyData.phone) formData.append('phone', companyData.phone);
     if (companyData.state_registration) formData.append('state_registration', companyData.state_registration as string);
     if (companyData.municipal_registration)
       formData.append('municipal_registration', companyData.municipal_registration as string);
