@@ -1,75 +1,75 @@
 name: CI
 
 on:
-    push:
-        branches: ["main", "dev"]
-    pull_request:
-        branches: ["main", "dev"]
+  push:
+    branches: ['main', 'dev']
+  pull_request:
+    branches: ['main', 'dev']
 
 jobs:
-    deploy:
-        runs-on: ubuntu-latest
-        name: Code Quality
+  deploy:
+    runs-on: ubuntu-latest
+    name: Code Quality
 
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "22"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-            - name: Install commitlint
-              run: |
-                  npm install -g @commitlint/cli @commitlint/config-conventional
+      - name: Install commitlint
+        run: |
+          npm install -g @commitlint/cli @commitlint/config-conventional
 
-            - name: Create commitlint config
-              run: |
-                  echo "extends: ['@commitlint/config-conventional']" > .commitlintrc.yaml
+      - name: Create commitlint config
+        run: |
+          echo "extends: ['@commitlint/config-conventional']" > .commitlintrc.yaml
 
-            - name: Validate PR Commits with commitlint
-              if: github.event_name == 'pull_request'
-              run: |
-                  npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+      - name: Validate PR Commits with commitlint
+        if: github.event_name == 'pull_request'
+        run: |
+          npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
-            - name: Validate Push Commits with commitlint
-              if: github.event_name == 'push'
-              run: |
-                  npx commitlint --from ${{ github.event.before }} --to ${{ github.event.after }} --verbose
+      - name: Validate Push Commits with commitlint
+        if: github.event_name == 'push'
+        run: |
+          npx commitlint --from ${{ github.event.before }} --to ${{ github.event.after }} --verbose
 
-            - name: Install frontend dependencies for Tailwind config
-              working-directory: accountflow-front
-              run: |
-                  npm ci || npm install
+      - name: Install frontend dependencies for Tailwind config
+        working-directory: accountflow-front
+        run: |
+          npm ci || npm install
 
-            - name: Install Prettier and plugins
-              run: |
-                  npm init -y
-                  npm install --save-dev prettier prettier-plugin-tailwindcss
-                  npm install flowbite
+      - name: Install Prettier and plugins
+        run: |
+          npm init -y
+          npm install --save-dev prettier prettier-plugin-tailwindcss
+          npm install flowbite
 
-            - name: Create .prettierrc
-              run: |
-                  echo '{
-                    "singleQuote": true,
-                    "trailingComma": "all",
-                    "semi": true,
-                    "printWidth": 120,
-                    "tabWidth": 2,
-                    "endOfLine": "auto",
-                    "plugins": ["prettier-plugin-tailwindcss"]
-                  }' > .prettierrc
+      - name: Create .prettierrc
+        run: |
+          echo '{
+            "singleQuote": true,
+            "trailingComma": "all",
+            "semi": true,
+            "printWidth": 120,
+            "tabWidth": 2,
+            "endOfLine": "auto",
+            "plugins": ["prettier-plugin-tailwindcss"]
+          }' > .prettierrc
 
-            - name: Create .prettierignore
-              run: |
-                  echo -e 'node_modules\nbuild\ndist\n.next\n*.pyc\n__pycache__\nvenv\n.venv\nmigrations\nstatic\nmedia\ndb.sqlite3' > .prettierignore
+      - name: Create .prettierignore
+        run: |
+          echo -e 'node_modules\nbuild\ndist\n.next\n*.pyc\n__pycache__\nvenv\n.venv\nmigrations\nstatic\nmedia\ndb.sqlite3' > .prettierignore
 
-            - name: Run Prettier and show formatting diffs
-              env:
-                  NODE_PATH: ${{ github.workspace }}/accountflow-front/node_modules
-              run: |
-                  npx prettier '**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}' --write
-                  git diff --color --exit-code
+      - name: Run Prettier and show formatting diffs
+        env:
+          NODE_PATH: ${{ github.workspace }}/accountflow-front/node_modules
+        run: |
+          npx prettier '**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}' --write
+          git diff --color --exit-code
