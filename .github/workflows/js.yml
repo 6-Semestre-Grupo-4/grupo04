@@ -49,8 +49,8 @@ jobs:
                     'semi': true,
                     'printWidth': 120,
                     'tabWidth': 2,
-                    'endOfLine': 'auto',
-                    'plugins': ['prettier-plugin-tailwindcss']
+                    'plugins': ['prettier-plugin-tailwindcss'],
+                    'endOfLine': 'auto'
                   }' > .prettierrc
 
             - name: Create .prettierignore
