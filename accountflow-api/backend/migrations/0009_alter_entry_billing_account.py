@@ -41,7 +41,7 @@ def reverse_ensure_no_null_billing_accounts(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('backend', '0008_remove_billingaccount_classification_and_more'),
+        ('backend', '0001_initial'),
     ]
 
     operations = [
