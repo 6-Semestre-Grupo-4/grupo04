@@ -75,10 +75,16 @@ class CompanyList(GenericAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        return super().get_queryset().select_related('address').order_by('address_id')
+        return super().get_queryset().select_related('address').order_by('fantasy_name')
 
     def get(self, request, format=None):
         items = self.get_queryset()
+        # Se o parâmetro 'no_pagination' estiver presente, retorna lista completa
+        if request.query_params.get('no_pagination') == 'true':
+            serializer = self.serializer_class(items, many=True)
+            return Response(serializer.data)
+        
+        # Caso contrário, retorna paginado
         page = self.paginate_queryset(items)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
