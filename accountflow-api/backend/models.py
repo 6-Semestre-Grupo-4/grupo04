@@ -35,6 +35,7 @@ class Company(ModelBasedMixin):
     type_of = models.CharField(max_length=20, choices=CompanyType.choices)
     email = models.EmailField(max_length=255)
     phone = models.CharField(max_length=20)
+    tax_regime = models.CharField(max_length=255)
 
     def __str__(self):
         return f"{self.fantasy_name} - {self.cnpj} - {self.type_of}"
