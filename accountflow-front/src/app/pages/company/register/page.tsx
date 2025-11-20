@@ -141,7 +141,6 @@ export default function CompanyRegister() {
     { value: 'lucro_real', label: 'Lucro Real' },
   ];
 
-
   const typeOfOptions = [
     { value: '', label: 'Selecione um tipo' },
     { value: 'Client', label: 'Cliente' },

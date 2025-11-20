@@ -15,7 +15,7 @@ export function handleApiError(error: unknown, defaultMessage: string): never {
         message: defaultMessage,
         status,
         statusText: text,
-        data: details, 
+        data: details,
       });
 
       throw new Error(`${defaultMessage}: ${status} - ${text}`);

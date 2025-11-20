@@ -84,7 +84,7 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
     <aside
       className={`fixed top-0 left-0 z-40 h-screen w-64 transform transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
-      } border-r border-border bg-surface shadow-card lg:translate-x-0`}
+      } border-border bg-surface shadow-card border-r lg:translate-x-0`}
     >
       <ThemeProvider theme={customTheme}>
         <Sidebar aria-label="Sidebar navegação" className="bg-surface w-full">
@@ -104,34 +104,16 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
               {/* MUDANÇA PRINCIPAL: 
                 Usar 'href' e 'as={Link}' ao invés de onClick + router.push 
               */}
-              <SidebarItem 
-                icon={Home} 
-                as={Link} 
-                href={`${route}home`} 
-                active={pathname === `${route}home`}
-              >
+              <SidebarItem icon={Home} as={Link} href={`${route}home`} active={pathname === `${route}home`}>
                 Home
               </SidebarItem>
 
-              <SidebarItem
-                icon={Building2}
-                as={Link} 
-                href={`${route}company`}
-                active={pathname === `${route}company`}
-              >
+              <SidebarItem icon={Building2} as={Link} href={`${route}company`} active={pathname === `${route}company`}>
                 Empresa
               </SidebarItem>
 
-              <SidebarCollapse
-                icon={BarChart3}
-                label="Operações"
-                open={isOperationsActive}
-              >
-                <SidebarCollapse
-                  icon={CircleDollarSign}
-                  label="Contas a Pagar"
-                  open={isAccountsPayableActive}
-                >
+              <SidebarCollapse icon={BarChart3} label="Operações" open={isOperationsActive}>
+                <SidebarCollapse icon={CircleDollarSign} label="Contas a Pagar" open={isAccountsPayableActive}>
                   <SidebarItem
                     icon={FilePlus}
                     as={Link}
@@ -151,11 +133,7 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                   </SidebarItem>
                 </SidebarCollapse>
 
-                <SidebarCollapse
-                  icon={Wallet}
-                  label="Contas a Receber"
-                  open={isAccountsReceivableActive}
-                >
+                <SidebarCollapse icon={Wallet} label="Contas a Receber" open={isAccountsReceivableActive}>
                   <SidebarItem
                     icon={FilePlus}
                     as={Link}
@@ -176,11 +154,7 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                 </SidebarCollapse>
               </SidebarCollapse>
 
-              <SidebarCollapse
-                icon={Settings}
-                label="Configurações"
-                open={isSettingsActive}
-              >
+              <SidebarCollapse icon={Settings} label="Configurações" open={isSettingsActive}>
                 <SidebarItem
                   icon={Network}
                   as={Link}
