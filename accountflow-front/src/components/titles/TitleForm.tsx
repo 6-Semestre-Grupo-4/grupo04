@@ -2,9 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { Label, TextInput, Button } from 'flowbite-react';
-import { FiRepeat, FiDollarSign, FiCalendar, FiType, FiAlertTriangle } from 'react-icons/fi';
+import { Type, AlertTriangle, X } from 'lucide-react';
+
 import { Title } from '@/types/title';
 import { Company } from '@/types/company';
+import { Preset } from '@/types/preset';
+import { getPresets } from '@/services/presetService';
+import { replacePresetVariables } from '@/components/utils/presetTemplate';
+// import { getCompanies } from '@/services/companyService'; Quando implementar empresas
 
 interface TitleFormProps {
   show: boolean;
@@ -12,9 +17,12 @@ interface TitleFormProps {
   onSave: (title: Title, uuid?: string) => void;
   title?: Title | null;
   companies: Company[];
+  typeLocked?: boolean;
 }
 
-export default function TitleForm({ show, onClose, onSave, title, companies }: TitleFormProps) {
+export default function TitleForm({ show, onClose, onSave, title, companies, typeLocked = false }: TitleFormProps) {
+  const [presets, setPresets] = useState<Preset[]>([]);
+
   const [form, setForm] = useState({
     description: '',
     type_of: 'income',
@@ -26,9 +34,25 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
     recorrence: false,
     recorrence_period: '',
     company: '',
+    preset: '',
   });
 
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'warning' } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: 'success' | 'error' | 'info' | 'warning';
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchPresets = async () => {
+      try {
+        const data = await getPresets();
+        setPresets(data);
+      } catch (error) {
+        console.error('Erro ao buscar presets:', error);
+      }
+    };
+    fetchPresets();
+  }, []);
 
   useEffect(() => {
     if (title) {
@@ -43,11 +67,12 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
         recorrence: title.recorrence || false,
         recorrence_period: title.recorrence_period || '',
         company: typeof title.company === 'string' ? title.company : '',
+        preset: title.preset || '',
       });
     } else {
       setForm({
         description: '',
-        type_of: 'income',
+        type_of: typeLocked ? 'expense' : 'income',
         amount: '',
         expiration_date: '',
         fees_percentage_monthly: '',
@@ -56,9 +81,28 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
         recorrence: false,
         recorrence_period: '',
         company: '',
+        preset: '',
       });
     }
-  }, [title]);
+  }, [title, typeLocked]);
+
+  useEffect(() => {
+    if (!form.preset) return;
+    const preset = presets.find((p) => p.uuid === form.preset);
+    if (!preset) return;
+
+    const company = companies.find((c) => c.uuid === form.company);
+    if (!company) return;
+
+    const finalDescription = replacePresetVariables(preset.description, company);
+    setForm((prev) => ({ ...prev, description: finalDescription }));
+  }, [form.preset, form.company, companies, presets]);
+
+  useEffect(() => {
+    if (!form.recorrence) {
+      setForm((prev) => ({ ...prev, installments: '1' }));
+    }
+  }, [form.recorrence]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,20 +128,24 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/20 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="mx-4 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white shadow-xl dark:bg-gray-800">
+        {/* HEADER */}
+        <div className="flex items-center justify-between border-b border-gray-200 p-6 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            <FiType className="text-blue-500" />
+            <Type className="text-blue-500" size={20} />
             <h3 className="text-lg font-semibold">{title ? 'Editar Título' : 'Novo Título'}</h3>
           </div>
+
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            ✕
+            <X size={20} />
           </button>
         </div>
 
+        {/* BODY */}
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {/* DESCRIÇÃO */}
               <div>
                 <Label htmlFor="description">Descrição *</Label>
                 <TextInput
@@ -109,56 +157,50 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
                 />
               </div>
 
+              {/* TIPO */}
               <div>
                 <Label htmlFor="type_of">Tipo *</Label>
-                <div className="select-wrapper">
-                  <select
-                    id="type_of"
-                    value={form.type_of}
-                    onChange={(e) => setForm({ ...form, type_of: e.target.value })}
-                    className="custom-select"
-                  >
-                    <option value="income">Receita</option>
-                    <option value="expense">Despesa</option>
-                  </select>
-                </div>
+                <select
+                  id="type_of"
+                  value={form.type_of}
+                  onChange={(e) => !typeLocked && setForm({ ...form, type_of: e.target.value })}
+                  disabled={typeLocked}
+                  className={`custom-select appearance-none ${typeLocked ? 'cursor-not-allowed opacity-60' : ''}`}
+                >
+                  <option value="income">Receita</option>
+                  <option value="expense">Despesa</option>
+                </select>
               </div>
 
+              {/* EMPRESA */}
               <div>
                 <Label htmlFor="company">Empresa *</Label>
-                <div className="select-wrapper">
-                  <select
-                    id="company"
-                    value={form.company}
-                    onChange={(e) => setForm({ ...form, company: e.target.value })}
-                    className={`custom-select ${companies.length === 0 ? 'loading' : ''} ${
-                      !form.company && toast ? 'error' : ''
-                    }`}
-                    data-placeholder={!form.company ? 'true' : 'false'}
-                    required
-                  >
-                    <option value="">Selecione uma empresa...</option>
-                    {companies.length > 0 ? (
-                      companies.map((company) => (
-                        <option key={company.uuid} value={company.uuid}>
-                          {company.fantasy_name}
-                        </option>
-                      ))
-                    ) : (
-                      <option value="" disabled>
-                        Carregando empresas...
-                      </option>
-                    )}
-                  </select>
-                </div>
+                <select
+                  id="company"
+                  value={form.company}
+                  onChange={(e) => setForm({ ...form, company: e.target.value })}
+                  className={`custom-select ${
+                    companies.length === 0 ? 'loading' : ''
+                  } ${!form.company && toast ? 'error' : ''}`}
+                  required
+                >
+                  <option value="">Selecione uma empresa...</option>
+                  {companies.map((company) => (
+                    <option key={company.uuid} value={company.uuid}>
+                      {company.fantasy_name}
+                    </option>
+                  ))}
+                </select>
+
                 {!form.company && toast?.type === 'error' && (
                   <div className="select-error-message">
-                    <FiAlertTriangle size={12} />
+                    <AlertTriangle size={12} />
                     Campo obrigatório
                   </div>
                 )}
               </div>
 
+              {/* VALOR */}
               <div>
                 <Label htmlFor="amount">Valor *</Label>
                 <TextInput
@@ -172,6 +214,7 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
                 />
               </div>
 
+              {/* DATA */}
               <div>
                 <Label htmlFor="expiration_date">Data de Vencimento *</Label>
                 <TextInput
@@ -183,6 +226,7 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
                 />
               </div>
 
+              {/* JUROS */}
               <div>
                 <Label htmlFor="fees_percentage_monthly">Taxa de Juros Mensal (%)</Label>
                 <TextInput
@@ -195,20 +239,30 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
                 />
               </div>
 
+              {/* PRESET */}
               <div>
-                <Label htmlFor="installments">Parcelas</Label>
-                <TextInput
-                  id="installments"
-                  type="number"
-                  value={form.installments}
-                  onChange={(e) => setForm({ ...form, installments: e.target.value })}
-                  placeholder="1"
-                />
+                <Label htmlFor="preset">Preset</Label>
+                <select
+                  id="preset"
+                  value={form.preset}
+                  onChange={(e) => setForm({ ...form, preset: e.target.value })}
+                  className="custom-select"
+                >
+                  <option value="">Nenhum preset</option>
+                  {presets
+                    .filter((p) => p.active)
+                    .map((preset) => (
+                      <option key={preset.uuid} value={preset.uuid}>
+                        {preset.name} - {preset.description}
+                      </option>
+                    ))}
+                </select>
               </div>
             </div>
 
+            {/* CHECKBOXES */}
             <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={form.active}
@@ -218,7 +272,7 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
                 <span>Ativo</span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={form.recorrence}
@@ -229,16 +283,16 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
               </label>
             </div>
 
+            {/* RECORRÊNCIA */}
             {form.recorrence && (
-              <div>
-                <Label htmlFor="recorrence_period">Período de Recorrência</Label>
-                <div className="select-wrapper">
+              <>
+                <div>
+                  <Label htmlFor="recorrence_period">Período de Recorrência</Label>
                   <select
                     id="recorrence_period"
                     value={form.recorrence_period}
                     onChange={(e) => setForm({ ...form, recorrence_period: e.target.value })}
                     className="custom-select"
-                    data-placeholder={!form.recorrence_period ? 'true' : 'false'}
                   >
                     <option value="">Selecione o período...</option>
                     <option value="daily">Diário</option>
@@ -247,12 +301,24 @@ export default function TitleForm({ show, onClose, onSave, title, companies }: T
                     <option value="yearly">Anual</option>
                   </select>
                 </div>
-              </div>
+
+                <div>
+                  <Label htmlFor="installments">Parcelas</Label>
+                  <TextInput
+                    id="installments"
+                    type="number"
+                    value={form.installments}
+                    onChange={(e) => setForm({ ...form, installments: e.target.value })}
+                    placeholder="1"
+                  />
+                </div>
+              </>
             )}
           </form>
         </div>
 
-        <div className="flex justify-end gap-2 p-6 border-t border-gray-200 dark:border-gray-700">
+        {/* FOOTER */}
+        <div className="flex justify-end gap-2 border-t border-gray-200 p-6 dark:border-gray-700">
           <Button color="gray" onClick={onClose}>
             Cancelar
           </Button>

@@ -19,6 +19,7 @@ import Logo from '@/assets/images/logos/sideLogo.png';
 import { useState, useEffect } from 'react';
 import api from '@/services/api';
 import Cookies from 'js-cookie';
+import { ThemeToggle } from '@/components/utils/ThemeToogle';
 // ClientOnly wrapper para componentes que causam hydration issues
 function ClientOnly({ children }: { children: React.ReactNode }) {
   const [isMounted, setIsMounted] = useState(false);
@@ -54,16 +55,23 @@ const handleLogout = async () => {
 const customTheme = createTheme({
   navbar: {
     root: {
-      base: 'px-4 py-3 backdrop-blur-sm border-b transition-all duration-300',
+      base: 'px-4 py-3 transition-all duration-300',
     },
   },
   button: {
     color: {
-      primary: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200',
+      primary: 'bg-transparent hover:bg-background transition-all duration-200',
+    },
+  },
+  dropdown: {
+    floating: {
+      target: 'w-fit',
+      item: {
+        base: 'flex items-center justify-start py-2 px-4 text-sm cursor-pointer w-full hover:!bg-muted-foreground/20 rounded-md transition-colors duration-200',
+      },
     },
   },
 });
-
 interface NavbarComponentProps {
   onMenuClick: () => void;
 }
@@ -72,26 +80,24 @@ export function NavbarComponent({ onMenuClick }: NavbarComponentProps) {
   return (
     <ClientOnly>
       <ThemeProvider theme={customTheme}>
-        <Navbar fluid className="bg-[var(--color-surface)] border-[var(--color-border)] shadow-sm">
-          <div className="flex items-center gap-3">
+        <Navbar fluid className="bg-background shadow-card px-2 lg:px-4">
+          <div className="grid flex-1 grid-cols-[auto_1fr_auto] items-center gap-2 lg:flex lg:w-auto lg:gap-2">
             <Button
               onClick={onMenuClick}
               color="primary"
-              className="p-3 rounded-lg md:hidden hover:scale-105 transition-transform duration-200"
+              className="rounded-lg p-2 transition-transform duration-200 hover:scale-105 lg:hidden"
             >
-              <HiMenu size={20} style={{ color: 'var(--color-text)' }} />
+              <HiMenu className="text-text" size={20} />
             </Button>
 
-            <NavbarBrand href="#">
-              <div className="self-center whitespace-nowrap text-xl font-semibold md:hidden">
-                <Image
-                  src={Logo}
-                  alt="Accountflow logo"
-                  width={130}
-                  height={30}
-                  className="transition-transform duration-200 hover:scale-105"
-                />
-              </div>
+            <NavbarBrand href="#" className="flex justify-center lg:hidden">
+              <Image
+                src={Logo}
+                alt="Accountflow logo"
+                width={130}
+                height={30}
+                className="transition-transform duration-200 hover:scale-105"
+              />
             </NavbarBrand>
           </div>
 
@@ -100,36 +106,35 @@ export function NavbarComponent({ onMenuClick }: NavbarComponentProps) {
               arrowIcon={true}
               inline
               label={
-                <div className="cursor-pointer group">
+                <div className="group cursor-pointer">
                   <Avatar
                     alt="User settings"
                     rounded
-                    className="ring-2 ring-transparent group-hover:ring-[var(--color-primary)] transition-all duration-200"
+                    className="group-hover:ring-offset-muted-foreground ring-2 ring-transparent transition-all duration-200"
+                    size="sm"
                   />
                 </div>
               }
             >
-              <DropdownHeader className="bg-[var(--color-surface)] border-b border-[var(--color-border)]">
-                <span className="block text-sm font-medium" style={{ color: 'var(--color-text)' }}>
-                  Matheus Bruckmann
-                </span>
-                <span className="block truncate text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                  matheusmorilha04@gmail.com
-                </span>
-              </DropdownHeader>
-              <DropdownItem
-                className="cursor-pointer hover:bg-[var(--color-border)] transition-colors duration-200"
-                style={{ color: 'var(--color-text)' }}
-              >
-                Meu Perfil
-              </DropdownItem>
-              <DropdownDivider className="border-[var(--color-border)]" />
-              <DropdownItem
-                className="cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors duration-200"
-                style={{ color: 'var(--color-text)' }}
-              >
-                Sair
-              </DropdownItem>
+              <div className="bg-surface rounded-lg px-1 pb-2">
+                <DropdownHeader className="bg-surface">
+                  <span className="text-text block text-sm font-medium">Matheus Bruckmann</span>
+                  <span className="text-text-muted block truncate text-xs">matheusmorilha04@gmail.com</span>
+                </DropdownHeader>
+                <DropdownDivider className="border-border mx-auto w-[90%] opacity-30" />
+                <DropdownItem className="text-foreground cursor-pointer px-6 transition-colors duration-200">
+                  <span className="text-foreground font-medium">Meu Perfil</span>
+                </DropdownItem>
+                <DropdownDivider className="border-border mx-auto w-[90%] opacity-30" />
+                <ThemeToggle />
+                <DropdownDivider className="border-border mx-auto w-[90%] opacity-30" />
+                <DropdownItem
+                  onClick={handleLogout}
+                  className="text-foreground cursor-pointer px-6 transition-colors duration-200"
+                >
+                  <span className="text-foreground font-medium">Sair</span>
+                </DropdownItem>
+              </div>
             </Dropdown>
           </div>
         </Navbar>

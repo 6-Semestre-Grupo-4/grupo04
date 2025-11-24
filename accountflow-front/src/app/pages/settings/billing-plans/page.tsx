@@ -9,6 +9,7 @@ import BillingPlanForm from '@/components/billing/billingPlanForm';
 import ConfirmDialog from '@/components/billing/confirmDialog';
 import { BillingPlan } from '@/types/billingPlan';
 import { getBillingPlans, saveBillingPlan, deleteBillingPlan } from '@/services/billingPlanService';
+import Link from 'next/link';
 
 export default function BillingPlansPage() {
   const router = useRouter();
@@ -82,15 +83,15 @@ export default function BillingPlansPage() {
   };
 
   return (
-    <div className="p-10 min-h-screen transition-all">
-      <div className="flex justify-between items-center mb-10">
+    <div className="min-h-screen p-10 transition-all">
+      <div className="mb-10 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Planos de Contas</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Gerencie os planos e suas contas estruturadas.</p>
+          <p className="mt-1 text-gray-500 dark:text-gray-400">Gerencie os planos e suas contas estruturadas.</p>
         </div>
 
         <Button
-          className="bg-gray-900 hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700 text-white shadow-md transition-all"
+          className="bg-gray-900 text-white shadow-md transition-all hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700"
           onClick={handleNew}
         >
           Novo Plano
@@ -99,30 +100,24 @@ export default function BillingPlansPage() {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {billingPlans.map((plan) => (
-          <div
+          <Link
             key={plan.uuid}
-            role="button"
-            tabIndex={0}
-            className="
-              p-5 bg-white dark:bg-gray-800 rounded-xl 
-              shadow-sm border border-gray-200 dark:border-gray-700 
-              hover:shadow-xl hover:scale-[1.02] hover:border-gray-400 dark:hover:border-gray-500
-              transition-all duration-200 cursor-pointer relative group
-            "
-            onClick={() => router.push(`billing-plans/${plan.uuid}`)}
+            href={`billing-plans/${plan.uuid}`}
+            className="group relative cursor-pointer rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:scale-[1.02] hover:border-gray-400 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-500"
           >
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{plan.name}</h2>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">{plan.description}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{plan.description}</p>
             </div>
 
-            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition">
+            <div className="absolute top-4 right-4 flex gap-2 opacity-0 transition group-hover:opacity-100">
               <button
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   handleEdit(plan);
                 }}
-                className="p-1 bg-white/60 dark:bg-gray-700/50 rounded-md hover:scale-105 transition"
+                className="rounded-md bg-white/60 p-1 transition hover:scale-105 dark:bg-gray-700/50"
                 title="Editar"
               >
                 <FiEdit2 size={18} />
@@ -132,28 +127,22 @@ export default function BillingPlansPage() {
                   e.stopPropagation();
                   confirmDelete(plan.uuid);
                 }}
-                className="p-1 bg-white/60 dark:bg-gray-700/50 rounded-md hover:scale-105 transition"
+                className="rounded-md bg-white/60 p-1 transition hover:scale-105 dark:bg-gray-700/50"
                 title="Excluir"
               >
                 <FiTrash2 size={18} />
               </button>
             </div>
 
-            <div
-              className="
-                mt-4 flex items-center gap-2 
-                opacity-0 group-hover:opacity-100 transition
-                text-blue-600 dark:text-blue-400
-              "
-            >
+            <div className="mt-4 flex items-center gap-2 text-blue-600 opacity-0 transition group-hover:opacity-100 dark:text-blue-400">
               <FiEye size={20} />
               <span className="text-sm font-medium">Ver hierarquia</span>
             </div>
-          </div>
+          </Link>
         ))}
 
         {billingPlans.length === 0 && (
-          <div className="text-center col-span-full text-gray-400 py-10">Nenhum plano cadastrado ainda.</div>
+          <div className="col-span-full py-10 text-center text-gray-400">Nenhum plano cadastrado ainda.</div>
         )}
       </div>
 

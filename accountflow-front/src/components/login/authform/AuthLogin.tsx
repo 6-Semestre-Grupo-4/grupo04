@@ -55,7 +55,7 @@ const AuthLogin = () => {
   return (
     <>
       <form onSubmit={handleSubmit} className="text-black">
-        {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
+        {error && <p className="mb-4 text-center text-sm text-red-500">{error}</p>}
 
         <div className="mb-4">
           <FloatingLabel
@@ -88,7 +88,7 @@ const AuthLogin = () => {
           />
         </div>
 
-        <div className="flex gap-2 my-5 flex-col">
+        <div className="my-5 flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <Checkbox
               id="accept"
@@ -97,7 +97,7 @@ const AuthLogin = () => {
               onChange={(e) => setRememberMe(e.target.checked)}
               disabled={isLoading}
             />
-            <Label htmlFor="accept" className="opacity-90 font-normal cursor-pointer">
+            <Label htmlFor="accept" className="cursor-pointer font-normal opacity-90">
               Remember this Device
             </Label>
           </div>
@@ -105,7 +105,7 @@ const AuthLogin = () => {
         <Button
           type="submit"
           color={'primary'}
-          className="w-full bg-secondary hover:bg-secondary-hover active:bg-secondary-hover text-white rounded-xl"
+          className="bg-secondary hover:bg-secondary-hover active:bg-secondary-hover w-full rounded-xl text-white"
           disabled={isLoading}
         >
           {isLoading ? 'Signing in...' : 'Sign in'}

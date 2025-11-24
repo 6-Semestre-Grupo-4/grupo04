@@ -145,33 +145,33 @@ export default function HistoryPresetsPage() {
   }
 
   return (
-    <div className="p-10 min-h-screen transition-all">
-      <div className="flex justify-between items-center mb-10">
+    <div className="min-h-screen p-10 transition-all">
+      <div className="mb-10 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Históricos Contábeis</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
+          <p className="mt-1 text-gray-500 dark:text-gray-400">
             Configure regras de movimentação entre contas de forma simples e rápida.
           </p>
         </div>
 
         <Button
-          className="bg-gray-900 hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700 text-white shadow-md transition-all"
+          className="bg-gray-900 text-white shadow-md transition-all hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700"
           onClick={() => openForm()}
         >
           Novo Histórico
         </Button>
       </div>
 
-      <div className="mb-10 p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Filtros</h2>
+      <div className="mb-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+        <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-200">Filtros</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <div className="flex flex-col">
-            <Label className="mb-1 text-gray-600 dark:text-gray-400 text-sm">Plano de Contas</Label>
+            <Label className="mb-1 text-sm text-gray-600 dark:text-gray-400">Plano de Contas</Label>
             <Select
               value={filterPlan}
               onChange={(e) => setFilterPlan(e.target.value)}
-              className="rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200"
+              className="rounded-xl border border-gray-300 bg-gray-50 text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
             >
               <option value="">Todos os planos...</option>
               {plans.map((p) => (
@@ -183,23 +183,23 @@ export default function HistoryPresetsPage() {
           </div>
 
           <div className="flex flex-col">
-            <Label className="mb-1 text-gray-600 dark:text-gray-400 text-sm">Buscar</Label>
+            <Label className="mb-1 text-sm text-gray-600 dark:text-gray-400">Buscar</Label>
 
-            <div className="relative flex items-center bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-300 dark:border-gray-700">
+            <div className="relative flex items-center rounded-xl border border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
               <FiArrowRight size={18} className="absolute left-3 text-gray-400 dark:text-gray-500" />
 
               <TextInput
                 placeholder="Nome ou descrição..."
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                className="w-full pl-10 bg-transparent text-gray-800 dark:text-gray-200"
+                className="w-full bg-transparent pl-10 text-gray-800 dark:text-gray-200"
               />
             </div>
           </div>
 
           <div className="flex items-end justify-start md:justify-end">
             <Button
-              className="px-6 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-200 shadow-sm"
+              className="rounded-xl bg-gray-200 px-6 py-2 text-gray-900 shadow-sm hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
               onClick={() => {
                 setFilterPlan('');
                 setSearchText('');
@@ -215,65 +215,40 @@ export default function HistoryPresetsPage() {
         {filteredPresets.map((h) => (
           <div
             key={h.uuid}
-            className="
-              p-6 rounded-2xl
-              bg-white dark:bg-gray-900
-              border border-gray-200 dark:border-gray-700
-              shadow-sm
-              hover:shadow-lg hover:-translate-y-1
-              transition-all duration-200
-              cursor-pointer
-              group
-            "
+            className="group cursor-pointer rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-900"
           >
-            <div className="flex justify-between items-start gap-4">
+            <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white leading-tight">{h.name}</h2>
+                <h2 className="text-lg leading-tight font-semibold text-gray-900 dark:text-white">{h.name}</h2>
 
-                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 line-clamp-2">{h.description}</p>
+                <p className="mt-1 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">{h.description}</p>
 
-                <span
-                  className="
-                  inline-block mt-4 px-3 py-1 text-xs font-medium rounded-lg
-                  bg-blue-100 text-blue-700
-                  dark:bg-blue-900/30 dark:text-blue-300
-                "
-                >
+                <span className="mt-4 inline-block rounded-lg bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                   {getPlanName(h.billing_plan)}
                 </span>
               </div>
 
-              <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex flex-col gap-2 opacity-0 transition-opacity group-hover:opacity-100">
                 <button
                   onClick={() => openForm(h)}
-                  className="
-                    p-2 rounded-lg bg-gray-100 dark:bg-gray-700
-                    hover:bg-gray-200 dark:hover:bg-gray-600
-                    shadow-sm
-                    transition
-                  "
+                  className="rounded-lg bg-gray-100 p-2 shadow-sm transition hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
                 >
                   <FiEdit2 size={16} className="text-gray-700 dark:text-gray-300" />
                 </button>
 
                 <button
                   onClick={() => handleDelete(h)}
-                  className="
-                    p-2 rounded-lg bg-gray-100 dark:bg-gray-700
-                    hover:bg-gray-200 dark:hover:bg-gray-600
-                    shadow-sm
-                    transition
-                  "
+                  className="rounded-lg bg-gray-100 p-2 shadow-sm transition hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
                 >
                   <FiTrash2 size={16} />
                 </button>
               </div>
             </div>
 
-            <div className="mt-5 flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-inner">
+            <div className="mt-5 flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-inner dark:border-gray-700 dark:bg-gray-800">
               <span className="font-semibold text-red-600 dark:text-red-300">{getAccountName(h.payable_account)}</span>
 
-              <FiArrowRight size={22} className="text-gray-500 dark:text-gray-300 mx-3" />
+              <FiArrowRight size={22} className="mx-3 text-gray-500 dark:text-gray-300" />
 
               <span className="font-semibold text-green-600 dark:text-green-300">
                 {getAccountName(h.receivable_account)}
@@ -283,7 +258,7 @@ export default function HistoryPresetsPage() {
         ))}
 
         {filteredPresets.length === 0 && (
-          <div className="text-center col-span-full text-gray-400 py-10">Nenhum histórico encontrado.</div>
+          <div className="col-span-full py-10 text-center text-gray-400">Nenhum histórico encontrado.</div>
         )}
       </div>
 

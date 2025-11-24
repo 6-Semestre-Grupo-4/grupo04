@@ -61,7 +61,7 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
   const generateParentOptions = (list: BillingAccount[], level = 0): { uuid: string; label: string }[] => {
     const map: { uuid: string; label: string }[] = [];
     list.forEach((acc) => {
-      map.push({ uuid: acc.uuid, label: `${'--'.repeat(level)} ${acc.name}` });
+      map.push({ uuid: acc.uuid, label: `${'  '.repeat(level)}${acc.code} - ${acc.name}` });
       if (acc.billingAccount_parent && acc.billingAccount_parent.length > 0) {
         map.push(...generateParentOptions(acc.billingAccount_parent, level + 1));
       }
@@ -85,7 +85,7 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
 
   return (
     <Modal show={show} onClose={onClose}>
-      <div className="p-6 space-y-4">
+      <div className="space-y-4 p-6">
         <h2 className="text-xl font-bold text-gray-900">{editing ? 'Editar Conta Contábil' : 'Nova Conta Contábil'}</h2>
 
         <div>
@@ -105,7 +105,7 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
             id="parentId"
             value={form.parentId}
             onChange={(e) => setForm((prev) => ({ ...prev, parentId: e.target.value }))}
-            className="w-full border rounded px-2 py-1"
+            className="w-full rounded border px-2 py-1"
           >
             <option value="">Nenhuma (Conta Principal)</option>
             {generateParentOptions(parentOptions).map((opt) => (
@@ -127,7 +127,7 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
                 type_of: e.target.value as TypeOfAccount,
               }))
             }
-            className="w-full border rounded px-2 py-1"
+            className="w-full rounded border px-2 py-1"
           >
             <option value="">Selecione...</option>
             <option value="Sintética">Sintética</option>
@@ -135,7 +135,7 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
           </select>
         </div>
 
-        <div className="flex justify-end gap-2 mt-4">
+        <div className="mt-4 flex justify-end gap-2">
           <Button color="blue" onClick={handleSave}>
             {editing ? 'Salvar Alterações' : 'Salvar'}
           </Button>

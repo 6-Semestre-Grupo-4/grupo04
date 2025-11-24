@@ -1,50 +1,53 @@
-// Importe sua instância configurada do Axios
 import api from '@/services/api';
+import { BillingPlan } from '@/types/billingPlan';
+import { handleApiError } from '@/components/utils/HandlerError';
 
 type BillingPlanPayload = {
   name: string;
   description: string;
 };
 
-// URL do endpoint (sem o domínio, que já está no 'api')
 const ENDPOINT_URL = 'billing-plan/';
 
-export async function getBillingPlans() {
+type Paginated<T> = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+};
+
+function toArray<T>(data: T[] | Paginated<T> | any): T[] {
+  return Array.isArray(data) ? data : (data?.results ?? []);
+}
+
+export async function getBillingPlans(): Promise<BillingPlan[]> {
   try {
-    // 1. Use api.get()
-    // 2. A resposta já vem em res.data
-    const res = await api.get(ENDPOINT_URL);
+    const res = await api.get(ENDPOINT_URL, { params: { page_size: 1000 } });
+    return toArray<BillingPlan>(res.data);
+  } catch (error) {
+    handleApiError(error, 'Erro ao buscar planos');
+    return [];
+  }
+}
+
+export async function saveBillingPlan(plan: BillingPlanPayload, uuid?: string): Promise<BillingPlan> {
+  try {
+    const url = uuid ? `${ENDPOINT_URL}${uuid}/` : ENDPOINT_URL;
+    const method = uuid ? api.put : api.post;
+
+    const res = await method<BillingPlan>(url, plan);
     return res.data;
   } catch (error) {
-    console.error('Erro ao buscar planos:', error);
-    throw new Error('Erro ao buscar planos');
+    handleApiError(error, 'Erro ao salvar plano');
+    throw error;
   }
 }
 
-export async function saveBillingPlan(plan: BillingPlanPayload, uuid?: string) {
+export async function deleteBillingPlan(uuid: string): Promise<void> {
   try {
-    if (uuid) {
-      // 3. Use api.put() para atualizar
-      const res = await api.put(`${ENDPOINT_URL}${uuid}/`, plan);
-      return res.data;
-    } else {
-      // 4. Use api.post() para criar
-      const res = await api.post(ENDPOINT_URL, plan);
-      return res.data;
-    }
-  } catch (error) {
-    console.error('Erro ao salvar plano:', error);
-    throw new Error('Erro ao salvar plano');
-  }
-}
-
-export async function deleteBillingPlan(uuid: string) {
-  try {
-    // 5. Use api.delete()
-    //    Não há 'return' pois o DELETE retorna 204 No Content
     await api.delete(`${ENDPOINT_URL}${uuid}/`);
   } catch (error) {
-    console.error('Erro ao excluir plano:', error);
-    throw new Error('Erro ao excluir plano');
+    handleApiError(error, 'Erro ao excluir plano');
+    throw error;
   }
 }

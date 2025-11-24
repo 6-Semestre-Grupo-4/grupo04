@@ -57,7 +57,7 @@ export function CreateTitleModal({ isOpen, onClose, onSave, billingAccounts }: C
     <Modal show={isOpen} onClose={onClose}>
       <form onSubmit={handleSubmit} className="p-6">
         <div className="mb-6">
-          <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-4">Novo Título</h3>
+          <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Novo Título</h3>
 
           <div className="space-y-6">
             <div>
@@ -110,7 +110,7 @@ export function CreateTitleModal({ isOpen, onClose, onSave, billingAccounts }: C
                 type="checkbox"
                 checked={formData.active}
                 onChange={handleInputChange}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-blue-500"
               />
               <Label htmlFor="active">Ativo</Label>
             </div>
@@ -122,7 +122,7 @@ export function CreateTitleModal({ isOpen, onClose, onSave, billingAccounts }: C
                 type="checkbox"
                 checked={formData.recorrente}
                 onChange={handleInputChange}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-blue-500"
               />
               <Label htmlFor="recorrente">Recorrente</Label>
             </div>

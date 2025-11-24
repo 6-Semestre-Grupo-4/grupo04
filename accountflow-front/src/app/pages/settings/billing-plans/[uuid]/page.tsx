@@ -8,6 +8,7 @@ import { MdAccountTree } from 'react-icons/md';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import ToastNotification from '@/components/toastNotification';
 import ConfirmDialog from '@/components/billing/confirmDialog';
+import { clearBillingAccountsCache } from '@/services/billingAccountSevice';
 
 import { getBillingAccounts, saveBillingAccount, deleteBillingAccount } from '@/services/billingAccountSevice';
 
@@ -105,12 +106,14 @@ export default function BillingAccountPage() {
       setShowModal(false);
       setEditingAccount(null);
       setNewAccount({ name: '', parentId: '', type_of: '' });
+      clearBillingAccountsCache(uuid);
       fetchAccounts();
 
       setToast({
         message: editingAccount ? 'Conta atualizada com sucesso!' : 'Conta cadastrada com sucesso!',
         type: 'success',
       });
+      clearBillingAccountsCache(uuid);
     } catch {
       setToast({ message: 'Erro ao salvar a conta.', type: 'error' });
     }
@@ -125,6 +128,7 @@ export default function BillingAccountPage() {
 
     try {
       await deleteBillingAccount(confirmDialog.accountId);
+      clearBillingAccountsCache(uuid);
       fetchAccounts();
       setToast({ message: 'Conta excluída com sucesso!', type: 'success' });
     } catch {
@@ -151,7 +155,7 @@ export default function BillingAccountPage() {
     list.forEach((acc) => {
       options.push({
         uuid: acc.uuid,
-        label: `${'— '.repeat(level)}${acc.name}`,
+        label: `${'  '.repeat(level)}${acc.code} - ${acc.name}`,
       });
 
       if (acc.billingAccount_parent?.length) {
@@ -173,7 +177,7 @@ export default function BillingAccountPage() {
       rows.push(
         <tr
           key={acc.uuid}
-          className="group bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/70 transition"
+          className="group border-b border-gray-100 bg-white transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800/70"
         >
           <td
             className="px-6 py-4 font-medium whitespace-nowrap text-gray-800 dark:text-gray-100"
@@ -183,20 +187,15 @@ export default function BillingAccountPage() {
               {hasChildren ? (
                 <button
                   onClick={() => toggleRow(acc.uuid)}
-                  className="
-                    mr-2 p-1 
-                    rounded-md 
-                    hover:bg-gray-200 dark:hover:bg-gray-700
-                    transition
-                  "
+                  className="mr-2 rounded-md p-1 transition hover:bg-gray-200 dark:hover:bg-gray-700"
                 >
                   {isExpanded ? <HiOutlineChevronDown size={16} /> : <HiOutlineChevronRight size={16} />}
                 </button>
               ) : (
-                <span className="w-[24px] mr-2" />
+                <span className="mr-2 w-[24px]" />
               )}
 
-              <MdAccountTree className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
+              <MdAccountTree className="mr-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
 
               {acc.name}
             </div>
@@ -208,16 +207,11 @@ export default function BillingAccountPage() {
             {acc.account_type === 'analytic' ? 'Analítica' : 'Sintética'}
           </td>
 
-          <td className="px-6 py-4 flex gap-3 items-center">
+          <td className="flex items-center gap-3 px-6 py-4">
             <button
               onClick={() => openEditModal(acc)}
               onMouseDown={(e) => e.stopPropagation()}
-              className="
-      p-1 bg-white/60 dark:bg-gray-700/50 
-      rounded-md shadow-sm 
-      hover:bg-white dark:hover:bg-gray-600
-      hover:scale-105 transition
-    "
+              className="rounded-md bg-white/60 p-1 shadow-sm transition hover:scale-105 hover:bg-white dark:bg-gray-700/50 dark:hover:bg-gray-600"
               title="Editar"
             >
               <FiEdit2 size={18} />
@@ -226,18 +220,13 @@ export default function BillingAccountPage() {
             <button
               onClick={() => confirmDelete(acc.uuid)}
               onMouseDown={(e) => e.stopPropagation()}
-              className="
-      p-1 bg-white/60 dark:bg-gray-700/50 
-      rounded-md shadow-sm 
-      hover:bg-white dark:hover:bg-gray-600
-      hover:scale-105 transition
-    "
+              className="rounded-md bg-white/60 p-1 shadow-sm transition hover:scale-105 hover:bg-white dark:bg-gray-700/50 dark:hover:bg-gray-600"
               title="Excluir"
             >
               <FiTrash2 size={18} />
             </button>
           </td>
-        </tr>,
+        </tr>
       );
 
       if (isExpanded && acc.billingAccount_parent) {
@@ -249,32 +238,23 @@ export default function BillingAccountPage() {
   };
 
   return (
-    <div className="p-10 min-h-screen transition-all">
-      <div className="flex justify-between items-center mb-10">
+    <div className="min-h-screen p-10 transition-all">
+      <div className="mb-10 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Plano de Contas</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Gerencie as contas contábeis deste plano.</p>
+          <p className="mt-1 text-gray-500 dark:text-gray-400">Gerencie as contas contábeis deste plano.</p>
         </div>
 
         <div className="flex gap-3">
           <Button
-            className="
-              bg-gray-200 hover:bg-gray-300 
-              dark:bg-gray-700 dark:hover:bg-gray-600 
-              text-gray-800 dark:text-gray-200
-              shadow-sm
-            "
+            className="bg-gray-200 text-gray-800 shadow-sm hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
             onClick={() => router.push('/pages/billing-plans')}
           >
             Voltar
           </Button>
 
           <Button
-            className="
-              bg-gray-900 hover:bg-black 
-              dark:bg-gray-800 dark:hover:bg-gray-700 
-              text-white shadow-md
-            "
+            className="bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700"
             onClick={() => {
               setEditingAccount(null);
               setNewAccount({ name: '', parentId: '', type_of: '' });
@@ -286,9 +266,9 @@ export default function BillingAccountPage() {
         </div>
       </div>
 
-      <div className="relative overflow-x-auto shadow-md border border-gray-200 dark:border-gray-700 rounded-xl">
-        <table className="w-full text-sm text-left">
-          <thead className="text-xs font-semibold uppercase bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+      <div className="relative overflow-x-auto rounded-xl border border-gray-200 shadow-md dark:border-gray-700">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-gray-100 text-xs font-semibold text-gray-600 uppercase dark:bg-gray-800 dark:text-gray-300">
             <tr>
               <th className="px-6 py-3">Conta</th>
               <th className="px-6 py-3">Classificação</th>
@@ -302,7 +282,7 @@ export default function BillingAccountPage() {
               renderRows(accounts, 0)
             ) : (
               <tr>
-                <td colSpan={4} className="text-center py-8 text-gray-400 dark:text-gray-500">
+                <td colSpan={4} className="py-8 text-center text-gray-400 dark:text-gray-500">
                   Nenhuma conta cadastrada.
                 </td>
               </tr>
@@ -312,7 +292,7 @@ export default function BillingAccountPage() {
       </div>
 
       <Modal show={showModal} onClose={() => setShowModal(false)} size="lg" popup>
-        <div className="p-8 bg-white dark:bg-gray-800 rounded-xl space-y-5">
+        <div className="space-y-5 rounded-xl bg-white p-8 dark:bg-gray-800">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             {editingAccount ? 'Editar Conta' : 'Nova Conta'}
           </h2>
@@ -331,11 +311,7 @@ export default function BillingAccountPage() {
             <select
               value={newAccount.parentId}
               onChange={(e) => setNewAccount({ ...newAccount, parentId: e.target.value })}
-              className="
-                w-full border rounded-lg p-2 
-                bg-gray-50 dark:bg-gray-900 
-                dark:border-gray-700
-              "
+              className="w-full rounded-lg border bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900"
             >
               <option value="">Nenhuma (Conta Principal)</option>
               {generateParentOptions(accounts).map((opt) => (
@@ -351,11 +327,7 @@ export default function BillingAccountPage() {
             <select
               value={newAccount.type_of}
               onChange={(e) => setNewAccount({ ...newAccount, type_of: e.target.value as TypeOfAccount })}
-              className="
-                w-full border rounded-lg p-2 
-                bg-gray-50 dark:bg-gray-900 
-                dark:border-gray-700
-              "
+              className="w-full rounded-lg border bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900"
             >
               <option value="">Selecione...</option>
               <option value="Sintética">Sintética</option>
@@ -365,22 +337,14 @@ export default function BillingAccountPage() {
 
           <div className="flex justify-end gap-3 pt-4">
             <Button
-              className="
-                bg-gray-900 hover:bg-black 
-                dark:bg-gray-700 dark:hover:bg-gray-600 
-                text-white shadow-md
-              "
+              className="bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600"
               onClick={saveAccount}
             >
               {editingAccount ? 'Salvar Alterações' : 'Salvar'}
             </Button>
 
             <Button
-              className="
-                bg-gray-200 hover:bg-gray-300 
-                dark:bg-gray-700 dark:hover:bg-gray-600 
-                text-gray-800 dark:text-gray-200
-              "
+              className="bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
               onClick={() => setShowModal(false)}
             >
               Cancelar

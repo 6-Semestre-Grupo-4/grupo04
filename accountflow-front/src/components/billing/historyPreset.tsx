@@ -57,7 +57,7 @@ export default function HistoryPresetForm({
 
   return (
     <Modal show={show} size="lg" onClose={onClose} popup>
-      <div className="p-8 bg-white dark:bg-gray-800 rounded-xl space-y-5">
+      <div className="space-y-5 rounded-xl bg-white p-8 dark:bg-gray-800">
         <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
           {editing ? 'Editar Histórico' : 'Novo Histórico'}
         </h3>
@@ -129,7 +129,7 @@ export default function HistoryPresetForm({
           <Button
             onClick={onSave}
             disabled={loading}
-            className="bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 text-white shadow-md"
+            className="bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600"
           >
             {loading ? 'Salvando...' : 'Salvar'}
           </Button>
