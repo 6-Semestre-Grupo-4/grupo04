@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useMemo } from 'react'; // Otimização de cálculo
+import { useMemo, memo } from 'react'; // Otimização de cálculo
 import {
   Sidebar,
   SidebarItem,
@@ -67,7 +67,7 @@ interface SidebarProps {
   isOpen: boolean;
 }
 
-export function SidebarComponent({ isOpen }: SidebarProps) {
+function SidebarBase({ isOpen }: SidebarProps) {
   const pathname = usePathname();
 
   // useMemo evita recálculo dessas variáveis booleanas se o pathname não mudar
@@ -104,11 +104,11 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
               {/* MUDANÇA PRINCIPAL: 
                 Usar 'href' e 'as={Link}' ao invés de onClick + router.push 
               */}
-              <SidebarItem icon={Home} as={Link} href={`${route}home`} active={pathname === `${route}home`}>
+              <SidebarItem icon={Home} as={Link} href={`${route}home`} prefetch active={pathname === `${route}home`}>
                 Home
               </SidebarItem>
 
-              <SidebarItem icon={Building2} as={Link} href={`${route}company`} active={pathname === `${route}company`}>
+              <SidebarItem icon={Building2} as={Link} href={`${route}company`} prefetch active={pathname === `${route}company`}>
                 Empresa
               </SidebarItem>
 
@@ -118,6 +118,7 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                     icon={FilePlus}
                     as={Link}
                     href={`${route}operations/accounts-payable/create`}
+                    prefetch
                     active={pathname === `${route}operations/accounts-payable/create`}
                   >
                     Cadastrar Títulos
@@ -127,6 +128,7 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                     icon={FileDown}
                     as={Link}
                     href={`${route}operations/accounts-payable/pay`}
+                    prefetch
                     active={pathname === `${route}operations/accounts-payable/pay`}
                   >
                     Baixar Títulos
@@ -138,6 +140,7 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                     icon={FilePlus}
                     as={Link}
                     href={`${route}operations/accounts-receivable/create`}
+                    prefetch
                     active={pathname === `${route}operations/accounts-receivable/create`}
                   >
                     Cadastrar Títulos
@@ -147,6 +150,7 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                     icon={FileDown}
                     as={Link}
                     href={`${route}operations/accounts-receivable/receive`}
+                    prefetch
                     active={pathname === `${route}operations/accounts-receivable/receive`}
                   >
                     Baixar Títulos
@@ -159,6 +163,7 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                   icon={Network}
                   as={Link}
                   href={`${route}settings/billing-plans`}
+                  prefetch
                   active={pathname === `${route}settings/billing-plans`}
                 >
                   Plano de Contas
@@ -167,6 +172,7 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
                   icon={Landmark}
                   as={Link}
                   href={`${route}settings/history-presets`}
+                  prefetch
                   active={pathname === `${route}settings/history-presets`}
                 >
                   Históricos
@@ -179,3 +185,6 @@ export function SidebarComponent({ isOpen }: SidebarProps) {
     </aside>
   );
 }
+
+// Memoize to avoid re-renders unless isOpen or pathname changes
+export const SidebarComponent = memo(SidebarBase);

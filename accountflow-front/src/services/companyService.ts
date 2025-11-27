@@ -106,7 +106,7 @@ export const companyService = {
 
   // List companies and hydrate address fields (city/state) by fetching address details
   getAll: async () => {
-    const res = await api.get('/company/', { params: { page_size: 1000 } });
+    const res = await api.get('/company/', { params: { no_pagination: 'true' } });
     const companies = toArray(res.data);
 
     // collect unique address uuids
