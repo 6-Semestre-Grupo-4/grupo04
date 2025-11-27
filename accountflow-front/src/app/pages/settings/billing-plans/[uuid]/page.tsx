@@ -6,8 +6,8 @@ import { Button, Modal, Label, TextInput } from 'flowbite-react';
 import { HiOutlineChevronRight, HiOutlineChevronDown } from 'react-icons/hi';
 import { MdAccountTree } from 'react-icons/md';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
-import ToastNotification from '@/components/toastNotification';
-import ConfirmDialog from '@/components/billing/confirmDialog';
+import ToastNotification from '@/components/utils/toastNotification';
+import ConfirmDialog from '@/components/utils/confirmDialog';
 import { clearBillingAccountsCache } from '@/services/billingAccountSevice';
 
 import { getBillingAccounts, saveBillingAccount, deleteBillingAccount } from '@/services/billingAccountSevice';

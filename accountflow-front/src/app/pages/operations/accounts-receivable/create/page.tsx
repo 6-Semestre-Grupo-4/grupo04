@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { Button, TextInput } from 'flowbite-react';
 import { Plus, Edit, Trash2, Check, X, CheckCircle2 } from 'lucide-react';
 
-import ToastNotification from '@/components/toastNotification';
+import ToastNotification from '@/components/utils/toastNotification';
 import TitleForm from '@/components/titles/TitleForm';
-import ConfirmDialog from '@/components/billing/confirmDialog';
+import ConfirmDialog from '@/components/utils/confirmDialog';
 
 import { Title } from '@/types/title';
 import { Company } from '@/types/company';
