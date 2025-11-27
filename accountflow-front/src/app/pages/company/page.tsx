@@ -89,9 +89,7 @@ export default function Companies() {
     try {
       await companyService.delete(confirmDialog.company.uuid);
 
-      setCompanies((prev) =>
-        prev.filter((c) => c.uuid !== confirmDialog.company?.uuid)
-      );
+      setCompanies((prev) => prev.filter((c) => c.uuid !== confirmDialog.company?.uuid));
 
       setToast({
         message: `Empresa "${confirmDialog.company.fantasy_name}" excluída com sucesso!`,
@@ -107,9 +105,7 @@ export default function Companies() {
     }
   };
 
-
   const handleDeleteCancel = () => setConfirmDialog(null);
-
 
   return (
     <div className="min-h-screen p-10 transition-all">
@@ -120,7 +116,7 @@ export default function Companies() {
             <p className="mt-2 text-gray-600 dark:text-gray-300">Gerencie as empresas cadastradas no sistema</p>
           </div>
           <Link href="/pages/company/register">
-            <Button className='bg-gray-900 text-white shadow-md transition-all hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700'>
+            <Button className="bg-gray-900 text-white shadow-md transition-all hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700">
               Nova Empresa
             </Button>
           </Link>
@@ -135,7 +131,7 @@ export default function Companies() {
                 Comece cadastrando sua primeira empresa no sistema.
               </p>
               <Link href="/pages/company/register">
-                <Button className='bg-gray-900 text-white shadow-md transition-all hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700'>
+                <Button className="bg-gray-900 text-white shadow-md transition-all hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700">
                   Cadastrar Primeira Empresa
                 </Button>
               </Link>
@@ -146,7 +142,7 @@ export default function Companies() {
             {companies.map((company) => (
               <Card
                 key={company.uuid}
-                className="relative group border-gray-200 bg-white transition-all hover:scale-[1.02] hover:border-gray-300 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600"
+                className="group relative border-gray-200 bg-white transition-all hover:scale-[1.02] hover:border-gray-300 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600"
               >
                 {/* Botões flutuantes iguais ao plano de contas */}
                 <div className="absolute top-4 right-4 flex gap-2 opacity-0 transition group-hover:opacity-100">
@@ -213,7 +209,6 @@ export default function Companies() {
                   </div>
                 </div>
               </Card>
-
             ))}
           </div>
         )}

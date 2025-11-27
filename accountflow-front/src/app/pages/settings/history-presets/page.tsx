@@ -45,10 +45,7 @@ export default function HistoryPresetsPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [plansData, presetsData] = await Promise.all([
-          getBillingPlans(),
-          getPresets(),
-        ]);
+        const [plansData, presetsData] = await Promise.all([getBillingPlans(), getPresets()]);
 
         setPlans(plansData);
         setPresets(presetsData);
@@ -153,8 +150,7 @@ export default function HistoryPresetsPage() {
 
     const txt = searchText.trim().toLowerCase();
     const matchText = txt
-      ? preset.name.toLowerCase().includes(txt) ||
-        preset.description.toLowerCase().includes(txt)
+      ? preset.name.toLowerCase().includes(txt) || preset.description.toLowerCase().includes(txt)
       : true;
 
     return matchPlan && matchText;
@@ -176,9 +172,7 @@ export default function HistoryPresetsPage() {
     <div className="min-h-screen p-10 transition-all">
       <div className="mb-10 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Históricos Contábeis
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Históricos Contábeis</h1>
           <p className="mt-1 text-gray-500 dark:text-gray-400">
             Configure regras de movimentação entre contas de forma simples e rápida.
           </p>
@@ -194,16 +188,12 @@ export default function HistoryPresetsPage() {
 
       {/* FILTERS */}
       <div className="mb-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-        <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-200">
-          Filtros
-        </h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-200">Filtros</h2>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {/* PLANO */}
           <div className="flex flex-col">
-            <Label className="mb-1 text-sm text-gray-600 dark:text-gray-400">
-              Plano de Contas
-            </Label>
+            <Label className="mb-1 text-sm text-gray-600 dark:text-gray-400">Plano de Contas</Label>
 
             <Select
               value={filterPlan}
@@ -221,15 +211,10 @@ export default function HistoryPresetsPage() {
 
           {/* BUSCA */}
           <div className="flex flex-col">
-            <Label className="mb-1 text-sm text-gray-600 dark:text-gray-400">
-              Buscar
-            </Label>
+            <Label className="mb-1 text-sm text-gray-600 dark:text-gray-400">Buscar</Label>
 
             <div className="relative flex items-center rounded-xl border border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-              <FiArrowRight
-                size={18}
-                className="absolute left-3 text-gray-400 dark:text-gray-500"
-              />
+              <FiArrowRight size={18} className="absolute left-3 text-gray-400 dark:text-gray-500" />
 
               <TextInput
                 placeholder="Nome ou descrição..."
@@ -264,13 +249,9 @@ export default function HistoryPresetsPage() {
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
-                <h2 className="text-lg leading-tight font-semibold text-gray-900 dark:text-white">
-                  {h.name}
-                </h2>
+                <h2 className="text-lg leading-tight font-semibold text-gray-900 dark:text-white">{h.name}</h2>
 
-                <p className="mt-1 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">
-                  {h.description}
-                </p>
+                <p className="mt-1 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">{h.description}</p>
 
                 <span className="mt-4 inline-block rounded-lg bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                   {getPlanName(h.billing_plan)}
@@ -300,9 +281,7 @@ export default function HistoryPresetsPage() {
 
             {/* ACCOUNTS */}
             <div className="mt-5 flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-inner dark:border-gray-700 dark:bg-gray-800">
-              <span className="font-semibold text-red-600 dark:text-red-300">
-                {getAccountName(h.payable_account)}
-              </span>
+              <span className="font-semibold text-red-600 dark:text-red-300">{getAccountName(h.payable_account)}</span>
 
               <FiArrowRight size={22} className="mx-3 text-gray-500 dark:text-gray-300" />
 
@@ -314,9 +293,7 @@ export default function HistoryPresetsPage() {
         ))}
 
         {filteredPresets.length === 0 && (
-          <div className="col-span-full py-10 text-center text-gray-400">
-            Nenhum histórico encontrado.
-          </div>
+          <div className="col-span-full py-10 text-center text-gray-400">Nenhum histórico encontrado.</div>
         )}
       </div>
 
@@ -348,13 +325,7 @@ export default function HistoryPresetsPage() {
       )}
 
       {/* TOAST */}
-      {toast && (
-        <ToastNotification
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {toast && <ToastNotification message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 }

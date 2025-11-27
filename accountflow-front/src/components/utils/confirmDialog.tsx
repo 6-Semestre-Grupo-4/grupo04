@@ -40,7 +40,6 @@ export default function ConfirmDialog({
           animation: 'modalSlideUp 0.3s ease-out',
         }}
       >
-
         <div className="mb-4 flex items-center gap-2">
           <HiExclamationTriangle className="h-6 w-6 text-red-500" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
@@ -48,9 +47,7 @@ export default function ConfirmDialog({
 
         <div className="mb-6 space-y-3">
           <p className="text-gray-700 dark:text-gray-300">{message}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Esta ação não poderá ser desfeita.
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Esta ação não poderá ser desfeita.</p>
         </div>
 
         <div className="flex justify-end gap-3">

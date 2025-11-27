@@ -111,7 +111,6 @@ export default function BillingPlansPage() {
             </div>
 
             <div className="absolute top-4 right-4 flex gap-2 opacity-0 transition group-hover:opacity-100">
-
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -136,7 +135,6 @@ export default function BillingPlansPage() {
                 <FiTrash2 size={18} />
               </button>
             </div>
-
           </Link>
         ))}
 
