@@ -48,46 +48,6 @@ class BillingPlan(ModelBasedMixin):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
-    receivable_control_account = models.ForeignKey(
-        'BillingAccount', on_delete=models.PROTECT, related_name='receivable_control_in_plans', 
-        null=True, blank=True)
-    payable_control_account = models.ForeignKey(
-        'BillingAccount', on_delete=models.PROTECT, related_name='payable_control_in_plans', null=True, blank=True)
-
-    class Meta:
-        indexes = [models.Index(fields=['name'])]
-
-    def clean(self):
-        super().clean()
-        if not self.receivable_control_account:
-            raise ValidationError({
-            'receivable_control_account': 'Conta de controle de recebíveis é obrigatória.'
-        })
-    
-        if not self.payable_control_account:
-            raise ValidationError({
-            'payable_control_account': 'Conta de controle de pagamentos é obrigatória.'
-        })
-
-        if self.receivable_control_account.account_type != BillingAccount.AccountType.ANALYTIC:
-            raise ValidationError({
-                'receivable_control_account': 'A conta de controle de recebíveis deve ser analítica.'
-            })
-
-        if self.receivable_control_account.billing_plan != self:
-            raise ValidationError({
-                'receivable_control_account': 'A conta de controle de recebíveis deve pertencer a este plano de contas.'
-            })
-
-        if self.payable_control_account.account_type != BillingAccount.AccountType.ANALYTIC:
-            raise ValidationError({
-                'payable_control_account': 'A conta de controle de pagamentos deve ser analítica.'
-            })
-
-        if self.payable_control_account.billing_plan != self:
-            raise ValidationError({
-                'payable_control_account': 'A conta de controle de pagamentos deve pertencer a este plano de contas.'
-            })
 
     def save(self, *args, **kwargs):
         self.full_clean()  

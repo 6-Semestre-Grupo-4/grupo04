@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import { Button, Label, TextInput, Select } from 'flowbite-react';
 import { FiArrowRight, FiEdit2, FiTrash2 } from 'react-icons/fi';
 
-import ToastNotification from '@/components/toastNotification';
+import ToastNotification from '@/components/utils/toastNotification';
 import HistoryPresetForm from '@/components/billing/historyPreset';
 
 import { Preset } from '@/types/preset';
 import { BillingPlan } from '@/types/billingPlan';
 import { BillingAccount } from '@/types/billingAccount';
+import ConfirmDialog from '@/components/utils/confirmDialog';
 
 import { getPresets, savePreset, deletePreset, getBillingPlans, getAccountsByPlan } from '@/services/presetService';
 
@@ -35,10 +36,17 @@ export default function HistoryPresetsPage() {
   const [filterPlan, setFilterPlan] = useState('');
   const [searchText, setSearchText] = useState('');
 
+  const [confirmDialog, setConfirmDialog] = useState<{
+    show: boolean;
+    preset?: Preset;
+  } | null>(null);
+
+  // ========== LOAD INITIAL DATA ==========
   useEffect(() => {
     async function fetchData() {
       try {
         const [plansData, presetsData] = await Promise.all([getBillingPlans(), getPresets()]);
+
         setPlans(plansData);
         setPresets(presetsData);
       } catch {
@@ -48,6 +56,7 @@ export default function HistoryPresetsPage() {
     fetchData();
   }, []);
 
+  // ========== LOAD ALL ACCOUNTS ==========
   useEffect(() => {
     async function loadAllAccounts() {
       try {
@@ -65,18 +74,20 @@ export default function HistoryPresetsPage() {
     loadAllAccounts();
   }, []);
 
+  // ========== OPEN FORM ==========
   function openForm(preset?: Preset) {
     if (preset) {
       setEditing(preset);
+
       setForm({
-        name: preset.name,
-        description: preset.description,
-        billing_plan: preset.billing_plan,
-        payable_account: preset.payable_account,
-        receivable_account: preset.receivable_account,
+        name: preset.name ?? '',
+        description: preset.description ?? '',
+        billing_plan: preset.billing_plan ?? '',
+        payable_account: preset.payable_account ?? '',
+        receivable_account: preset.receivable_account ?? '',
       });
 
-      getAccountsByPlan(preset.billing_plan).then(setModalAccounts);
+      getAccountsByPlan(preset.billing_plan ?? '').then(setModalAccounts);
     } else {
       setEditing(null);
       setForm({
@@ -92,6 +103,7 @@ export default function HistoryPresetsPage() {
     setOpenModal(true);
   }
 
+  // ========== SAVE ==========
   async function handleSave() {
     if (!form.name.trim() || !form.billing_plan || !form.payable_account || !form.receivable_account) {
       setToast({ message: 'Preencha todos os campos obrigatórios.', type: 'warning' });
@@ -100,10 +112,14 @@ export default function HistoryPresetsPage() {
 
     try {
       setLoading(true);
-      await savePreset(form, editing?.uuid);
 
+      await savePreset(form, editing?.uuid);
       setPresets(await getPresets());
-      setToast({ message: editing ? 'Histórico atualizado!' : 'Histórico criado!', type: 'success' });
+
+      setToast({
+        message: editing ? 'Histórico atualizado!' : 'Histórico criado!',
+        type: 'success',
+      });
 
       setOpenModal(false);
     } catch {
@@ -113,22 +129,26 @@ export default function HistoryPresetsPage() {
     }
   }
 
-  async function handleDelete(preset: Preset) {
-    if (!confirm(`Excluir o histórico "${preset.name}"?`)) return;
+  // ========== DELETE ==========
+  async function handleDeleteConfirm() {
+    if (!confirmDialog?.preset) return;
 
     try {
-      await deletePreset(preset.uuid);
+      await deletePreset(confirmDialog.preset.uuid);
       setPresets(await getPresets());
       setToast({ message: 'Histórico excluído!', type: 'success' });
     } catch {
       setToast({ message: 'Erro ao excluir.', type: 'error' });
+    } finally {
+      setConfirmDialog(null);
     }
   }
 
+  // ========== FILTER ==========
   const filteredPresets = presets.filter((preset) => {
     const matchPlan = filterPlan ? preset.billing_plan === filterPlan : true;
-    const txt = searchText.trim().toLowerCase();
 
+    const txt = searchText.trim().toLowerCase();
     const matchText = txt
       ? preset.name.toLowerCase().includes(txt) || preset.description.toLowerCase().includes(txt)
       : true;
@@ -136,14 +156,18 @@ export default function HistoryPresetsPage() {
     return matchPlan && matchText;
   });
 
-  function getAccountName(uuid: string) {
-    return accounts.find((a) => a.uuid === uuid)?.name || '—';
+  // ========== HELPERS ==========
+  function getAccountName(uuid: string | null) {
+    if (!uuid) return '—';
+    return accounts.find((a) => a.uuid === uuid)?.name ?? '—';
   }
 
-  function getPlanName(uuid: string) {
-    return plans.find((p) => p.uuid === uuid)?.name || 'Plano não encontrado';
+  function getPlanName(uuid: string | null) {
+    if (!uuid) return 'Plano não encontrado';
+    return plans.find((p) => p.uuid === uuid)?.name ?? 'Plano não encontrado';
   }
 
+  // ========== RENDER ==========
   return (
     <div className="min-h-screen p-10 transition-all">
       <div className="mb-10 flex items-center justify-between">
@@ -162,12 +186,15 @@ export default function HistoryPresetsPage() {
         </Button>
       </div>
 
+      {/* FILTERS */}
       <div className="mb-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
         <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-200">Filtros</h2>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {/* PLANO */}
           <div className="flex flex-col">
             <Label className="mb-1 text-sm text-gray-600 dark:text-gray-400">Plano de Contas</Label>
+
             <Select
               value={filterPlan}
               onChange={(e) => setFilterPlan(e.target.value)}
@@ -182,6 +209,7 @@ export default function HistoryPresetsPage() {
             </Select>
           </div>
 
+          {/* BUSCA */}
           <div className="flex flex-col">
             <Label className="mb-1 text-sm text-gray-600 dark:text-gray-400">Buscar</Label>
 
@@ -197,6 +225,7 @@ export default function HistoryPresetsPage() {
             </div>
           </div>
 
+          {/* CLEAR FILTERS */}
           <div className="flex items-end justify-start md:justify-end">
             <Button
               className="rounded-xl bg-gray-200 px-6 py-2 text-gray-900 shadow-sm hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
@@ -211,6 +240,7 @@ export default function HistoryPresetsPage() {
         </div>
       </div>
 
+      {/* LIST */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filteredPresets.map((h) => (
           <div
@@ -237,7 +267,11 @@ export default function HistoryPresetsPage() {
                 </button>
 
                 <button
-                  onClick={() => handleDelete(h)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setConfirmDialog({ show: true, preset: h });
+                  }}
                   className="rounded-lg bg-gray-100 p-2 shadow-sm transition hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
                 >
                   <FiTrash2 size={16} />
@@ -245,6 +279,7 @@ export default function HistoryPresetsPage() {
               </div>
             </div>
 
+            {/* ACCOUNTS */}
             <div className="mt-5 flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-inner dark:border-gray-700 dark:bg-gray-800">
               <span className="font-semibold text-red-600 dark:text-red-300">{getAccountName(h.payable_account)}</span>
 
@@ -262,6 +297,7 @@ export default function HistoryPresetsPage() {
         )}
       </div>
 
+      {/* FORM */}
       <HistoryPresetForm
         show={openModal}
         onClose={() => setOpenModal(false)}
@@ -275,6 +311,20 @@ export default function HistoryPresetsPage() {
         loading={loading}
       />
 
+      {/* CONFIRM DELETE */}
+      {confirmDialog?.show && (
+        <ConfirmDialog
+          show={confirmDialog.show}
+          title="Excluir Histórico"
+          message={`Tem certeza que deseja excluir o histórico "${confirmDialog.preset?.name}"?`}
+          confirmText="Excluir"
+          cancelText="Cancelar"
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setConfirmDialog(null)}
+        />
+      )}
+
+      {/* TOAST */}
       {toast && <ToastNotification message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );

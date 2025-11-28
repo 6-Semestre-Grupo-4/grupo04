@@ -6,6 +6,14 @@ import { BillingAccount } from '@/types/billingAccount';
 import { Preset } from '@/types/preset';
 import { getAccountsByPlan } from '@/services/presetService';
 
+type FormState = {
+  name: string;
+  description: string;
+  billing_plan: string;
+  payable_account: string;
+  receivable_account: string;
+};
+
 type Props = {
   show: boolean;
   onClose: () => void;
@@ -14,15 +22,9 @@ type Props = {
   modalAccounts: BillingAccount[];
   setModalAccounts: (value: BillingAccount[]) => void;
 
-  form: {
-    name: string;
-    description: string;
-    billing_plan: string;
-    payable_account: string;
-    receivable_account: string;
-  };
+  form: FormState;
+  setForm: (value: FormState) => void;
 
-  setForm: (value: any) => void;
   onSave: () => void;
   loading: boolean;
 };
@@ -40,6 +42,7 @@ export default function HistoryPresetForm({
   loading,
 }: Props) {
   async function handlePlanChange(planUUID: string) {
+    // Zera contas sempre que o plano muda
     setForm({
       ...form,
       billing_plan: planUUID,
@@ -47,6 +50,7 @@ export default function HistoryPresetForm({
       receivable_account: '',
     });
 
+    // Busca contas do plano
     if (planUUID) {
       const data = await getAccountsByPlan(planUUID);
       setModalAccounts(data);
@@ -62,22 +66,25 @@ export default function HistoryPresetForm({
           {editing ? 'Editar Histórico' : 'Novo Histórico'}
         </h3>
 
-        {/* Conteúdo 100% igual ao seu */}
         <div className="grid gap-5">
+          {/* Nome */}
           <div>
             <Label>Nome</Label>
             <TextInput value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </div>
 
+          {/* Descrição */}
           <div>
             <Label>Descrição</Label>
             <TextInput value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
 
+          {/* Plano */}
           <div>
             <Label>Plano de Contas</Label>
             <Select value={form.billing_plan} onChange={(e) => handlePlanChange(e.target.value)}>
               <option value="">Selecione...</option>
+
               {plans.map((p) => (
                 <option key={p.uuid} value={p.uuid}>
                   {p.name}
@@ -86,6 +93,7 @@ export default function HistoryPresetForm({
             </Select>
           </div>
 
+          {/* Contas só aparecem se tiver plano */}
           {form.billing_plan && (
             <div className="grid grid-cols-2 gap-5">
               <div>
@@ -95,6 +103,7 @@ export default function HistoryPresetForm({
                   onChange={(e) => setForm({ ...form, payable_account: e.target.value })}
                 >
                   <option value="">Selecione...</option>
+
                   {modalAccounts.map((acc) => (
                     <option key={acc.uuid} value={acc.uuid}>
                       {acc.code} - {acc.name}
@@ -110,6 +119,7 @@ export default function HistoryPresetForm({
                   onChange={(e) => setForm({ ...form, receivable_account: e.target.value })}
                 >
                   <option value="">Selecione...</option>
+
                   {modalAccounts.map((acc) => (
                     <option key={acc.uuid} value={acc.uuid}>
                       {acc.code} - {acc.name}
@@ -121,6 +131,7 @@ export default function HistoryPresetForm({
           )}
         </div>
 
+        {/* Botões */}
         <div className="flex justify-end gap-3 pt-4">
           <Button color="gray" onClick={onClose}>
             Cancelar
