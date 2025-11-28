@@ -39,6 +39,7 @@ interface CompanyPayload {
   state_registration: string;
   municipal_registration: string;
   tax_regime: string;
+  type_of?: string;
 
   logo: File | null;
 

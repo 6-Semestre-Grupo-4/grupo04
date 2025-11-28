@@ -17,6 +17,7 @@ import { HiMenu } from 'react-icons/hi';
 import Image from 'next/image';
 import Logo from '@/assets/images/logos/sideLogo.png';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import api from '@/services/api';
 import Cookies from 'js-cookie';
 import { ThemeToggle } from '@/components/utils/ThemeToogle';
@@ -77,6 +78,23 @@ interface NavbarComponentProps {
 }
 
 export function NavbarComponent({ onMenuClick }: NavbarComponentProps) {
+  const router = useRouter();
+
+  // Prefetch common routes so navigation doesn't wait on click
+  useEffect(() => {
+    const routes = [
+      '/pages/home',
+      '/pages/company',
+      '/pages/reports/dre',
+      '/pages/operations/accounts-payable/create',
+      '/pages/operations/accounts-payable/pay',
+      '/pages/operations/accounts-receivable/create',
+      '/pages/operations/accounts-receivable/receive',
+      '/pages/settings/billing-plans',
+      '/pages/settings/history-presets',
+    ];
+    routes.forEach((r) => router.prefetch(r));
+  }, [router]);
   return (
     <ClientOnly>
       <ThemeProvider theme={customTheme}>
