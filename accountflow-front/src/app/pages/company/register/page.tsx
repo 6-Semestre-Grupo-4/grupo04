@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, Label, TextInput, Select, Button, FileInput } from 'flowbite-react';
 import { FiSave, FiUpload } from 'react-icons/fi';
-import ToastNotification from '@/components/toastNotification';
+import ToastNotification from '@/components/utils/toastNotification';
 import { useRouter } from 'next/navigation';
 import companyService from '@/services/companyService';
 

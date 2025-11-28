@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button, TextInput } from 'flowbite-react';
 import { Check } from 'lucide-react';
 
-import ToastNotification from '@/components/toastNotification';
+import ToastNotification from '@/components/utils/toastNotification';
 
 import { Title } from '@/types/title';
 

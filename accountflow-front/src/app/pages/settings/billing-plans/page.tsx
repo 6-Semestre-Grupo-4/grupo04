@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'flowbite-react';
 import { FiEdit2, FiTrash2, FiEye } from 'react-icons/fi';
-import ToastNotification from '@/components/toastNotification';
+import ToastNotification from '@/components/utils/toastNotification';
 import BillingPlanForm from '@/components/billing/billingPlanForm';
-import ConfirmDialog from '@/components/billing/confirmDialog';
+import ConfirmDialog from '@/components/utils/confirmDialog';
 import { BillingPlan } from '@/types/billingPlan';
 import { getBillingPlans, saveBillingPlan, deleteBillingPlan } from '@/services/billingPlanService';
 import Link from 'next/link';
@@ -122,8 +122,10 @@ export default function BillingPlansPage() {
               >
                 <FiEdit2 size={18} />
               </button>
+
               <button
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   confirmDelete(plan.uuid);
                 }}
@@ -132,11 +134,6 @@ export default function BillingPlansPage() {
               >
                 <FiTrash2 size={18} />
               </button>
-            </div>
-
-            <div className="mt-4 flex items-center gap-2 text-blue-600 opacity-0 transition group-hover:opacity-100 dark:text-blue-400">
-              <FiEye size={20} />
-              <span className="text-sm font-medium">Ver hierarquia</span>
             </div>
           </Link>
         ))}
