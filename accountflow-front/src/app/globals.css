@@ -1,35 +1,604 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @import 'tailwindcss';
-@plugin "flowbite-react/plugin/tailwindcss";
-@source "../../.flowbite-react/class-list.json";
+@plugin 'flowbite-react/plugin/tailwindcss';
+@source '../../.flowbite-react/class-list.json';
 
-:root {
-  --background: #ffffff;
-  --color-primary: #0b2034;
-  --color-primary-hover: #06101a;
-  --color-secondary: #44c6be;
-  --color-secondary-hover: #22635f;
-  --color-text: #cfcfcf;
+/* ===============================
+   🎨 Variáveis de Tema (Light Mode)
+   =============================== */
+@theme {
+  /* Cores de Background */
+  --color-background: #f6f4ef;
+  --color-surface: #f6f4ef;
+  --color-foreground: #0f172a;
+
+  /* Cores Primárias */
+  --color-primary: #2196f3;
+  --color-primary-hover: #42a5f5;
+  --color-primary-foreground: #f6f4ef;
+
+  /* Cores Secundárias */
+  --color-secondary: #14b8a6;
+  --color-secondary-hover: #0d9488;
+  --color-secondary-foreground: #f6f4ef;
+
+  /* Cores de Estado */
+  --color-success: #4caf50;
+  --color-error: #f44336;
+  --color-warning: #ff9800;
+
+  /* Cores de UI */
+  --color-border: #e5e7eb;
+  --color-muted: #f3f4f6;
+  --color-muted-foreground: #64748b;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+
+  /* Sombras */
+  --shadow-card: 0px 2px 6px rgba(0, 0, 0, 0.1);
+
+  /* Fonte */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-primary: #0b2034;
-  --color-primary-hover: #06101a;
-  --color-secondary: #44c6be;
-  --color-secondary-hover: #22635f;
-  --color-text: #cfcfcf;
+/* ===============================
+   🌙 Tema Escuro (Dark Mode)
+   =============================== */
+.dark {
+  --color-background: #0f172a;
+  --color-surface: #1f1f1f;
+  --color-foreground: #e0e0e0;
+
+  --color-primary: #2196f3;
+  --color-primary-hover: #42a5f5;
+  --color-primary-foreground: #f6f4ef;
+
+  --color-secondary: #22d3ee;
+  --color-secondary-hover: #06b6d4;
+  --color-secondary-foreground: #f6f4ef;
+
+  --color-success: #4caf50;
+  --color-error: #f44336;
+  --color-warning: #ff9800;
+
+  --color-border: #2c2c2c;
+  --color-muted: #1a1a1a;
+  --color-muted-foreground: #b0bec5;
+  --color-text: #e0e0e0;
+  --color-text-muted: #b0bec5;
+
+  --shadow-card: 0px 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #06101a;
+/* ===============================
+   🧱 Base Styles
+   =============================== */
+@layer base {
+  /* Remove spin buttons dos inputs numéricos */
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+    -webkit-appearance: textfield;
+  }
+
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Body base */
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-weight: 400;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+
+  main {
+    flex-grow: 1;
+  }
+
+  /* Tipografia */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: var(--color-text);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--color-text);
-  font-family: Arial, Helvetica, sans-serif;
+/* ===============================
+   🎨 Componentes Customizados
+   =============================== */
+@layer components {
+  /* Card Enhanced */
+  .card-enhanced {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+    transition: all 0.2s ease;
+  }
+
+  /* Botão Primário */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    border: none;
+    color: var(--color-primary-foreground);
+    transition: all 0.2s ease-in-out;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  }
+
+  /* Text Gradient */
+  .text-gradient {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Filter Active */
+  .filter-active {
+    border: 2px solid var(--color-primary) !important;
+    background: rgba(33, 150, 243, 0.1) !important;
+  }
+
+  /* Status Badges */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .sidebar-item-active {
+    position: relative;
+    background: var(--color-surface);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .sidebar-item-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    border-radius: 4px 0 0 4px;
+  }
+}
+
+.status-active {
+  background: rgba(76, 175, 80, 0.1);
+  color: var(--color-success);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.status-inactive {
+  background: rgba(158, 158, 158, 0.1);
+  color: #9e9e9e;
+  border: 1px solid rgba(158, 158, 158, 0.3);
+}
+
+/* ===============================
+   📋 Tabelas
+   =============================== */
+@layer components {
+  table thead {
+    background-color: var(--color-muted);
+  }
+
+  table tbody tr {
+    border-color: var(--color-border);
+    transition: background-color 0.15s ease;
+  }
+
+  table tbody tr:hover {
+    background-color: var(--color-muted);
+  }
+}
+
+/* ===============================
+   🔽 Custom Select Styles
+   =============================== */
+@layer components {
+  .select-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+
+  .custom-select {
+    appearance: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 12px 40px 12px 16px;
+    font-size: 14px;
+    color: var(--color-text);
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .custom-select:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-muted);
+    transform: translateY(-1px);
+  }
+
+  .custom-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+  }
+
+  .custom-select:disabled {
+    background-color: var(--color-muted);
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .custom-select option {
+    background: var(--color-surface);
+    color: var(--color-text);
+    padding: 12px 16px;
+  }
+
+  .select-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid var(--color-primary);
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+
+  .select-wrapper:hover::after {
+    border-top-color: var(--color-primary-hover);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .custom-select[data-placeholder='true'] {
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  .filter-active .custom-select {
+    border-color: var(--color-primary);
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), var(--color-surface));
+    box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.3);
+  }
+}
+
+/* ===============================
+   ✅ Custom Checkbox
+   =============================== */
+@layer components {
+  .custom-checkbox {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-surface);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .custom-checkbox:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-muted);
+    transform: scale(1.05);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+  }
+
+  .custom-checkbox:checked {
+    background: linear-gradient(135deg, var(--color-primary-hover), var(--color-primary));
+    border-color: var(--color-primary);
+  }
+
+  .custom-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+  }
+}
+
+/* ===============================
+   📝 Global Input Styles
+   =============================== */
+@layer components {
+  input[type='text'],
+  input[type='number'],
+  input[type='date'],
+  input[type='email'],
+  input[type='password'],
+  textarea {
+    background: var(--color-surface) !important;
+    border: 1px solid var(--color-border) !important;
+    color: var(--color-text) !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    transition: all 0.25s ease;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-text-muted) !important;
+    font-style: italic;
+  }
+
+  input:hover,
+  textarea:hover {
+    border-color: var(--color-primary) !important;
+    background: var(--color-muted) !important;
+  }
+
+  input:focus,
+  textarea:focus {
+    outline: none !important;
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2) !important;
+  }
+
+  input:disabled,
+  textarea:disabled {
+    background-color: var(--color-muted) !important;
+    color: var(--color-text-muted) !important;
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* ===============================
+   🎬 Animações
+   =============================== */
+@layer utilities {
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes selectOpen {
+    0% {
+      transform: scaleY(0.95);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+/* ===============================
+   📂 Sidebar Collapse/Button Hover & Active
+   =============================== */
+aside li a {
+  color: var(--color-text-muted) !important;
+  position: relative !important;
+  border-radius: 8px !important;
+}
+
+aside li a:hover,
+aside li a:active,
+aside li button:hover,
+aside li button:active {
+  cursor: pointer !important;
+  position: relative !important;
+  background-color: color-mix(in srgb, var(--color-muted-foreground) 20%, transparent) !important;
+}
+
+aside li a:hover span,
+aside li a:hover svg {
+  color: var(--color-text) !important;
+}
+
+aside li a:hover::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 4px !important;
+  background: linear-gradient(180deg, #2196f3 0%, #14b8a6 100%) !important;
+  border-radius: 4px 0 0 4px !important;
+}
+
+aside li > div,
+aside li button {
+  color: var(--color-text-muted) !important;
+}
+
+aside li > div:hover span,
+aside li > div:active span,
+aside li:hover > div span,
+aside li:active > div span {
+  color: var(--color-text) !important;
+}
+
+aside li > div:hover svg,
+aside li > div:active svg,
+aside li:hover > div svg,
+aside li:active > div svg {
+  color: var(--color-text) !important;
+}
+
+aside li > div:hover::before,
+aside li > div:active::before,
+aside li:hover > div::before,
+aside li:active > div::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 4px !important;
+  background: linear-gradient(180deg, #2196f3 0%, #14b8a6 100%) !important;
+  border-radius: 4px 0 0 4px !important;
+  z-index: 1 !important;
+}
+
+aside li button:hover span,
+aside li button:active span {
+  color: var(--color-text) !important;
+}
+
+aside li button:hover svg,
+aside li button:active svg {
+  color: var(--color-text) !important;
+}
+
+aside li button:hover::before,
+aside li button:active::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 4px !important;
+  background: linear-gradient(180deg, #2196f3 0%, #14b8a6 100%) !important;
+  border-radius: 4px 0 0 4px !important;
+  z-index: 1 !important;
+}
+
+.sidebar-item-active {
+  background-color: color-mix(in srgb, var(--color-muted-foreground) 20%, transparent) !important;
+  font-weight: 600 !important;
+}
+
+.sidebar-item-active::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 4px !important;
+  background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-secondary) 100%) !important;
+  border-radius: 4px 0 0 4px !important;
+}
+
+.sidebar-collapse-active > button,
+.sidebar-collapse-active > div > button,
+.sidebar-collapse-active button {
+  position: relative !important;
+  background-color: var(--color-surface) !important;
+  font-weight: 600 !important;
+}
+
+.sidebar-collapse-active > button::before,
+.sidebar-collapse-active > div > button::before,
+.sidebar-collapse-active button::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 4px !important;
+  background: linear-gradient(180deg, #2196f3 0%, #14b8a6 100%) !important;
+  border-radius: 4px 0 0 4px !important;
+  z-index: 1 !important;
+}
+
+.sidebar-collapse-active svg,
+.sidebar-collapse-active > button svg,
+.sidebar-collapse-active > div > button svg {
+  color: #2196f3 !important;
+}
+
+.sidebar-item-active svg {
+  color: var(--color-primary) !important;
+}
+
+.sidebar-item-active span {
+  color: var(--color-primary) !important;
+}
+
+.sidebar-collapse-active span,
+.sidebar-collapse-active > button span,
+.sidebar-collapse-active > div > button span {
+  color: var(--color-primary) !important;
+}
+
+/* ===============================
+   🎨 Sobrescrever Flowbite - Sidebar & Navbar
+   =============================== */
+
+aside,
+aside > div,
+aside nav,
+aside nav > div {
+  background-color: var(--color-surface) !important;
+}
+
+/* Forçar background da Navbar */
+nav[class*='Navbar'],
+nav[class*='navbar'],
+header nav {
+  background-color: var(--color-background) !important;
+}
+
+.dark nav[class*='Navbar'],
+.dark nav[class*='navbar'],
+.dark header nav {
+  background-color: var(--color-surface) !important;
 }

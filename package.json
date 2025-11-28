@@ -21,11 +21,17 @@
   "homepage": "https://github.com/6-Semestre-Grupo-4/grupo04#readme",
   "devDependencies": {
     "commitizen": "^4.3.1",
-    "cz-conventional-changelog": "^3.3.0"
+    "cz-conventional-changelog": "^3.3.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.7.1",
+    "typescript": "^5.9.3"
   },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "dependencies": {
+    "lucide-react": "^0.553.0"
   }
 }

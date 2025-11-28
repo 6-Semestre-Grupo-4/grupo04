@@ -41,9 +41,6 @@ jobs:
         run: |
           npx commitlint --from ${{ github.event.before }} --to ${{ github.event.after }} --verbose
 
-      - name: Install Prettier
-        run: npm install -g prettier
-
       - name: Create .prettierrc
         run: |
           echo '{
