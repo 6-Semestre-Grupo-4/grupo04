@@ -95,8 +95,52 @@ def _on_title_created(sender, instance, created, **kwargs):
     if not plan:
         return
 
-    receivable_ctrl = plan.receivable_control_account
-    payable_ctrl    = plan.payable_control_account
+    # Resolve control accounts safely: prefer explicit plan fields, but fall back to
+    # searching by common names or by finding analytic children under top-level
+    # synthetic accounts. This avoids AttributeError when BillingPlan model does
+    # not define these FK fields.
+    BillingAccount = apps.get_model('backend', 'BillingAccount')
+
+    receivable_ctrl = getattr(plan, 'receivable_control_account', None)
+    payable_ctrl = getattr(plan, 'payable_control_account', None)
+
+    if not receivable_ctrl:
+        receivable_ctrl = BillingAccount.objects.filter(
+            billing_plan=plan,
+            account_type=BillingAccount.AccountType.ANALYTIC,
+            name__icontains='receb'
+        ).first()
+    if not receivable_ctrl:
+        parent = BillingAccount.objects.filter(
+            billing_plan=plan,
+            account_type=BillingAccount.AccountType.SYNTHETIC,
+            name__icontains='Receitas'
+        ).first()
+        if parent:
+            receivable_ctrl = BillingAccount.objects.filter(
+                billing_plan=plan,
+                parent=parent,
+                account_type=BillingAccount.AccountType.ANALYTIC,
+            ).first()
+
+    if not payable_ctrl:
+        payable_ctrl = BillingAccount.objects.filter(
+            billing_plan=plan,
+            account_type=BillingAccount.AccountType.ANALYTIC,
+            name__icontains='pag'
+        ).first()
+    if not payable_ctrl:
+        parent = BillingAccount.objects.filter(
+            billing_plan=plan,
+            account_type=BillingAccount.AccountType.SYNTHETIC,
+            name__icontains='Despesas'
+        ).first()
+        if parent:
+            payable_ctrl = BillingAccount.objects.filter(
+                billing_plan=plan,
+                parent=parent,
+                account_type=BillingAccount.AccountType.ANALYTIC,
+            ).first()
 
     amount  = _dec(Title.amount)
     company = Title.company
@@ -168,16 +212,52 @@ def _on_entry_created(sender, instance, created, **kwargs):
     if not plan or not Entry.billing_account:
         return
 
-    receivable_ctrl = plan.receivable_control_account
-    payable_ctrl    = plan.payable_control_account
+    # Resolve control accounts for this plan (same logic as above)
+    BillingAccount = apps.get_model('backend', 'BillingAccount')
+    receivable_ctrl = getattr(plan, 'receivable_control_account', None)
+    payable_ctrl = getattr(plan, 'payable_control_account', None)
+    if not receivable_ctrl:
+        receivable_ctrl = BillingAccount.objects.filter(
+            billing_plan=plan,
+            account_type=BillingAccount.AccountType.ANALYTIC,
+            name__icontains='receb'
+        ).first()
+    if not receivable_ctrl:
+        parent = BillingAccount.objects.filter(
+            billing_plan=plan,
+            account_type=BillingAccount.AccountType.SYNTHETIC,
+            name__icontains='Receitas'
+        ).first()
+        if parent:
+            receivable_ctrl = BillingAccount.objects.filter(
+                billing_plan=plan,
+                parent=parent,
+                account_type=BillingAccount.AccountType.ANALYTIC,
+            ).first()
+    if not payable_ctrl:
+        payable_ctrl = BillingAccount.objects.filter(
+            billing_plan=plan,
+            account_type=BillingAccount.AccountType.ANALYTIC,
+            name__icontains='pag'
+        ).first()
+    if not payable_ctrl:
+        parent = BillingAccount.objects.filter(
+            billing_plan=plan,
+            account_type=BillingAccount.AccountType.SYNTHETIC,
+            name__icontains='Despesas'
+        ).first()
+        if parent:
+            payable_ctrl = BillingAccount.objects.filter(
+                billing_plan=plan,
+                parent=parent,
+                account_type=BillingAccount.AccountType.ANALYTIC,
+            ).first()
 
     amount  = _dec(Entry.amount)
     company = Title.company
     date    = Entry.paid_at
     desc    = f'Baixa do título {Title.description}'
     cash    = Entry.billing_account
-
-    BillingAccount = apps.get_model('backend', 'BillingAccount')
 
     if Title.type_of == 'income' and receivable_ctrl:
         if receivable_ctrl.account_type != BillingAccount.AccountType.ANALYTIC:

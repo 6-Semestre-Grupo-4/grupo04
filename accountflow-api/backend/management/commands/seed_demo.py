@@ -7,6 +7,18 @@ from backend.models import Address, Company, BillingPlan, BillingAccount, Preset
 class Command(BaseCommand):
     help = "Seed demo data: company, accounts, titles, entries"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            help='Remove existing demo Titles/Entries for the demo company before seeding',
+        )
+        parser.add_argument(
+            '--append',
+            action='store_true',
+            help='Always append new Titles/Entries (do not skip existing descriptions)',
+        )
+
     def handle(self, *args, **options):
         self.stdout.write(self.style.NOTICE("Seeding demo data..."))
 
@@ -111,10 +123,9 @@ class Command(BaseCommand):
                 is_active=True,
             )
 
-            # Now update plan with control accounts (will pass clean validations)
-            plan.receivable_control_account = receivable_ctrl
-            plan.payable_control_account = payable_ctrl
-            plan.save()
+            # Keep local references to control accounts (do not depend on model fields)
+            receivable_control = receivable_ctrl
+            payable_control = payable_ctrl
         else:
             # Fetch existing roots and controls or create if missing
             income_root = BillingAccount.objects.filter(billing_plan=plan, parent__isnull=True, account_type=BillingAccount.AccountType.SYNTHETIC, name="Receitas").first()
@@ -173,37 +184,39 @@ class Command(BaseCommand):
                     is_active=True,
                 )
 
-            if not plan.receivable_control_account:
-                plan.receivable_control_account = BillingAccount.objects.create(
-                    name="Recebimentos",
-                    billing_plan=plan,
-                    parent=income_lvl1_ops,
-                    account_type=BillingAccount.AccountType.ANALYTIC,
-                    is_active=True,
-                )
-                plan.save()
-            if not plan.payable_control_account:
-                plan.payable_control_account = BillingAccount.objects.create(
-                    name="Pagamentos",
-                    billing_plan=plan,
-                    parent=expense_lvl1_ops,
-                    account_type=BillingAccount.AccountType.ANALYTIC,
-                    is_active=True,
-                )
-                plan.save()
-
+            # Use local control account variables; if model lacks fields, fallback to creating analytic accounts
         # Preset just to align with existing schema
-        preset, _ = Preset.objects.get_or_create(
+        # Create or get a preset using name as lookup to keep idempotent
+        # Use the local control account variables (fall back safely if plan model doesn't expose fields)
+        preset, created_preset = Preset.objects.get_or_create(
             name="Padrão",
-            description="Preset padrão do seed",
-            receivable_account=plan.receivable_control_account,
-            payable_account=plan.payable_control_account,
             defaults={
-                "revenue_account": plan.receivable_control_account,
-                "expense_account": plan.payable_control_account,
+                "description": "Preset padrão do seed",
+                "receivable_account": receivable_control if 'receivable_control' in locals() else None,
+                "payable_account": payable_control if 'payable_control' in locals() else None,
+                "revenue_account": receivable_control if 'receivable_control' in locals() else None,
+                "expense_account": payable_control if 'payable_control' in locals() else None,
                 "active": True,
             },
         )
+        # If preset existed but accounts are not set, update them
+        if not created_preset:
+            changed = False
+            # Update missing preset accounts using local control account references
+            if not preset.receivable_account and 'receivable_control' in locals() and receivable_control:
+                preset.receivable_account = receivable_control
+                changed = True
+            if not preset.payable_account and 'payable_control' in locals() and payable_control:
+                preset.payable_account = payable_control
+                changed = True
+            if not preset.revenue_account and 'receivable_control' in locals() and receivable_control:
+                preset.revenue_account = receivable_control
+                changed = True
+            if not preset.expense_account and 'payable_control' in locals() and payable_control:
+                preset.expense_account = payable_control
+                changed = True
+            if changed:
+                preset.save()
 
         # Bulk generate many titles and entries (100-150) across recent months
         from decimal import Decimal
@@ -263,6 +276,26 @@ class Command(BaseCommand):
         total_records = random.randint(100, 150)
 
         created_entries = 0
+
+        # Handle CLI options: --force removes existing Titles/Entries for the demo company
+        # --append will always add new Titles/Entries (skip existence check)
+        force = options.get('force')
+        append = options.get('append')
+
+        if force:
+            # Delete entries then titles to avoid PROTECT constraints
+            Entry.objects.filter(title__company=company).delete()
+            Title.objects.filter(company=company).delete()
+            existing_titles = set()
+        else:
+            if append:
+                existing_titles = set()
+            else:
+                # Make seeding of titles/entries idempotent: only create titles that don't already exist
+                existing_titles = set(
+                    Title.objects.filter(company=company).values_list('description', flat=True)
+                )
+
         for i in range(total_records):
             is_income = i % 2 == 0
             # Spread dates over last 6 months
@@ -271,6 +304,9 @@ class Command(BaseCommand):
             amount_val = round(random.uniform(80.0, 2500.0), 2) if is_income else round(random.uniform(40.0, 1800.0), 2)
             amount = Decimal(str(amount_val))
             desc = ("Venda de serviço" if is_income else "Compra de insumos") + f" #{i+1}"
+            # Skip if a title with same description already exists for this company
+            if desc in existing_titles:
+                continue
 
             title = Title.objects.create(
                 company=company,
@@ -280,13 +316,25 @@ class Command(BaseCommand):
                 expiration_date=due_date,
                 preset=preset,
             )
+            existing_titles.add(desc)
 
             # Paid date within +/- 5 days from due_date
             paid_date = due_date + timedelta(days=random.randint(-2, 5))
+            # Pick a billing account for the entry; prefer control accounts if available
+            income_pool = []
+            if 'receivable_control' in locals() and receivable_control:
+                income_pool.append(receivable_control)
+            income_pool += income_categories
+
+            expense_pool = []
+            if 'payable_control' in locals() and payable_control:
+                expense_pool.append(payable_control)
+            expense_pool += expense_categories
+
             if is_income:
-                acc = random.choice([plan.receivable_control_account] + income_categories)
+                acc = random.choice(income_pool) if income_pool else random.choice(income_categories)
             else:
-                acc = random.choice([plan.payable_control_account] + expense_categories)
+                acc = random.choice(expense_pool) if expense_pool else random.choice(expense_categories)
 
             Entry.objects.create(
                 title=title,

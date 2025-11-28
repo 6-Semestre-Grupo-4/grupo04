@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Button, Card, Label, Select } from 'flowbite-react';
-import ToastNotification from '@/components/toastNotification';
+import ToastNotification from '@/components/utils/toastNotification';
 import companyService from '@/services/companyService';
 import reportService, { DREResponse } from '@/services/reportService';
 
