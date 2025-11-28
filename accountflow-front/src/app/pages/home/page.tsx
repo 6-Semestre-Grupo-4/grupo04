@@ -7,10 +7,8 @@ export default function Home() {
         <h1 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">Página de Início</h1>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {/* DRE report card */}
           <Link href="/pages/reports/dre" className="group">
             <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-              {/* Accent bar */}
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 via-blue-500 to-rose-500" />
 
               <div className="mb-3 flex items-center justify-between">
