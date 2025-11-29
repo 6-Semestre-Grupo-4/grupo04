@@ -54,7 +54,7 @@ export default function ConfirmDialog({
           <Button
             onClick={onCancel}
             disabled={loading}
-            className="border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+            className="cursor-pointer border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
           >
             {cancelText}
           </Button>
@@ -62,7 +62,7 @@ export default function ConfirmDialog({
           <Button
             onClick={onConfirm}
             disabled={loading}
-            className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
+            className="cursor-pointer bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
           >
             {loading ? 'Processando...' : confirmText}
           </Button>

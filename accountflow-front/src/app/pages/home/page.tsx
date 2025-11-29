@@ -21,11 +21,14 @@ export default function Home() {
                   </div>
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Relatório DRE</h2>
                 </div>
-                <span className="text-xs text-blue-600 transition-colors group-hover:underline dark:text-blue-300">Abrir</span>
+                <span className="text-xs text-blue-600 transition-colors group-hover:underline dark:text-blue-300">
+                  Abrir
+                </span>
               </div>
 
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Demonstração do Resultado do Exercício (DRE). Analise receitas, despesas e resultado por mês, por conta, detalhes por dia e a estrutura clássica.
+                Demonstração do Resultado do Exercício (DRE). Analise receitas, despesas e resultado por mês, por conta,
+                detalhes por dia e a estrutura clássica.
               </p>
 
               {/* Footer stats hint */}
