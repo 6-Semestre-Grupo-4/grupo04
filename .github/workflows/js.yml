@@ -22,16 +22,10 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install project dependencies (root)
-        run: npm install
-
-      - name: Install frontend dependencies
-        run: |
-          cd accountflow-front
-          npm ci
-
       - name: Install commitlint
-        run: npm install -g @commitlint/cli @commitlint/config-conventional
+        run: |
+          npm install -g @commitlint/cli @commitlint/config-conventional
+          npm install -g prettier
 
       - name: Create commitlint config
         run: |
@@ -47,11 +41,22 @@ jobs:
         run: |
           npx commitlint --from ${{ github.event.before }} --to ${{ github.event.after }} --verbose
 
+      - name: Create .prettierrc
+        run: |
+          echo '{
+            'singleQuote': true,
+            'trailingComma': 'all',
+            'semi': true,
+            'printWidth': 120,
+            'tabWidth': 2,
+            'endOfLine': 'auto'
+          }' > .prettierrc
+
       - name: Create .prettierignore
         run: |
-          echo 'node_modules\nbuild\ndist\nvenv\n.next\n' > .prettierignore
+          echo 'node_modules\nbuild\ndist\n' > .prettierignore
 
       - name: Run Prettier and show formatting diffs
         run: |
-          npx prettier '**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}' --write
+          prettier '**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}' --write
           git diff --color --exit-code
