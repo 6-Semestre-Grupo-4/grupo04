@@ -21,20 +21,16 @@ function ToastNotification({
     type === 'success'
       ? 'bg-emerald-500'
       : type === 'error'
-      ? 'bg-rose-500'
-      : type === 'warning'
-      ? 'bg-amber-500'
-      : 'bg-sky-500';
+        ? 'bg-rose-500'
+        : type === 'warning'
+          ? 'bg-amber-500'
+          : 'bg-sky-500';
 
   return (
-    <div className={`fixed right-4 bottom-4 z-50 rounded shadow-lg text-white px-4 py-2 ${bgClass}`}>
+    <div className={`fixed right-4 bottom-4 z-50 rounded px-4 py-2 text-white shadow-lg ${bgClass}`}>
       <div className="flex items-center gap-4">
         <div className="flex-1 text-sm">{message}</div>
-        <button
-          onClick={onClose}
-          aria-label="Fechar"
-          className="text-white opacity-90 hover:opacity-100"
-        >
+        <button onClick={onClose} aria-label="Fechar" className="text-white opacity-90 hover:opacity-100">
           ✕
         </button>
       </div>
@@ -101,7 +97,7 @@ export default function LedgerReportPage() {
       const params = { company, start, end, account: account || undefined } as any;
       const res = await ledgerService.getLedger(params);
       setData(res);
-      
+
       // Pré-expande contas se houver apenas uma
       if (res.accounts.length === 1) {
         setExpandedAccounts(new Set([res.accounts[0].account_id]));
@@ -136,12 +132,12 @@ export default function LedgerReportPage() {
   const exportCSV = () => {
     if (!data) return;
     const lines: string[] = [];
-    
+
     // Cabeçalho
     lines.push(`Empresa,${data.company}`);
     lines.push(`Período,${data.start} a ${data.end}`);
     lines.push('');
-    
+
     // Resumo
     lines.push('Resumo');
     lines.push(`Total de Contas,${data.summary.accounts_count}`);
@@ -150,7 +146,7 @@ export default function LedgerReportPage() {
     lines.push(`Total de Créditos,${formatCurrency(data.summary.total_credits)}`);
     lines.push(`Resultado Líquido,${formatCurrency(data.summary.net_result)}`);
     lines.push('');
-    
+
     // Detalhes por conta
     data.accounts.forEach((acc) => {
       lines.push(`Conta,${acc.code} - ${acc.name}`);
@@ -160,7 +156,7 @@ export default function LedgerReportPage() {
       lines.push(`Total Créditos,${formatCurrency(acc.total_credits)}`);
       lines.push(`Saldo Final,${formatCurrency(acc.final_balance)}`);
       lines.push('');
-      
+
       if (acc.movements.length > 0) {
         lines.push('Data,Descrição,Tipo,Débito,Crédito,Saldo Acumulado,Método');
         acc.movements.forEach((mov) => {
@@ -172,7 +168,7 @@ export default function LedgerReportPage() {
       }
       lines.push('');
     });
-    
+
     const csv = lines.join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -188,7 +184,7 @@ export default function LedgerReportPage() {
 
   const getFilteredAccounts = (): LedgerAccount[] => {
     if (!data) return [];
-    
+
     return data.accounts.filter((acc) => {
       const codeOk = accountCodeFilter === 'all' || acc.code === accountCodeFilter;
       return codeOk;
@@ -211,7 +207,9 @@ export default function LedgerReportPage() {
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
             <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Relatório de Razão</h1>
-            <p className="text-gray-600 dark:text-gray-300">Visualize o histórico detalhado de movimentações por conta contábil</p>
+            <p className="text-gray-600 dark:text-gray-300">
+              Visualize o histórico detalhado de movimentações por conta contábil
+            </p>
           </div>
 
           {/* Filtros */}
@@ -377,14 +375,19 @@ export default function LedgerReportPage() {
               <div className="space-y-4">
                 {filteredAccounts.length === 0 ? (
                   <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                    <p className="text-gray-600 dark:text-gray-400">Nenhuma conta encontrada com os filtros selecionados.</p>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Nenhuma conta encontrada com os filtros selecionados.
+                    </p>
                   </Card>
                 ) : (
                   filteredAccounts.map((acc) => (
-                    <Card key={acc.account_id} className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                    <Card
+                      key={acc.account_id}
+                      className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+                    >
                       {/* Header da Conta */}
                       <div
-                        className="cursor-pointer p-3 -m-3 rounded hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        className="-m-3 cursor-pointer rounded p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
                         onClick={() => toggleAccountExpanded(acc.account_id)}
                       >
                         <div className="flex items-center justify-between">
@@ -392,18 +395,19 @@ export default function LedgerReportPage() {
                             <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
                               {acc.code} - {acc.name}
                             </h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              Tipo: {acc.account_type === 'analytic' ? 'Analítica' : 'Sintética'} • {acc.movements_count} movimentações
+                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                              Tipo: {acc.account_type === 'analytic' ? 'Analítica' : 'Sintética'} •{' '}
+                              {acc.movements_count} movimentações
                             </p>
                           </div>
-                          <div className="text-right mr-4">
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Saldo Inicial</div>
+                          <div className="mr-4 text-right">
+                            <div className="mb-1 text-xs text-gray-500 dark:text-gray-400">Saldo Inicial</div>
                             <div className="text-sm font-medium text-gray-900 dark:text-white">
                               R$ {formatCurrency(acc.initial_balance)}
                             </div>
                           </div>
-                          <div className="text-right mr-4">
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Saldo Final</div>
+                          <div className="mr-4 text-right">
+                            <div className="mb-1 text-xs text-gray-500 dark:text-gray-400">Saldo Final</div>
                             <div
                               className={`text-sm font-bold ${
                                 Number(acc.final_balance) >= 0
@@ -414,14 +418,12 @@ export default function LedgerReportPage() {
                               R$ {formatCurrency(acc.final_balance)}
                             </div>
                           </div>
-                          <div className="text-gray-400">
-                            {expandedAccounts.has(acc.account_id) ? '▼' : '▶'}
-                          </div>
+                          <div className="text-gray-400">{expandedAccounts.has(acc.account_id) ? '▼' : '▶'}</div>
                         </div>
                       </div>
 
                       {/* Resumo da Conta */}
-                      <div className="border-t border-gray-200 dark:border-gray-700 mt-3 pt-3">
+                      <div className="mt-3 border-t border-gray-200 pt-3 dark:border-gray-700">
                         <div className="grid grid-cols-3 gap-4">
                           <div>
                             <div className="text-xs text-gray-500 dark:text-gray-400">Débitos</div>
@@ -452,7 +454,7 @@ export default function LedgerReportPage() {
 
                       {/* Movimentações */}
                       {expandedAccounts.has(acc.account_id) && acc.movements.length > 0 && (
-                        <div className="border-t border-gray-200 dark:border-gray-700 mt-3 pt-3">
+                        <div className="mt-3 border-t border-gray-200 pt-3 dark:border-gray-700">
                           <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                               <thead className="bg-gray-50 dark:bg-gray-700">
@@ -479,7 +481,10 @@ export default function LedgerReportPage() {
                               </thead>
                               <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
                                 {getFilteredMovements(acc.movements).map((mov, idx) => (
-                                  <tr key={`${acc.account_id}-${idx}`} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                  <tr
+                                    key={`${acc.account_id}-${idx}`}
+                                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                                  >
                                     <td className="px-3 py-2 text-xs whitespace-nowrap text-gray-900 dark:text-white">
                                       {new Date(mov.date).toLocaleDateString('pt-BR')}
                                     </td>
@@ -495,7 +500,7 @@ export default function LedgerReportPage() {
                                     <td className="px-3 py-2 text-right text-xs font-medium text-gray-900 dark:text-white">
                                       R$ {formatCurrency(mov.accumulated_balance)}
                                     </td>
-                                    <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400 capitalize">
+                                    <td className="px-3 py-2 text-xs text-gray-500 capitalize dark:text-gray-400">
                                       {mov.payment_method}
                                     </td>
                                   </tr>
@@ -507,7 +512,7 @@ export default function LedgerReportPage() {
                       )}
 
                       {expandedAccounts.has(acc.account_id) && acc.movements.length === 0 && (
-                        <div className="border-t border-gray-200 dark:border-gray-700 mt-3 pt-3">
+                        <div className="mt-3 border-t border-gray-200 pt-3 dark:border-gray-700">
                           <p className="text-sm text-gray-500 dark:text-gray-400">Nenhuma movimentação encontrada.</p>
                         </div>
                       )}

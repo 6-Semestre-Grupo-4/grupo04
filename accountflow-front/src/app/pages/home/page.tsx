@@ -21,11 +21,14 @@ export default function Home() {
                   </div>
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Relatório DRE</h2>
                 </div>
-                <span className="text-xs text-blue-600 transition-colors group-hover:underline dark:text-blue-300">Abrir</span>
+                <span className="text-xs text-blue-600 transition-colors group-hover:underline dark:text-blue-300">
+                  Abrir
+                </span>
               </div>
 
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Demonstração do Resultado do Exercício (DRE). Analise receitas, despesas e resultado por mês, por conta, detalhes por dia e a estrutura clássica.
+                Demonstração do Resultado do Exercício (DRE). Analise receitas, despesas e resultado por mês, por conta,
+                detalhes por dia e a estrutura clássica.
               </p>
 
               {/* Footer stats hint */}
@@ -52,16 +55,25 @@ export default function Home() {
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 ring-1 ring-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:ring-blue-800">
                     {/* simple inline icon */}
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5">
-                      <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                      <path
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </div>
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Razão Contábil</h2>
                 </div>
-                <span className="text-xs text-blue-600 transition-colors group-hover:underline dark:text-blue-300">Abrir</span>
+                <span className="text-xs text-blue-600 transition-colors group-hover:underline dark:text-blue-300">
+                  Abrir
+                </span>
               </div>
 
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Visualize o histórico detalhado de movimentações por conta contábil. Acompanhe débitos, créditos e saldos acumulados em tempo real.
+                Visualize o histórico detalhado de movimentações por conta contábil. Acompanhe débitos, créditos e
+                saldos acumulados em tempo real.
               </p>
 
               {/* Footer stats hint */}
