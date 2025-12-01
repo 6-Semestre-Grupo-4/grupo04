@@ -437,6 +437,130 @@ class LogoutView(GenericAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class LedgerReportView(GenericAPIView):
+    """
+    Relatório de Razão Contábil
+    GET /api/v1/reports/ledger/?company=<uuid>&start=YYYY-MM-DD&end=YYYY-MM-DD&account=<uuid>
+
+    Base: entradas (Entry) liquidadas no período (paid_at), agrupadas por conta contábil (BillingAccount).
+    Mostra saldo inicial, movimentações e saldo acumulado.
+    """
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        company_id = request.query_params.get('company')
+        start = request.query_params.get('start')
+        end = request.query_params.get('end')
+        account_id = request.query_params.get('account')  # Filtro opcional por conta
+
+        if not company_id or not start or not end:
+            return Response(
+                {"detail": "Parâmetros obrigatórios: company, start, end"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Busca todas as contas da empresa (ou apenas a selecionada)
+        # Filtra contas que têm entries relacionadas à empresa
+        accounts_qs = BillingAccount.objects.filter(
+            entries__title__company_id=company_id
+        ).distinct()
+
+        if account_id:
+            accounts_qs = accounts_qs.filter(uuid=account_id)
+
+        result = {
+            'company': str(company_id),
+            'start': start,
+            'end': end,
+            'accounts': []
+        }
+
+        # Para cada conta, calcula saldo inicial, movimentações e saldo final
+        for account in accounts_qs.order_by('code'):
+            # Entries antes do período (para saldo inicial)
+            entries_before = Entry.objects.filter(
+                billing_account=account,
+                title__company_id=company_id,
+                paid_at__lt=start
+            ).select_related('title', 'billing_account')
+
+            # Entries no período
+            entries_period = Entry.objects.filter(
+                billing_account=account,
+                title__company_id=company_id,
+                paid_at__gte=start,
+                paid_at__lte=end
+            ).select_related('title', 'billing_account').order_by('paid_at')
+
+            # Calcula saldo inicial
+            initial_balance = 0.0
+            for entry in entries_before:
+                if entry.title.type_of == 'income':
+                    initial_balance += float(entry.amount or 0)
+                else:
+                    initial_balance -= float(entry.amount or 0)
+
+            # Processa movimentações do período
+            movements = []
+            accumulated_balance = initial_balance
+            debit_total = 0.0
+            credit_total = 0.0
+
+            for entry in entries_period:
+                if entry.title.type_of == 'income':
+                    credit_total += float(entry.amount or 0)
+                    accumulated_balance += float(entry.amount or 0)
+                else:
+                    debit_total += float(entry.amount or 0)
+                    accumulated_balance -= float(entry.amount or 0)
+
+                movements.append({
+                    'date': entry.paid_at.isoformat(),
+                    'description': entry.title.description,
+                    'type': entry.title.type_of,
+                    'amount': str(entry.amount),
+                    'debit': str(entry.amount) if entry.title.type_of == 'expense' else '0',
+                    'credit': str(entry.amount) if entry.title.type_of == 'income' else '0',
+                    'accumulated_balance': str(accumulated_balance),
+                    'payment_method': entry.payment_method,
+                    'entry_id': str(entry.uuid),
+                })
+
+            # Prepara resposta da conta
+            account_data = {
+                'account_id': str(account.uuid),
+                'code': account.code,
+                'name': account.name,
+                'account_type': account.account_type,
+                'initial_balance': str(initial_balance),
+                'total_debits': str(debit_total),
+                'total_credits': str(credit_total),
+                'final_balance': str(accumulated_balance),
+                'movements_count': len(movements),
+                'movements': movements,
+            }
+
+            result['accounts'].append(account_data)
+
+        # Resumo consolidado
+        total_debits = 0.0
+        total_credits = 0.0
+        for account in result['accounts']:
+            total_debits += float(account['total_debits'])
+            total_credits += float(account['total_credits'])
+
+        result['summary'] = {
+            'accounts_count': len(result['accounts']),
+            'total_movements': sum(acc['movements_count'] for acc in result['accounts']),
+            'total_debits': str(total_debits),
+            'total_credits': str(total_credits),
+            'net_result': str(total_credits - total_debits),
+        }
+
+        return Response(result)
+
+
 class DREReportView(GenericAPIView):
     """
     Demonstração do Resultado do Exercício (DRE)

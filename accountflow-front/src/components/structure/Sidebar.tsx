@@ -108,7 +108,13 @@ function SidebarBase({ isOpen }: SidebarProps) {
                 Home
               </SidebarItem>
 
-              <SidebarItem icon={Building2} as={Link} href={`${route}company`} prefetch active={pathname === `${route}company`}>
+              <SidebarItem
+                icon={Building2}
+                as={Link}
+                href={`${route}company`}
+                prefetch
+                active={pathname === `${route}company`}
+              >
                 Empresa
               </SidebarItem>
 
