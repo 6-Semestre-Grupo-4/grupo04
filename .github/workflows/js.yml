@@ -22,10 +22,16 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install commitlint
+      - name: Install project dependencies (root)
+        run: npm install
+
+      - name: Install frontend dependencies
         run: |
-          npm install -g @commitlint/cli @commitlint/config-conventional
-          npm install -g prettier
+          cd accountflow-front
+          npm ci
+
+      - name: Install commitlint
+        run: npm install -g @commitlint/cli @commitlint/config-conventional
 
       - name: Create commitlint config
         run: |

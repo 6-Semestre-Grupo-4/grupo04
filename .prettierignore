@@ -5,3 +5,10 @@ dist
 *.lock
 package-lock.json
 yarn.lock
+venv
+.venv
+accountflow-front/node_modules
+accountflow-front/.next
+accountflow-api/db.sqlite3
+media
+staticfiles
