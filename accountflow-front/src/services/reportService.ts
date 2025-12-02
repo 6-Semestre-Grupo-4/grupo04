@@ -1,5 +1,8 @@
 import api from './api';
 
+// -----------------------------
+// DRE TYPES
+// -----------------------------
 export type DREParams = {
   company: string;
   start: string; // YYYY-MM-DD
@@ -60,9 +63,51 @@ export type DREResponse = {
   >;
 };
 
+// -----------------------------
+// BALANCETE TYPES
+// -----------------------------
+export type TrialBalanceParams = {
+  billing_plan: string;
+  start: string;
+  end: string;
+  include_zero?: boolean; // opcional
+};
+
+export type TrialBalanceNode = {
+  uuid: string;
+  code: string;
+  name: string;
+  debit: string;
+  credit: string;
+  balance: string;
+  children: TrialBalanceNode[];
+};
+
+export type TrialBalanceResponse = {
+  billing_plan: string;
+  start: string;
+  end: string;
+  totals: {
+    debits: string;
+    credits: string;
+    difference: string;
+  };
+  tree: TrialBalanceNode[];
+};
+
+// -----------------------------
+// SERVICE EXPORT
+// -----------------------------
 export const reportService = {
+  // ---------- DRE ----------
   async getDRE(params: DREParams) {
     const res = await api.get<DREResponse>('/reports/dre/', { params });
+    return res.data;
+  },
+
+  // ---------- BALANCETE ----------
+  async getTrialBalance(params: TrialBalanceParams) {
+    const res = await api.get<TrialBalanceResponse>('/reports/balancete/', { params });
     return res.data;
   },
 };
