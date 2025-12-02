@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { Button, Card, Label, Select } from 'flowbite-react';
+import { useEffect, useState, useCallback } from 'react';
+import { Button, Card, Label, Select, Spinner } from 'flowbite-react';
 import ToastNotification from '@/components/utils/toastNotification';
 import reportService from '@/services/reportService';
-import { getBillingPlans } from '@/services/billingPlanService'; 
+import { getBillingPlans } from '@/services/billingPlanService';
 
 type AccountNode = {
   uuid: string;
@@ -31,202 +31,323 @@ export default function BalancetePage() {
   const [end, setEnd] = useState('');
   const [includeZero, setIncludeZero] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingPlans, setLoadingPlans] = useState(true);
   const [data, setData] = useState<BalanceteResponse | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'warning' } | null>(
-    null
-  );
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [toast, setToast] = useState<{
+    message: string;
+    type: 'success' | 'error' | 'info' | 'warning';
+  } | null>(null);
 
+  // ---------------------------------------------------------------------------
+  // 🔵 CARREGA PLANOS DE CONTAS
+  // ---------------------------------------------------------------------------
   useEffect(() => {
-    // Usa o service centralizado para garantir comportamento consistente (paginado vs array)
     const load = async () => {
       try {
-        // Se o seu service getBillingPlans já retorna array (tratando paginação), use-o.
         const list = await getBillingPlans();
-        // Normaliza: espera-se um array de { uuid, name }
         setPlans(list.map((p: any) => ({ uuid: p.uuid, name: p.name })));
       } catch (err) {
-        console.error('Erro ao carregar planos de conta', err);
-        setToast({ message: 'Falha ao carregar planos', type: 'error' });
+        console.error(err);
+        setToast({ message: 'Falha ao carregar planos de conta', type: 'error' });
+      } finally {
+        setLoadingPlans(false);
       }
     };
     load();
   }, []);
 
+  // ---------------------------------------------------------------------------
+  // 🔵 GERAR BALANCETE
+  // ---------------------------------------------------------------------------
   const fetch = async () => {
     if (!plan || !start || !end) {
-      setToast({ message: 'Selecione plano e período', type: 'warning' });
+      setToast({ message: 'Selecione um plano e período.', type: 'warning' });
       return;
     }
+
     setLoading(true);
     setData(null);
+
     try {
-      const params: any = { billing_plan: plan, start, end, include_zero: includeZero };
+      const params = { billing_plan: plan, start, end, include_zero: includeZero };
       const res = await reportService.getTrialBalance(params);
+
       setData(res);
-      // expand top-level by default
-      const newExp: Record<string, boolean> = {};
-      (res.tree || []).forEach((n: AccountNode) => (newExp[n.uuid] = true));
-      setExpanded(newExp);
+
+      const initialExpanded: Record<string, boolean> = {};
+      (res.tree || []).forEach((n) => (initialExpanded[n.uuid] = true));
+
+      setExpanded(initialExpanded);
     } catch (err: any) {
-      console.error('Erro ao gerar balancete', err);
-      const msg = err?.response?.data?.detail || err?.message || 'Erro ao gerar balancete';
+      console.error(err);
+      const msg = err?.response?.data?.detail ?? err.message ?? 'Erro ao gerar balancete';
       setToast({ message: String(msg), type: 'error' });
     } finally {
       setLoading(false);
     }
   };
 
-  const toggle = (uuid: string) => setExpanded((s) => ({ ...s, [uuid]: !s[uuid] }));
+  // ---------------------------------------------------------------------------
+  // 🔵 EXPANDE / RECOLHE NÓ
+  // ---------------------------------------------------------------------------
+  const toggle = useCallback(
+    (uuid: string) => {
+      setExpanded((prev) => ({ ...prev, [uuid]: !prev[uuid] }));
+    },
+    [setExpanded]
+  );
 
+  // ---------------------------------------------------------------------------
+  // 🔵 EXPORTAR CSV
+  // ---------------------------------------------------------------------------
   const exportCSV = () => {
     if (!data) return;
     const lines: string[] = [];
+
     lines.push(`Plano,${data.billing_plan}`);
-    lines.push(`Periodo,${data.start} a ${data.end}`);
+    lines.push(`Período,${data.start} a ${data.end}`);
     lines.push('');
-    lines.push('Conta Codigo,Conta Nome,Debitos,Creditos,Saldo');
-    const walk = (nodes: AccountNode[], prefix = '') => {
-      nodes.forEach((n) => {
+    lines.push('Código,Conta,Débito,Crédito,Saldo');
+
+    const walk = (items: AccountNode[], prefix = '') => {
+      items.forEach((n) => {
         lines.push(
-          `${prefix}${n.code},${n.name},${Number(n.debit).toFixed(2)},${Number(n.credit).toFixed(
-            2
-          )},${Number(n.balance).toFixed(2)}`
+          `${prefix}${n.code},${n.name},${n.debit},${n.credit},${n.balance}`
         );
-        if (n.children && n.children.length) walk(n.children, prefix + '  ');
+        if (n.children?.length) walk(n.children, prefix + '  ');
       });
     };
-    walk(data.tree || []);
+
+    walk(data.tree);
+
     const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
+
     const a = document.createElement('a');
     a.href = url;
-    a.download = `balancete_${data.billing_plan}_${data.start}_a_${data.end}.csv`;
-    document.body.appendChild(a);
+    a.download = `balancete_${Date.now()}.csv`;
     a.click();
-    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
-  // simple recursive UI renderer
   const renderNode = (n: AccountNode, level = 0) => {
-    const isOpen = !!expanded[n.uuid];
+    const isOpen = expanded[n.uuid];
+
     return (
-      <div key={n.uuid} className="border-b py-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              aria-label="toggle"
-              onClick={() => toggle(n.uuid)}
-              className="w-6 h-6 flex items-center justify-center rounded text-sm"
-            >
-              {n.children && n.children.length ? (isOpen ? '▾' : '▸') : null}
-            </button>
-            <div className="ml-1">
-              <div className="text-sm font-medium">
-                {n.code} — {n.name}
-              </div>
-              <div className="text-xs text-gray-500">nível {n.code.split('.').length}</div>
-            </div>
+      <div key={n.uuid}>
+        {/* Linha da conta */}
+        <div
+          className={`grid grid-cols-12 items-center py-2 border-b hover:bg-gray-50 dark:hover:bg-gray-800`}
+          style={{ paddingLeft: `${level * 20}px` }}
+        >
+          {/* Botão expandir */}
+          <div className="col-span-1">
+            {n.children?.length > 0 ? (
+              <button
+                onClick={() => toggle(n.uuid)}
+                className="text-sm text-gray-600 dark:text-gray-300"
+              >
+                {isOpen ? '▾' : '▸'}
+              </button>
+            ) : (
+              <span className="text-gray-300">•</span>
+            )}
           </div>
-          <div className="text-right text-sm tabular-nums">
-            <div>Débito: R$ {Number(n.debit).toFixed(2)}</div>
-            <div>Crédito: R$ {Number(n.credit).toFixed(2)}</div>
-            <div className={`${Number(n.balance) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-              Saldo: R$ {Number(n.balance).toFixed(2)}
-            </div>
+
+          {/* Código */}
+          <div className="col-span-2 font-mono text-sm">{n.code}</div>
+
+          {/* Nome */}
+          <div className="col-span-4 text-sm">{n.name}</div>
+
+          {/* Débito */}
+          <div className="col-span-2 text-right tabular-nums">
+            {Number(n.debit).toLocaleString('pt-BR', {
+              minimumFractionDigits: 2,
+            })}
+          </div>
+
+          {/* Crédito */}
+          <div className="col-span-2 text-right tabular-nums">
+            {Number(n.credit).toLocaleString('pt-BR', {
+              minimumFractionDigits: 2,
+            })}
+          </div>
+
+          {/* Saldo */}
+          <div
+            className={`col-span-1 text-right font-medium ${
+              Number(n.balance) > 0
+                ? 'text-emerald-600'
+                : Number(n.balance) < 0
+                ? 'text-rose-600'
+                : 'text-gray-400'
+            }`}
+          >
+            {Number(n.balance).toLocaleString('pt-BR', {
+              minimumFractionDigits: 2,
+            })}
           </div>
         </div>
 
-        {isOpen && n.children && n.children.length > 0 && <div className="ml-6 mt-3">{n.children.map((c) => renderNode(c, level + 1))}</div>}
+        {/* Filhos */}
+        {isOpen &&
+          n.children?.map((child) => renderNode(child, level + 1))}
       </div>
     );
   };
 
+  // ---------------------------------------------------------------------------
+  // 🔵 UI PRINCIPAL
+  // ---------------------------------------------------------------------------
   return (
     <div className="min-h-screen bg-gray-50 p-6 dark:bg-gray-900">
-      <div className="mx-auto max-w-6xl">
-        <h1 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">Balancete (Contábil)</h1>
+      <div className="mx-auto max-w-7xl">
+        <h1 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">Balancete Contábil</h1>
 
-        <Card className="mb-6">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <Card className="mb-6 p-4">
+          {/* FORMULARIO */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+            {/* Plano */}
             <div>
               <Label>Plano de Contas</Label>
-              <Select value={plan} onChange={(e) => setPlan(e.target.value)}>
-                <option value="">Selecionar</option>
-                {plans.map((p) => (
-                  <option key={p.uuid} value={p.uuid}>
-                    {p.name}
-                  </option>
-                ))}
-              </Select>
+
+              {loadingPlans ? (
+                <div className="flex justify-center items-center h-10">
+                  <Spinner size="sm" />
+                </div>
+              ) : (
+                <Select value={plan} onChange={(e) => setPlan(e.target.value)}>
+                  <option value="">Selecionar</option>
+                  {plans.map((p) => (
+                    <option key={p.uuid} value={p.uuid}>
+                      {p.name}
+                    </option>
+                  ))}
+                </Select>
+              )}
             </div>
+
+            {/* Início */}
             <div>
               <Label>Início</Label>
-              <input type="date" value={start} onChange={(e) => setStart(e.target.value)} className="w-full rounded border p-2" />
+              <input
+                type="date"
+                value={start}
+                onChange={(e) => setStart(e.target.value)}
+                className="w-full rounded border p-2"
+              />
             </div>
+
+            {/* Fim */}
             <div>
               <Label>Fim</Label>
-              <input type="date" value={end} onChange={(e) => setEnd(e.target.value)} className="w-full rounded border p-2" />
+              <input
+                type="date"
+                value={end}
+                onChange={(e) => setEnd(e.target.value)}
+                className="w-full rounded border p-2"
+              />
             </div>
+
+            {/* Opções */}
             <div>
               <Label>Opções</Label>
-              <div className="flex items-center gap-2">
-                <input id="includeZero" type="checkbox" checked={includeZero} onChange={(e) => setIncludeZero(e.target.checked)} />
-                <label htmlFor="includeZero">Incluir contas sem movimento</label>
+              <div className="flex gap-2 mt-2">
+                <input
+                  id="includeZero"
+                  type="checkbox"
+                  checked={includeZero}
+                  onChange={(e) => setIncludeZero(e.target.checked)}
+                />
+                <Label htmlFor="includeZero">Incluir contas zeradas</Label>
               </div>
             </div>
           </div>
 
-          <div className="mt-4 flex justify-end gap-2">
+          {/* AÇÕES */}
+          <div className="flex justify-end gap-2 mt-4">
             {data && (
               <Button color="gray" onClick={exportCSV}>
                 Exportar CSV
               </Button>
             )}
+
             <Button onClick={fetch} disabled={loading}>
-              {loading ? 'Gerando…' : 'Gerar Balancete'}
+              {loading ? <Spinner size="sm" /> : 'Gerar Balancete'}
             </Button>
           </div>
         </Card>
 
+        {/* RESULTADO */}
         {data && (
           <>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-4">
+            {/* Totais */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
               <Card>
                 <div className="text-sm text-gray-500">Total Débitos</div>
                 <div className="text-2xl font-bold">R$ {Number(data.totals.debits).toFixed(2)}</div>
               </Card>
+
               <Card>
                 <div className="text-sm text-gray-500">Total Créditos</div>
                 <div className="text-2xl font-bold">R$ {Number(data.totals.credits).toFixed(2)}</div>
               </Card>
+
               <Card>
                 <div className="text-sm text-gray-500">Diferença</div>
-                <div className={`text-2xl font-bold ${Number(data.totals.difference) === 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                <div
+                  className={`text-2xl font-bold ${
+                    Number(data.totals.difference) === 0
+                      ? 'text-emerald-600'
+                      : 'text-rose-600'
+                  }`}
+                >
                   R$ {Number(data.totals.difference).toFixed(2)}
                 </div>
               </Card>
             </div>
 
+            {/* Árvore */}
             <Card>
-              <div className="mb-3 flex items-center justify-between">
-                <div className="text-lg font-semibold">Árvore do Plano</div>
+              <div className="mb-3 flex justify-between">
+                <h2 className="text-lg font-semibold">Plano de Contas</h2>
                 <div className="text-xs text-gray-500">
-                  Período: {data.start} — {data.end}
+                  {data.start} — {data.end}
                 </div>
               </div>
 
-              <div>
-                {data.tree.length === 0 && <div className="text-sm text-gray-500">Sem movimentação.</div>}
-                {data.tree.map((n) => renderNode(n))}
+              <div className="w-full overflow-x-auto">
+                {/* Cabeçalho fixo */}
+                <div className="grid grid-cols-12 border-b bg-gray-100 dark:bg-gray-700 py-2 font-semibold text-sm sticky top-0">
+                  <div className="col-span-1"></div>
+                  <div className="col-span-2">Código</div>
+                  <div className="col-span-4">Conta</div>
+                  <div className="col-span-2 text-right">Débito</div>
+                  <div className="col-span-2 text-right">Crédito</div>
+                  <div className="col-span-1 text-right">Saldo</div>
+                </div>
+
+                {data.tree.length === 0 ? (
+                  <div className="text-sm text-gray-400">Nenhuma movimentação encontrada.</div>
+                ) : (
+                  data.tree.map((node) => renderNode(node))
+                )}
               </div>
             </Card>
           </>
         )}
       </div>
 
-      {toast && <ToastNotification message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {toast && (
+        <ToastNotification
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
