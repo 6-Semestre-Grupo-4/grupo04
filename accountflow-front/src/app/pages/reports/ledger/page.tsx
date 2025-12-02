@@ -39,6 +39,7 @@ function ToastNotification({
 }
 import companyService from '@/services/companyService';
 import ledgerService, { LedgerResponse, LedgerAccount } from '@/services/ledgerService';
+import api from '@/services/api';
 
 interface CompanyOption {
   uuid: string;
@@ -67,13 +68,19 @@ export default function LedgerReportPage() {
   const [movementTypeFilter, setMovementTypeFilter] = useState<'all' | 'income' | 'expense'>('all');
   const [accountCodeFilter, setAccountCodeFilter] = useState<string>('all');
 
-  const formatCurrency = (v: string | number) => {
+  const formatCurrency = (v: string | number | undefined) => {
+    if (v === undefined || v === null) return '0.00';
     const num = typeof v === 'string' ? Number(v) : v;
     return new Intl.NumberFormat('pt-BR', {
       style: 'decimal',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(num);
+  };
+
+  // Função para tratar datas como locais (evita problemas de timezone)
+  const parseLocalDate = (dateString: string) => {
+    return new Date(dateString + 'T00:00:00');
   };
 
   // Carrega empresas
@@ -88,6 +95,31 @@ export default function LedgerReportPage() {
     };
     loadCompanies();
   }, []);
+
+  // Carrega contas quando empresa for selecionada
+  useEffect(() => {
+    const loadAccounts = async () => {
+      if (!company) {
+        setAccounts([]);
+        return;
+      }
+      try {
+        // Faz uma requisição de teste para o relatório para obter as contas com movimentações
+        const testParams = { company, start: '1900-01-01', end: '2100-12-31' };
+        const res = await ledgerService.getLedger(testParams);
+        const accountsWithMovements = res.accounts.map((acc) => ({
+          uuid: acc.account_id,
+          code: acc.code,
+          name: acc.name,
+        }));
+        setAccounts(accountsWithMovements);
+      } catch (e) {
+        console.error('Erro ao carregar contas:', e);
+        setAccounts([]);
+      }
+    };
+    loadAccounts();
+  }, [company]);
 
   const fetchReport = async () => {
     if (!company || !start || !end) {
@@ -198,12 +230,33 @@ export default function LedgerReportPage() {
   const getFilteredMovements = (movements: any[]) => {
     return movements.filter((mov) => {
       const typeOk = movementTypeFilter === 'all' || mov.type === movementTypeFilter;
-      return typeOk;
+      // Filtro por data: só exibe movimentações dentro do período
+      const dateOk = !start || !end || (mov.date >= start && mov.date <= end);
+      return typeOk && dateOk;
     });
   };
 
   const filteredAccounts = getFilteredAccounts();
   const uniqueAccountCodes = data ? Array.from(new Set(data.accounts.map((a) => a.code))).sort() : [];
+
+  // Calcula totais baseados nas contas filtradas
+  const getFilteredSummary = () => {
+    if (!data || filteredAccounts.length === 0) return data?.summary || {};
+
+    const totalDebits = filteredAccounts.reduce((sum, acc) => sum + Number(acc.total_debits), 0);
+    const totalCredits = filteredAccounts.reduce((sum, acc) => sum + Number(acc.total_credits), 0);
+    const totalMovements = filteredAccounts.reduce((sum, acc) => sum + acc.movements_count, 0);
+
+    return {
+      accounts_count: filteredAccounts.length,
+      total_movements: totalMovements,
+      total_debits: totalDebits || 0,
+      total_credits: totalCredits || 0,
+      net_result: (totalCredits || 0) - (totalDebits || 0),
+    };
+  };
+
+  const summary = getFilteredSummary();
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-200">
@@ -270,9 +323,16 @@ export default function LedgerReportPage() {
                   id="account"
                   value={account}
                   onChange={(e) => setAccount(e.target.value)}
+                  className="w-full"
                   disabled={loading}
                 >
-                  <option value="">Todas</option>
+                  <option value="">Todas as contas</option>
+                  {Array.isArray(accounts) &&
+                    accounts.map((acc) => (
+                      <option key={acc.uuid} value={acc.uuid}>
+                        {acc.code} - {acc.name}
+                      </option>
+                    ))}
                 </Select>
               </div>
 
@@ -290,34 +350,34 @@ export default function LedgerReportPage() {
               <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
                 <Card className="border-border bg-surface">
                   <div className="text-sm text-text-muted">Contas</div>
-                  <div className="text-lg font-bold text-primary whitespace-nowrap">
+                  <div className="text-2xl font-bold text-primary">
                     {data.summary.accounts_count}
                   </div>
                 </Card>
                 <Card className="border-border bg-surface">
                   <div className="text-sm text-text-muted">Movimentações</div>
-                  <div className="text-lg font-bold text-primary whitespace-nowrap">
+                  <div className="text-2xl font-bold text-primary">
                     {data.summary.total_movements}
                   </div>
                 </Card>
                 <Card className="border-border bg-surface">
                   <div className="text-sm text-text-muted">Total Débitos</div>
-                  <div className="text-lg font-bold text-error whitespace-nowrap">
+                  <div className="text-2xl font-bold text-error">
                     R$ {formatCurrency(data.summary.total_debits)}
                   </div>
                 </Card>
                 <Card className="border-border bg-surface">
                   <div className="text-sm text-text-muted">Total Créditos</div>
-                  <div className="text-lg font-bold text-success whitespace-nowrap">
+                  <div className="text-2xl font-bold text-success">
                     R$ {formatCurrency(data.summary.total_credits)}
                   </div>
                 </Card>
                 <Card className="border-border bg-surface">
                   <div className="text-sm text-text-muted">Resultado Líquido</div>
                   <div
-                    className={`text-lg font-bold whitespace-nowrap ${Number(data.summary.net_result) >= 0
-                        ? 'text-success'
-                        : 'text-error'
+                    className={`text-2xl font-bold ${Number(data.summary.net_result) >= 0
+                      ? 'text-success'
+                      : 'text-error'
                       }`}
                   >
                     R$ {formatCurrency(data.summary.net_result)}
