@@ -62,7 +62,7 @@ jobs:
 
       - name: Run Prettier and show formatting diffs
         run: |
-          prettier '**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}' --write
+          npx prettier '**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}' --write
           git diff --color --exit-code
 
       - name: Login to GHCR
