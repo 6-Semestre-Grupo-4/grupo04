@@ -32,6 +32,7 @@
     }
   },
   "dependencies": {
+    "flowbite": "^4.0.1",
     "lucide-react": "^0.553.0"
   }
 }
