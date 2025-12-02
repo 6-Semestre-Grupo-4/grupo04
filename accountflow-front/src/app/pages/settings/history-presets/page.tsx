@@ -179,7 +179,7 @@ export default function HistoryPresetsPage() {
         </div>
 
         <Button
-          className="bg-gray-900 text-white shadow-md transition-all hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700"
+          className="cursor-pointer bg-gray-900 text-white shadow-md transition-all hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700"
           onClick={() => openForm()}
         >
           Novo Histórico
@@ -228,7 +228,7 @@ export default function HistoryPresetsPage() {
           {/* CLEAR FILTERS */}
           <div className="flex items-end justify-start md:justify-end">
             <Button
-              className="rounded-xl bg-gray-200 px-6 py-2 text-gray-900 shadow-sm hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              className="cursor-pointer rounded-xl bg-gray-200 px-6 py-2 text-gray-900 shadow-sm hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
               onClick={() => {
                 setFilterPlan('');
                 setSearchText('');
@@ -261,7 +261,7 @@ export default function HistoryPresetsPage() {
               <div className="flex flex-col gap-2 opacity-0 transition-opacity group-hover:opacity-100">
                 <button
                   onClick={() => openForm(h)}
-                  className="rounded-lg bg-gray-100 p-2 shadow-sm transition hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+                  className="cursor-pointer rounded-lg bg-gray-100 p-2 shadow-sm transition hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
                 >
                   <FiEdit2 size={16} className="text-gray-700 dark:text-gray-300" />
                 </button>
@@ -272,7 +272,7 @@ export default function HistoryPresetsPage() {
                     e.stopPropagation();
                     setConfirmDialog({ show: true, preset: h });
                   }}
-                  className="rounded-lg bg-gray-100 p-2 shadow-sm transition hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+                  className="cursor-pointer rounded-lg bg-gray-100 p-2 shadow-sm transition hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
                 >
                   <FiTrash2 size={16} />
                 </button>

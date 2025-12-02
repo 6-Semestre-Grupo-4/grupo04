@@ -58,11 +58,11 @@ export default function BillingPlanForm({ show, onClose, onSave, editing }: Prop
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button color="gray" onClick={handleSave}>
+          <Button color="gray" className="cursor-pointer" onClick={handleSave}>
             {editing ? 'Salvar Alterações' : 'Salvar'}
           </Button>
           <Button
-            className="bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600"
+            className="cursor-pointer bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600"
             onClick={onClose}
           >
             Cancelar

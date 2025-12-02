@@ -133,14 +133,14 @@ export default function HistoryPresetForm({
 
         {/* Botões */}
         <div className="flex justify-end gap-3 pt-4">
-          <Button color="gray" onClick={onClose}>
+          <Button color="gray" className="cursor-pointer" onClick={onClose}>
             Cancelar
           </Button>
 
           <Button
             onClick={onSave}
             disabled={loading}
-            className="bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600"
+            className="cursor-pointer bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600"
           >
             {loading ? 'Salvando...' : 'Salvar'}
           </Button>

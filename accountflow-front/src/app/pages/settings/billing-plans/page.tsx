@@ -91,7 +91,7 @@ export default function BillingPlansPage() {
         </div>
 
         <Button
-          className="bg-gray-900 text-white shadow-md transition-all hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700"
+          className="cursor-pointer bg-gray-900 text-white shadow-md transition-all hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700"
           onClick={handleNew}
         >
           Novo Plano
@@ -117,7 +117,7 @@ export default function BillingPlansPage() {
                   e.stopPropagation();
                   handleEdit(plan);
                 }}
-                className="rounded-md bg-white/60 p-1 transition hover:scale-105 dark:bg-gray-700/50"
+                className="cursor-pointer rounded-md bg-white/60 p-1 transition hover:scale-105 dark:bg-gray-700/50"
                 title="Editar"
               >
                 <FiEdit2 size={18} />
@@ -129,7 +129,7 @@ export default function BillingPlansPage() {
                   e.stopPropagation();
                   confirmDelete(plan.uuid);
                 }}
-                className="rounded-md bg-white/60 p-1 transition hover:scale-105 dark:bg-gray-700/50"
+                className="cursor-pointer rounded-md bg-white/60 p-1 transition hover:scale-105 dark:bg-gray-700/50"
                 title="Excluir"
               >
                 <FiTrash2 size={18} />

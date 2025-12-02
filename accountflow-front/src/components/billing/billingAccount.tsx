@@ -136,10 +136,10 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
         </div>
 
         <div className="mt-4 flex justify-end gap-2">
-          <Button color="blue" onClick={handleSave}>
+          <Button color="blue" className="cursor-pointer" onClick={handleSave}>
             {editing ? 'Salvar Alterações' : 'Salvar'}
           </Button>
-          <Button color="gray" onClick={onClose}>
+          <Button color="gray" className="cursor-pointer" onClick={onClose}>
             Cancelar
           </Button>
         </div>
