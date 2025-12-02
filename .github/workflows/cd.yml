@@ -53,6 +53,7 @@ jobs:
               --name backend \
               --restart always \
               -p 8000:8000 \
+              -v backend_data:/app \
               -e DJANGO_SETTINGS_MODULE=config.settings.django \
               "$BACK_IMAGE"
 
