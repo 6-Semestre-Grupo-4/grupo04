@@ -44,22 +44,6 @@ jobs:
         run: |
           npx commitlint --from ${{ github.event.before }} --to ${{ github.event.after }} --verbose
 
-      - name: Create .prettierrc
-        run: |
-          echo '{
-            "singleQuote": true,
-            "trailingComma": "all",
-            "semi": true,
-            "printWidth": 120,
-            "tabWidth": 2,
-            "endOfLine": "auto",
-            "plugins": ["prettier-plugin-tailwindcss"]
-          }' > .prettierrc
-
-      - name: Create .prettierignore
-        run: |
-          echo 'node_modules\nbuild\ndist\n**/tailwind.config.ts\n' > .prettierignore
-
       - name: Run Prettier and show formatting diffs
         run: |
           npx prettier '**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}' --write

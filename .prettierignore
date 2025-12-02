@@ -1,1 +1,5 @@
-node_modules\nbuild\ndist\n**/tailwind.config.ts\n
+node_modules
+build
+dist
+**/tailwind.config.ts
+.prettierrc
