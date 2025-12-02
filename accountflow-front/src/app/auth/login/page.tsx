@@ -1,3 +1,6 @@
+'use client';
+
+import { Suspense } from 'react';
 import FullLogo from '@/components/FullLogo';
 import Florest from '@/components/illustration/florest';
 import AuthLogin from '@/components/login/authform/AuthLogin';
@@ -21,7 +24,9 @@ const Login = () => {
             <div className="mx-auto h-38 w-48">
               <FullLogo withoutLink />
             </div>
-            <AuthLogin />
+            <Suspense fallback={<div>Loading...</div>}>
+              <AuthLogin />
+            </Suspense>
             <div className="text-foreground mt-6 flex flex-col items-center justify-center gap-2 text-base font-medium">
               <p>New to AccountFlow?</p>
               <a
@@ -50,7 +55,9 @@ const Login = () => {
               <div className="mx-auto h-38 w-48">
                 <FullLogo withoutLink />
               </div>
-              <AuthLogin />
+              <Suspense fallback={<div>Loading...</div>}>
+                <AuthLogin />
+              </Suspense>
               <div className="text-foreground mt-6 flex flex-col items-center justify-center gap-2 text-base font-medium">
                 <p>New to AccountFlow?</p>
                 <a
