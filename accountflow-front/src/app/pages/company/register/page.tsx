@@ -32,12 +32,10 @@ interface CompanyPayload {
   cnae: string;
   email: string;
   phone: string;
-
-  phone: string;
   state_registration: string;
   municipal_registration: string;
   tax_regime: string;
-
+  type_of?: string;
   logo: File | null;
 
   address: {
@@ -61,7 +59,6 @@ export default function CompanyRegister() {
     opening_date: '',
     cnae: '',
     email: '',
-    phone: '',
     phone: '',
     state_registration: '',
     municipal_registration: '',
@@ -109,16 +106,14 @@ export default function CompanyRegister() {
 
     try {
       // Chama o backend para criar a empresa
-      const response = await companyService.create(formData as any);
-      console.log('Empresa criada:', response);
+      await companyService.create(formData as any);
 
       setToast({ message: 'Empresa cadastrada com sucesso!', type: 'success' });
       // Navega após breve delay para permitir ver o toast
       setTimeout(() => router.push('/pages/company'), 800);
     } catch (error) {
-      console.error('Erro ao cadastrar empresa:', error);
       // Tenta extrair erros do backend (DRF) — pode ser objeto de campos ou mensagem
-      const respData = error?.response?.data;
+      const respData = (error as any)?.response?.data;
       let message = 'Erro ao cadastrar empresa. Tente novamente.';
       if (respData) {
         if (typeof respData === 'string') message = respData;
@@ -188,7 +183,6 @@ export default function CompanyRegister() {
       if (!res.ok) throw new Error('CEP não encontrado');
       return await res.json();
     } catch (err) {
-      console.error('Erro ao buscar CEP:', err);
       return null;
     }
   }
@@ -273,25 +267,26 @@ export default function CompanyRegister() {
   }, [formData.cnpj]);
 
   return (
-    <div className="min-h-screen bg-gray-50 transition-colors duration-200 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8">
+    <div className="bg-background min-h-screen transition-colors duration-200">
+      {toast && <ToastNotification message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      <div className="container mx-auto px-4 py-4">
         <div className="mx-auto max-w-6xl">
-          <div className="mb-8">
-            <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Cadastro de Empresa</h1>
-            <p className="text-gray-600 dark:text-gray-300">
+          <div className="mb-2">
+            <h1 className="text-foreground mb-2 text-3xl font-bold">Cadastro de Empresa</h1>
+            <p className="text-text-muted">
               Preencha as informações abaixo para cadastrar uma nova empresa no sistema.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+            <Card className="bg-surface border-border">
               <div className="mb-4">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Informações da Empresa</h2>
+                <h2 className="text-foreground text-xl font-semibold">Informações da Empresa</h2>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="lg:col-span-1">
-                  <Label htmlFor="cnpj" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="cnpj" className="text-text">
                     CNPJ *
                   </Label>
                   <TextInput
@@ -303,14 +298,14 @@ export default function CompanyRegister() {
                       handleInputChange('cnpj', maskedValue);
                     }}
                     placeholder="00.000.000/0000-00"
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   />
-                  {loadingCnpj && <p className="mt-1 text-sm text-gray-500">Buscando dados do CNPJ…</p>}
+                  {loadingCnpj && <p className="text-text-muted mt-1 text-sm">Buscando dados do CNPJ…</p>}
                 </div>
 
                 <div className="lg:col-span-2">
-                  <Label htmlFor="social_reason" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="social_reason" className="text-text">
                     Razão Social *
                   </Label>
                   <TextInput
@@ -319,13 +314,13 @@ export default function CompanyRegister() {
                     value={formData.social_reason}
                     onChange={(e) => handleInputChange('social_reason', e.target.value)}
                     placeholder="Informe a razão social da empresa"
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   />
                 </div>
 
                 <div className="lg:col-span-2">
-                  <Label htmlFor="fantasy_name" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="fantasy_name" className="text-text">
                     Nome Fantasia *
                   </Label>
                   <TextInput
@@ -334,13 +329,13 @@ export default function CompanyRegister() {
                     value={formData.fantasy_name}
                     onChange={(e) => handleInputChange('fantasy_name', e.target.value)}
                     placeholder="Informe o nome fantasia"
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   />
                 </div>
 
                 <div className="lg:col-span-1">
-                  <Label htmlFor="opening_date" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="opening_date" className="text-text">
                     Data de Abertura *
                   </Label>
                   <TextInput
@@ -349,13 +344,13 @@ export default function CompanyRegister() {
                     type="date"
                     value={formData.opening_date}
                     onChange={(e) => handleInputChange('opening_date', e.target.value)}
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   />
                 </div>
 
                 <div className="lg:col-span-1">
-                  <Label htmlFor="cnae" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="cnae" className="text-text">
                     CNAE *
                   </Label>
                   <TextInput
@@ -364,13 +359,13 @@ export default function CompanyRegister() {
                     value={formData.cnae}
                     onChange={(e) => handleInputChange('cnae', e.target.value)}
                     placeholder="0000-0/00"
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   />
                 </div>
 
                 <div className="lg:col-span-2">
-                  <Label htmlFor="tax_regime" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="tax_regime" className="text-text">
                     Regime Tributário *
                   </Label>
                   <Select
@@ -378,7 +373,7 @@ export default function CompanyRegister() {
                     name="tax_regime"
                     value={formData.tax_regime}
                     onChange={(e) => handleInputChange('tax_regime', e.target.value)}
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   >
                     {taxRegimeOptions.map((option) => (
@@ -389,7 +384,7 @@ export default function CompanyRegister() {
                   </Select>
                 </div>
                 <div className="lg:col-span-3">
-                  <Label htmlFor="type_of" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="type_of" className="text-text">
                     Tipo de cliente *
                   </Label>
                   <Select
@@ -397,7 +392,7 @@ export default function CompanyRegister() {
                     name="type_of"
                     value={formData.type_of}
                     onChange={(e) => handleInputChange('type_of', e.target.value)}
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   >
                     {typeOfOptions.map((option) => (
@@ -410,14 +405,14 @@ export default function CompanyRegister() {
               </div>
             </Card>
 
-            <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+            <Card className="bg-surface border-border">
               <div className="mb-4">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Endereço</h2>
+                <h2 className="text-foreground text-xl font-semibold">Endereço</h2>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <div className="lg:col-span-1">
-                  <Label htmlFor="cep" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="cep" className="text-text">
                     CEP *
                   </Label>
 
@@ -430,15 +425,15 @@ export default function CompanyRegister() {
                       handleInputChange('address.cep', maskedValue);
                     }}
                     placeholder="00000-000"
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   />
 
-                  {loadingCep && <p className="mt-1 text-sm text-gray-500">Buscando endereço…</p>}
+                  {loadingCep && <p className="text-text-muted mt-1 text-sm">Buscando endereço…</p>}
                 </div>
 
                 <div className="lg:col-span-2">
-                  <Label htmlFor="street" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="street" className="text-text">
                     Logradouro *
                   </Label>
                   <TextInput
@@ -447,13 +442,13 @@ export default function CompanyRegister() {
                     value={formData.address.street}
                     onChange={(e) => handleInputChange('address.street', e.target.value)}
                     placeholder="Informe o logradouro"
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   />
                 </div>
 
                 <div className="lg:col-span-1">
-                  <Label htmlFor="state" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="state" className="text-text">
                     Estado (UF) *
                   </Label>
                   <Select
@@ -461,7 +456,7 @@ export default function CompanyRegister() {
                     name="state"
                     value={formData.address.state}
                     onChange={(e) => handleInputChange('address.state', e.target.value)}
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   >
                     <option value="">Selecionar</option>
@@ -474,7 +469,7 @@ export default function CompanyRegister() {
                 </div>
 
                 <div className="md:col-span-1">
-                  <Label htmlFor="number" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="number" className="text-text">
                     Número *
                   </Label>
                   <TextInput
@@ -483,13 +478,13 @@ export default function CompanyRegister() {
                     value={formData.address.number}
                     onChange={(e) => handleInputChange('address.number', e.target.value)}
                     placeholder="123"
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   />
                 </div>
 
                 <div className="md:col-span-1">
-                  <Label htmlFor="complement" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="complement" className="text-text">
                     Complemento
                   </Label>
                   <TextInput
@@ -498,12 +493,12 @@ export default function CompanyRegister() {
                     value={formData.address.complement}
                     onChange={(e) => handleInputChange('address.complement', e.target.value)}
                     placeholder="Apto, sala, etc."
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                   />
                 </div>
 
                 <div className="md:col-span-1">
-                  <Label htmlFor="neighborhood" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="neighborhood" className="text-text">
                     Bairro *
                   </Label>
                   <TextInput
@@ -512,13 +507,13 @@ export default function CompanyRegister() {
                     value={formData.address.neighborhood}
                     onChange={(e) => handleInputChange('address.neighborhood', e.target.value)}
                     placeholder="Informe o bairro"
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   />
                 </div>
 
                 <div className="md:col-span-1">
-                  <Label htmlFor="city" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="city" className="text-text">
                     Cidade *
                   </Label>
                   <TextInput
@@ -527,21 +522,21 @@ export default function CompanyRegister() {
                     value={formData.address.city}
                     onChange={(e) => handleInputChange('address.city', e.target.value)}
                     placeholder="Informe a cidade"
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   />
                 </div>
               </div>
             </Card>
 
-            <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+            <Card className="bg-surface border-border">
               <div className="mb-4">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Contato</h2>
+                <h2 className="text-foreground text-xl font-semibold">Contato</h2>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="lg:col-span-1">
-                  <Label htmlFor="email" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="email" className="text-text">
                     Email Principal *
                   </Label>
                   <TextInput
@@ -551,13 +546,13 @@ export default function CompanyRegister() {
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     placeholder="empresa@exemplo.com"
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                     required
                   />
                 </div>
 
                 <div className="lg:col-span-1">
-                  <Label htmlFor="phone" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="phone" className="text-text">
                     Celular
                   </Label>
                   <TextInput
@@ -569,20 +564,20 @@ export default function CompanyRegister() {
                       handleInputChange('phone', maskedValue);
                     }}
                     placeholder="(11) 99999-9999"
-                    className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="text-foreground"
                   />
                 </div>
               </div>
             </Card>
 
-            <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-              <div className="mb-4">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Logotipo da Empresa</h2>
+            <Card className="bg-surface border-border">
+              <div className="mb-2">
+                <h2 className="text-foreground text-xl font-semibold">Logotipo da Empresa</h2>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div>
-                  <Label htmlFor="logo" className="text-gray-700 dark:text-gray-200">
+                  <Label htmlFor="logo" className="text-text">
                     Upload da Logo
                   </Label>
                   <FileInput
@@ -593,19 +588,17 @@ export default function CompanyRegister() {
                       const file = e.target.files?.[0] || null;
                       handleFileChange(file);
                     }}
-                    className="border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-700"
+                    className="bg-muted hover:bg-muted-foreground/20"
                   />
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-text-muted mt-2 rounded-lg p-2 text-sm">
                     Formatos aceitos: PNG, JPG, JPEG (máximo 5MB)
                   </p>
                 </div>
 
                 {formData.logo && (
-                  <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
-                    <FiUpload className="text-green-600 dark:text-green-400" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      Arquivo selecionado: {formData.logo.name}
-                    </span>
+                  <div className="bg-muted flex items-center gap-2 rounded-lg p-3">
+                    <FiUpload className="text-primary" />
+                    <span className="text-foreground text-sm">Arquivo selecionado: {formData.logo.name}</span>
                   </div>
                 )}
               </div>
@@ -620,17 +613,12 @@ export default function CompanyRegister() {
                     window.history.back();
                   }
                 }}
-                className="border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                className="bg-muted hover:bg-muted-foreground/20"
               >
                 Cancelar
               </Button>
 
-              <Button
-                type="submit"
-                color="blue"
-                disabled={isLoading}
-                className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-              >
+              <Button type="submit" disabled={isLoading} className="btn-primary">
                 <FiSave className="mr-2 h-4 w-4" />
                 {isLoading ? 'Salvando...' : 'Salvar Cadastro'}
               </Button>
@@ -638,7 +626,6 @@ export default function CompanyRegister() {
           </form>
         </div>
       </div>
-      {toast && <ToastNotification message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 }

@@ -177,33 +177,33 @@ export default function BillingAccountPage() {
       rows.push(
         <tr
           key={acc.uuid}
-          className="group border-b border-gray-100 bg-white transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800/70"
+          className="border-b border-border hover:bg-muted/50 transition-colors"
         >
           <td
-            className="px-6 py-4 font-medium whitespace-nowrap text-gray-800 dark:text-gray-100"
+            className="px-6 py-4 font-medium whitespace-nowrap"
             style={{ paddingLeft }}
           >
             <div className="flex items-center">
               {hasChildren ? (
                 <button
                   onClick={() => toggleRow(acc.uuid)}
-                  className="mr-2 cursor-pointer rounded-md p-1 transition hover:bg-gray-200 dark:hover:bg-gray-700"
+                  className="mr-2 cursor-pointer rounded-md p-1 transition hover:bg-muted"
                 >
-                  {isExpanded ? <HiOutlineChevronDown size={16} /> : <HiOutlineChevronRight size={16} />}
+                  {isExpanded ? <HiOutlineChevronDown size={16} className="text-foreground" /> : <HiOutlineChevronRight size={16} className="text-foreground" />}
                 </button>
               ) : (
                 <span className="mr-2 w-[24px]" />
               )}
 
-              <MdAccountTree className="mr-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <MdAccountTree className="mr-2 h-4 w-4 text-text-muted" />
 
-              {acc.name}
+              <span className="text-foreground">{acc.name}</span>
             </div>
           </td>
 
-          <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{acc.code || '-'}</td>
+          <td className="px-6 py-4 text-foreground">{acc.code || '-'}</td>
 
-          <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
+          <td className="px-6 py-4 text-foreground">
             {acc.account_type === 'analytic' ? 'Analítica' : 'Sintética'}
           </td>
 
@@ -211,19 +211,19 @@ export default function BillingAccountPage() {
             <button
               onClick={() => openEditModal(acc)}
               onMouseDown={(e) => e.stopPropagation()}
-              className="cursor-pointer rounded-md bg-white/60 p-1 shadow-sm transition hover:scale-105 hover:bg-white dark:bg-gray-700/50 dark:hover:bg-gray-600"
+              className="rounded-md bg-surface/60 backdrop-blur-sm p-1 transition hover:scale-105"
               title="Editar"
             >
-              <FiEdit2 size={18} />
+              <FiEdit2 size={18} className="text-foreground" />
             </button>
 
             <button
               onClick={() => confirmDelete(acc.uuid)}
               onMouseDown={(e) => e.stopPropagation()}
-              className="cursor-pointer rounded-md bg-white/60 p-1 shadow-sm transition hover:scale-105 hover:bg-white dark:bg-gray-700/50 dark:hover:bg-gray-600"
+              className="rounded-md bg-surface/60 backdrop-blur-sm p-1 transition hover:scale-105"
               title="Excluir"
             >
-              <FiTrash2 size={18} />
+              <FiTrash2 size={18} className="text-foreground" />
             </button>
           </td>
         </tr>
@@ -241,20 +241,21 @@ export default function BillingAccountPage() {
     <div className="min-h-screen p-10 transition-all">
       <div className="mb-10 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Plano de Contas</h1>
-          <p className="mt-1 text-gray-500 dark:text-gray-400">Gerencie as contas contábeis deste plano.</p>
+          <h1 className="text-3xl font-bold text-foreground">Plano de Contas</h1>
+          <p className="mt-1 text-text-muted">Gerencie as contas contábeis deste plano.</p>
         </div>
 
         <div className="flex gap-3">
           <Button
-            className="cursor-pointer bg-gray-200 text-gray-800 shadow-sm hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+            color="gray"
+            className="bg-muted hover:bg-muted-foreground/20"
             onClick={() => router.push('/pages/settings/billing-plans')}
           >
             Voltar
           </Button>
 
           <Button
-            className="cursor-pointer bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700"
+            className="btn-primary shadow-md"
             onClick={() => {
               setEditingAccount(null);
               setNewAccount({ name: '', parentId: '', type_of: '' });
@@ -266,14 +267,14 @@ export default function BillingAccountPage() {
         </div>
       </div>
 
-      <div className="relative overflow-x-auto rounded-xl border border-gray-200 shadow-md dark:border-gray-700">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-100 text-xs font-semibold text-gray-600 uppercase dark:bg-gray-800 dark:text-gray-300">
+      <div className="card-enhanced overflow-x-auto rounded-lg">
+        <table className="w-full divide-y divide-border text-sm">
+          <thead className="bg-muted text-xs text-text-muted uppercase">
             <tr>
-              <th className="px-6 py-3">Conta</th>
-              <th className="px-6 py-3">Classificação</th>
-              <th className="px-6 py-3">Tipo</th>
-              <th className="px-6 py-3">Ações</th>
+              <th className="px-6 py-3 text-left">Conta</th>
+              <th className="px-6 py-3 text-left">Classificação</th>
+              <th className="px-6 py-3 text-left">Tipo</th>
+              <th className="px-6 py-3 text-left">Ações</th>
             </tr>
           </thead>
 
@@ -282,7 +283,7 @@ export default function BillingAccountPage() {
               renderRows(accounts, 0)
             ) : (
               <tr>
-                <td colSpan={4} className="py-8 text-center text-gray-400 dark:text-gray-500">
+                <td colSpan={4} className="py-8 text-center text-text-muted">
                   Nenhuma conta cadastrada.
                 </td>
               </tr>
@@ -292,26 +293,26 @@ export default function BillingAccountPage() {
       </div>
 
       <Modal show={showModal} onClose={() => setShowModal(false)} size="lg" popup>
-        <div className="space-y-5 rounded-xl bg-white p-8 dark:bg-gray-800">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <div className="space-y-4 bg-surface p-6">
+          <h2 className="text-xl font-bold text-foreground">
             {editingAccount ? 'Editar Conta' : 'Nova Conta'}
           </h2>
 
           <div>
-            <Label>Descrição</Label>
+            <Label className="text-text">Descrição</Label>
             <TextInput
               value={newAccount.name}
               onChange={(e) => setNewAccount((prev) => ({ ...prev, name: e.target.value }))}
-              className="uppercase"
+              className="uppercase bg-surface border-border text-foreground"
             />
           </div>
 
           <div>
-            <Label>Conta Pai (opcional)</Label>
+            <Label className="text-text">Conta Pai (opcional)</Label>
             <select
               value={newAccount.parentId}
               onChange={(e) => setNewAccount({ ...newAccount, parentId: e.target.value })}
-              className="w-full rounded-lg border bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition-colors hover:border-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/15"
             >
               <option value="">Nenhuma (Conta Principal)</option>
               {generateParentOptions(accounts).map((opt) => (
@@ -323,11 +324,11 @@ export default function BillingAccountPage() {
           </div>
 
           <div>
-            <Label>Tipo de Conta</Label>
+            <Label className="text-text">Tipo de Conta</Label>
             <select
               value={newAccount.type_of}
               onChange={(e) => setNewAccount({ ...newAccount, type_of: e.target.value as TypeOfAccount })}
-              className="w-full rounded-lg border bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition-colors hover:border-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/15"
             >
               <option value="">Selecione...</option>
               <option value="Sintética">Sintética</option>
@@ -335,16 +336,17 @@ export default function BillingAccountPage() {
             </select>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="mt-4 flex justify-end gap-2">
             <Button
-              className="cursor-pointer bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600"
+              className="btn-primary shadow-md"
               onClick={saveAccount}
             >
               {editingAccount ? 'Salvar Alterações' : 'Salvar'}
             </Button>
 
             <Button
-              className="cursor-pointer bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              color="gray"
+              className="bg-muted hover:bg-muted-foreground/20"
               onClick={() => setShowModal(false)}
             >
               Cancelar

@@ -158,29 +158,28 @@ export default function ReceivablesPage() {
             className="w-full md:w-96"
           />
 
-          <div className="select-wrapper w-full md:w-40">
-            <select value={filterActive} onChange={(e) => setFilterActive(e.target.value)} className="custom-select">
-              <option value="all">Status...</option>
-              <option value="active">Ativos</option>
-              <option value="inactive">Inativos</option>
-            </select>
-          </div>
+          <select
+            value={filterActive}
+            onChange={(e) => setFilterActive(e.target.value)}
+            className="border-border bg-surface text-muted-foreground focus:border-primary focus:ring-primary/15 w-full rounded-lg border px-3 py-2.5 text-sm focus:ring-1 focus:outline-none md:w-40"
+          >
+            <option value="all">Status...</option>
+            <option value="active">Ativos</option>
+            <option value="inactive">Inativos</option>
+          </select>
         </div>
 
         {/* Table */}
         <div className="card-enhanced overflow-x-auto rounded-lg">
-          <table className="w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
-            <thead
-              className="text-xs uppercase"
-              style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
-            >
+          <table className="divide-border w-full divide-y text-sm">
+            <thead className="bg-muted text-text text-xs uppercase">
               <tr>
-                <th className="px-6 py-3">Descrição</th>
-                <th className="px-6 py-3">Empresa</th>
-                <th className="px-6 py-3">Valor</th>
-                <th className="px-6 py-3">Vencimento</th>
-                <th className="px-6 py-3">Parcelas</th>
-                <th className="px-6 py-3">Status</th>
+                <th className="px-6 py-3 text-left">Descrição</th>
+                <th className="px-6 py-3 text-left">Empresa</th>
+                <th className="px-6 py-3 text-left">Valor</th>
+                <th className="px-6 py-3 text-left">Vencimento</th>
+                <th className="px-6 py-3 text-left">Parcelas</th>
+                <th className="px-6 py-3 text-left">Status</th>
                 <th className="px-6 py-3 text-center">Ações</th>
               </tr>
             </thead>
@@ -188,7 +187,7 @@ export default function ReceivablesPage() {
             <tbody>
               {filteredTitles.length > 0 ? (
                 filteredTitles.map((title) => (
-                  <tr key={title.uuid} className="border-b">
+                  <tr key={title.uuid} className="border-border hover:bg-muted/50 border-b transition-colors">
                     <td className="px-6 py-4 font-medium">{title.description}</td>
 
                     <td className="px-6 py-4">{getCompanyName(title.company as string)}</td>
@@ -214,7 +213,7 @@ export default function ReceivablesPage() {
                           setEditingTitle(title);
                           setShowModal(true);
                         }}
-                        className="rounded-lg bg-blue-600 p-2 text-white transition-all hover:bg-blue-700"
+                        className="bg-primary hover:bg-primary-hover rounded-lg p-2 text-white transition-all"
                         title="Editar"
                       >
                         <Edit size={16} />
@@ -222,7 +221,7 @@ export default function ReceivablesPage() {
 
                       <button
                         onClick={() => router.push(`/pages/operations/accounts-receivable/receive/${title.uuid}`)}
-                        className="rounded-lg bg-emerald-600 p-2 text-white transition-all hover:bg-emerald-700"
+                        className="bg-success rounded-lg p-2 text-white transition-all hover:opacity-90"
                         title="Baixar título"
                       >
                         <CheckCircle2 size={16} />
@@ -230,7 +229,7 @@ export default function ReceivablesPage() {
 
                       <button
                         onClick={() => setConfirmDialog({ show: true, uuid: title.uuid })}
-                        className="rounded-lg bg-red-600 p-2 text-white transition-all hover:bg-red-700"
+                        className="bg-error rounded-lg p-2 text-white transition-all hover:opacity-90"
                         title="Excluir"
                       >
                         <Trash2 size={16} />
@@ -240,7 +239,7 @@ export default function ReceivablesPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={10} className="py-8 text-center text-gray-400">
+                  <td colSpan={10} className="text-text-muted py-8 text-center">
                     Nenhum recebimento cadastrado ainda.
                   </td>
                 </tr>

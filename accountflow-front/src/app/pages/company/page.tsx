@@ -112,26 +112,26 @@ export default function Companies() {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Empresas</h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">Gerencie as empresas cadastradas no sistema</p>
+            <h1 className="text-4xl font-bold text-foreground">Empresas</h1>
+            <p className="mt-2 text-text-muted">Gerencie as empresas cadastradas no sistema</p>
           </div>
           <Link href="/pages/company/register">
-            <Button className="bg-gray-900 text-white shadow-md transition-all hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700">
+            <Button className="btn-primary shadow-md">
               Nova Empresa
             </Button>
           </Link>
         </div>
 
         {companies.length === 0 ? (
-          <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+          <Card className="border-border bg-surface shadow-card">
             <div className="py-12 text-center">
-              <FiUsers className="mx-auto mb-4 h-16 w-16 text-gray-400 dark:text-gray-500" />
-              <h3 className="mb-2 text-lg font-medium text-gray-900 dark:text-white">Nenhuma empresa cadastrada</h3>
-              <p className="mb-6 text-gray-600 dark:text-gray-300">
+              <FiUsers className="mx-auto mb-4 h-16 w-16 text-text-muted" />
+              <h3 className="mb-2 text-lg font-medium text-foreground">Nenhuma empresa cadastrada</h3>
+              <p className="mb-6 text-text-muted">
                 Comece cadastrando sua primeira empresa no sistema.
               </p>
               <Link href="/pages/company/register">
-                <Button className="bg-gray-900 text-white shadow-md transition-all hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700">
+                <Button className="btn-primary shadow-md">
                   Cadastrar Primeira Empresa
                 </Button>
               </Link>
@@ -142,7 +142,7 @@ export default function Companies() {
             {companies.map((company) => (
               <Card
                 key={company.uuid}
-                className="group relative border-gray-200 bg-white transition-all hover:scale-[1.02] hover:border-gray-300 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600"
+                className="group relative border-border bg-surface transition-all hover:scale-[1.02] hover:shadow-lg shadow-card"
               >
                 {/* Botões flutuantes iguais ao plano de contas */}
                 <div className="absolute top-4 right-4 flex gap-2 opacity-0 transition group-hover:opacity-100">
@@ -152,10 +152,10 @@ export default function Companies() {
                       e.stopPropagation();
                       handleEdit(company);
                     }}
-                    className="rounded-md bg-white/60 p-1 transition hover:scale-105 dark:bg-gray-700/50"
+                    className="rounded-md bg-surface/60 backdrop-blur-sm p-1 transition hover:scale-105"
                     title="Editar"
                   >
-                    <FiEdit2 size={18} />
+                    <FiEdit2 size={18} className="text-foreground" />
                   </button>
 
                   <button
@@ -164,43 +164,43 @@ export default function Companies() {
                       e.stopPropagation();
                       handleDeleteClick(company);
                     }}
-                    className="rounded-md bg-white/60 p-1 transition hover:scale-105 dark:bg-gray-700/50"
+                    className="rounded-md bg-surface/60 backdrop-blur-sm p-1 transition hover:scale-105"
                     title="Excluir"
                   >
-                    <FiTrash2 size={18} />
+                    <FiTrash2 size={18} className="text-foreground" />
                   </button>
                 </div>
 
                 {/* Conteúdo do card */}
                 <div className="mb-4 flex items-start gap-3">
                   <Avatar alt={company.fantasy_name} img={company.logo} rounded size="md" className="bg-transparent">
-                    <div className="font-medium text-gray-900 dark:text-white">{company.fantasy_name.charAt(0)}</div>
+                    <div className="font-medium text-foreground">{company.fantasy_name.charAt(0)}</div>
                   </Avatar>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{company.fantasy_name}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{company.cnpj}</p>
+                    <h3 className="text-lg font-semibold text-foreground">{company.fantasy_name}</h3>
+                    <p className="text-sm text-text-muted">{company.cnpj}</p>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <div>
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Razão Social:</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{company.social_reason}</p>
+                    <p className="text-sm font-medium text-foreground">Razão Social:</p>
+                    <p className="text-sm text-text-muted">{company.social_reason}</p>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <FiMail className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{company.email}</span>
+                    <FiMail className="h-4 w-4 text-text-muted" />
+                    <span className="text-sm text-text-muted">{company.email}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <FiPhone className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{company.phone}</span>
+                    <FiPhone className="h-4 w-4 text-text-muted" />
+                    <span className="text-sm text-text-muted">{company.phone}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {company.address.city}/{company.address.state}
+                    <p className="text-sm text-text-muted">
+                      {company.address.city} / {company.address.state}
                     </p>
 
                     <Badge color={getTaxRegimeColor(company.tax_regime)} size="sm">

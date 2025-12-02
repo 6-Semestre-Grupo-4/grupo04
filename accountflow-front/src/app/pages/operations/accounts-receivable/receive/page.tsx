@@ -44,8 +44,8 @@ export default function ReceivableEntriesPage() {
         {/* HEADER */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-gradient text-3xl font-bold">Entradas – Contas a Receber</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Registre os recebimentos das suas receitas.</p>
+            <h1 className="text-gradient text-3xl font-bold">Baixa de contas a receber</h1>
+            <p className="text-muted-foreground text-sm">Registre os recebimentos das suas receitas.</p>
           </div>
         </div>
 
@@ -59,12 +59,12 @@ export default function ReceivableEntriesPage() {
 
         {/* TABLE OF OPEN INCOME TITLES */}
         <div className="card-enhanced overflow-x-auto rounded-lg">
-          <table className="w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
-            <thead className="bg-gray-100 text-xs text-gray-600 uppercase dark:bg-gray-700 dark:text-gray-300">
+          <table className="divide-border w-full divide-y text-sm">
+            <thead className="bg-muted text-text text-xs uppercase">
               <tr>
-                <th className="px-6 py-3">Título</th>
-                <th className="px-6 py-3">Valor</th>
-                <th className="px-6 py-3">Vencimento</th>
+                <th className="px-6 py-3 text-left">Título</th>
+                <th className="px-6 py-3 text-left">Valor</th>
+                <th className="px-6 py-3 text-left">Vencimento</th>
                 <th className="px-6 py-3 text-center">Ação</th>
               </tr>
             </thead>
@@ -72,13 +72,13 @@ export default function ReceivableEntriesPage() {
             <tbody>
               {filteredTitles.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-8 text-center text-gray-400">
+                  <td colSpan={4} className="text-text-muted py-8 text-center">
                     Nenhum título em aberto.
                   </td>
                 </tr>
               )}
               {filteredTitles.map((t) => (
-                <tr key={t.uuid} className="border-b dark:border-gray-700">
+                <tr key={t.uuid} className="border-border hover:bg-muted/50 border-b transition-colors">
                   <td className="px-6 py-4">{t.description}</td>
                   <td className="px-6 py-4">
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(t.amount)}
