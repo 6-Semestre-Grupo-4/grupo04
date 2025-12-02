@@ -16,7 +16,7 @@
   /* Cores Primárias */
   --color-primary: #2196f3;
   --color-primary-hover: #42a5f5;
-  --color-primary-foreground: #f6f4ef;
+  --color-primary-foreground: #ffffff;
 
   /* Cores Secundárias */
   --color-secondary: #14b8a6;
@@ -52,7 +52,7 @@
 
   --color-primary: #2196f3;
   --color-primary-hover: #42a5f5;
-  --color-primary-foreground: #f6f4ef;
+  --color-primary-foreground: #ffffff;
 
   --color-secondary: #22d3ee;
   --color-secondary-hover: #06b6d4;
@@ -149,6 +149,26 @@
     box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
   }
 
+  .btn-primary:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.15) !important;
+  }
+
+  /* Reduzir ring de todos os botões */
+  button:focus,
+  button:focus-visible,
+  [role='button']:focus,
+  [role='button']:focus-visible {
+    outline: none !important;
+    --tw-ring-width: 2px !important;
+    --tw-ring-opacity: 0.15 !important;
+  }
+
+  button:focus-visible,
+  [role='button']:focus-visible {
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.15) !important;
+  }
+
   /* Text Gradient */
   .text-gradient {
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
@@ -174,6 +194,7 @@
     font-weight: 500;
     transition: all 0.2s ease;
   }
+
   .sidebar-item-active {
     position: relative;
     background: var(--color-surface);
@@ -352,6 +373,8 @@
   input[type='date'],
   input[type='email'],
   input[type='password'],
+  input[type='file'],
+  select,
   textarea {
     background: var(--color-surface) !important;
     border: 1px solid var(--color-border) !important;
@@ -368,24 +391,50 @@
   }
 
   input:hover,
+  select:hover,
   textarea:hover {
     border-color: var(--color-primary) !important;
     background: var(--color-muted) !important;
   }
 
   input:focus,
+  select:focus,
   textarea:focus {
     outline: none !important;
     border-color: var(--color-primary) !important;
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2) !important;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.15) !important;
   }
 
   input:disabled,
+  select:disabled,
   textarea:disabled {
     background-color: var(--color-muted) !important;
     color: var(--color-text-muted) !important;
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  /* Estilos para options dentro de select */
+  select option {
+    background: var(--color-surface) !important;
+    color: var(--color-text) !important;
+    padding: 10px !important;
+  }
+
+  /* Estilos específicos para file input */
+  input[type='file'] {
+    cursor: pointer !important;
+  }
+
+  /* Estilizar o botão interno do file input para herdar do container */
+  input[type='file']::file-selector-button {
+    border: none !important;
+    background: transparent !important;
+    color: inherit !important;
+    padding: 8px 16px !important;
+    margin-right: 12px !important;
+    cursor: pointer !important;
+    font-weight: 500 !important;
   }
 }
 
@@ -398,6 +447,7 @@
       opacity: 0;
       transform: translateY(-8px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -409,6 +459,7 @@
     100% {
       opacity: 1;
     }
+
     50% {
       opacity: 0.7;
     }
@@ -419,6 +470,7 @@
       transform: scaleY(0.95);
       opacity: 0.8;
     }
+
     100% {
       transform: scaleY(1);
       opacity: 1;
@@ -437,6 +489,16 @@ aside li a {
   color: var(--color-text-muted) !important;
   position: relative !important;
   border-radius: 8px !important;
+}
+
+aside li a.active,
+aside li a[aria-current='page'] {
+  color: var(--color-primary-foreground) !important;
+}
+
+aside li a.active span,
+aside li a[aria-current='page'] span {
+  color: var(--color-primary-foreground) !important;
 }
 
 aside li a:hover,
@@ -543,6 +605,13 @@ aside li button:active::before {
   position: relative !important;
   background-color: var(--color-surface) !important;
   font-weight: 600 !important;
+  color: var(--color-primary-foreground) !important;
+}
+
+.sidebar-collapse-active > button *,
+.sidebar-collapse-active > div > button *,
+.sidebar-collapse-active button * {
+  color: var(--color-primary-foreground) !important;
 }
 
 .sidebar-collapse-active > button::before,
@@ -562,21 +631,78 @@ aside li button:active::before {
 .sidebar-collapse-active svg,
 .sidebar-collapse-active > button svg,
 .sidebar-collapse-active > div > button svg {
-  color: #2196f3 !important;
+  color: var(--color-primary-foreground) !important;
+  stroke: var(--color-primary-foreground) !important;
 }
 
 .sidebar-item-active svg {
-  color: var(--color-primary) !important;
+  color: var(--color-primary-foreground) !important;
+  stroke: var(--color-primary-foreground) !important;
 }
 
-.sidebar-item-active span {
-  color: var(--color-primary) !important;
+.sidebar-item-active span,
+.sidebar-item-active a,
+.sidebar-item-active a span,
+.sidebar-item-active > *,
+aside li a.active,
+aside li a.active span,
+aside li a.active > *,
+aside li a[aria-current='page'],
+aside li a[aria-current='page'] span,
+aside li a[aria-current='page'] > *,
+aside li[data-active='true'] a,
+aside li[data-active='true'] a span,
+aside li[data-active='true'] span,
+aside li[data-active='true'] a > *,
+aside li[role='menuitem'][aria-current='page'] span,
+aside li[role='menuitem'][aria-current='page'] > span {
+  color: var(--color-primary-foreground) !important;
 }
 
 .sidebar-collapse-active span,
 .sidebar-collapse-active > button span,
-.sidebar-collapse-active > div > button span {
-  color: var(--color-primary) !important;
+.sidebar-collapse-active > div > button span,
+.sidebar-collapse-active > button > span,
+.sidebar-collapse-active > div > button > span {
+  color: var(--color-primary-foreground) !important;
+}
+
+/* Forçar texto branco em itens ativos da sidebar usando variável CSS */
+aside [data-active='true'] span,
+aside [aria-current='page'] span,
+aside li[data-active='true'] span,
+aside li[aria-current='page'] span,
+aside a[aria-current='page'] span,
+aside button[aria-current='page'] span,
+[id^='flowbite-sidebar-item-'].active span,
+[id^='flowbite-sidebar-item-'][aria-current='page'] span,
+[id^='flowbite-sidebar-item-'][data-active='true'] span,
+[id^='flowbite-sidebar-item-'].active,
+[id^='flowbite-sidebar-item-'][aria-current='page'],
+[id^='flowbite-sidebar-item-'][data-active='true'] {
+  color: var(--color-primary-foreground) !important;
+}
+
+/* Forçar texto branco em todos os elementos de itens ativos usando variável CSS */
+aside li[data-active='true'] *,
+aside li a.active *,
+aside li a[aria-current='page'] *,
+aside [role='menuitem'][aria-current='page'] *,
+[id^='flowbite-sidebar-item-'][data-active='true'] *,
+[id^='flowbite-sidebar-item-'].active *,
+[id^='flowbite-sidebar-item-'][aria-current='page'] * {
+  color: var(--color-primary-foreground) !important;
+}
+
+/* Ícones também devem ficar brancos quando o item está ativo usando variável CSS */
+aside li[data-active='true'] svg,
+aside li a.active svg,
+aside li a[aria-current='page'] svg,
+[id^='flowbite-sidebar-item-'][data-active='true'] svg,
+[id^='flowbite-sidebar-item-'].active svg,
+[id^='flowbite-sidebar-item-'][aria-current='page'] svg {
+  color: var(--color-primary-foreground) !important;
+  stroke: var(--color-primary-foreground) !important;
 }
 
 /* ===============================
@@ -601,4 +727,29 @@ header nav {
 .dark nav[class*='navbar'],
 .dark header nav {
   background-color: var(--color-surface) !important;
+}
+
+/* ===============================
+   🎴 Sobrescrever Flowbite Card
+   =============================== */
+/* Forçar Card do Flowbite a usar variáveis CSS */
+div[class*='rounded-lg'][class*='border'][class*='shadow'],
+div[class*='rounded-lg'][class*='border']:has(> div) {
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+/* Garantir que Cards com classe bg-surface mantenham a cor */
+.bg-surface {
+  background-color: var(--color-surface) !important;
+}
+
+.border-border {
+  border-color: var(--color-border) !important;
+}
+
+/* Garantir que Labels com classe text-text usem a cor correta */
+.text-text {
+  color: var(--color-text) !important;
 }
