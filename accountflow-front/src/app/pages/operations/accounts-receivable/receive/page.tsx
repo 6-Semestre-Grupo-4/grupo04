@@ -55,7 +55,7 @@ export default function ReceivableEntriesPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-gradient text-3xl font-bold">Baixa de Contas a Receber</h1>
-            <p className="text-sm text-text-muted">Registre os recebimentos das suas receitas.</p>
+            <p className="text-text-muted text-sm">Registre os recebimentos das suas receitas.</p>
           </div>
         </div>
 
@@ -111,11 +111,11 @@ export default function ReceivableEntriesPage() {
                   </td>
                   <td className="px-6 py-4">
                     {t.active ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-medium text-warning border border-warning/20">
+                      <span className="bg-warning/10 text-warning border-warning/20 inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium">
                         Em aberto
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success border border-success/20">
+                      <span className="bg-success/10 text-success border-success/20 inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium">
                         Quitado
                       </span>
                     )}

@@ -62,9 +62,7 @@ export default function HistoryPresetForm({
   return (
     <Modal show={show} size="lg" onClose={onClose} popup>
       <div className="bg-surface space-y-5 rounded-lg p-6">
-        <h3 className="text-foreground text-xl font-bold">
-          {editing ? 'Editar Histórico' : 'Novo Histórico'}
-        </h3>
+        <h3 className="text-foreground text-xl font-bold">{editing ? 'Editar Histórico' : 'Novo Histórico'}</h3>
 
         <div className="grid gap-5">
           {/* Nome */}
@@ -147,19 +145,11 @@ export default function HistoryPresetForm({
 
         {/* Botões */}
         <div className="flex justify-end gap-3 pt-4">
-          <Button
-            color="gray"
-            className="bg-muted hover:bg-muted-foreground/20"
-            onClick={onClose}
-          >
+          <Button color="gray" className="bg-muted hover:bg-muted-foreground/20" onClick={onClose}>
             Cancelar
           </Button>
 
-          <Button
-            onClick={onSave}
-            disabled={loading}
-            className="btn-primary shadow-md"
-          >
+          <Button onClick={onSave} disabled={loading} className="btn-primary shadow-md">
             {loading ? 'Salvando...' : 'Salvar'}
           </Button>
         </div>

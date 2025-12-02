@@ -55,7 +55,7 @@ const AuthLogin = () => {
   return (
     <>
       <form onSubmit={handleSubmit} className="text-foreground">
-        {error && <p className="mb-4 text-center text-sm text-error">{error}</p>}
+        {error && <p className="text-error mb-4 text-center text-sm">{error}</p>}
 
         <div className="mb-4">
           <FloatingLabel
@@ -97,7 +97,7 @@ const AuthLogin = () => {
               onChange={(e) => setRememberMe(e.target.checked)}
               disabled={isLoading}
             />
-            <Label htmlFor="accept" className="cursor-pointer font-normal text-text-muted">
+            <Label htmlFor="accept" className="text-text-muted cursor-pointer font-normal">
               Remember this Device
             </Label>
           </div>
@@ -116,4 +116,3 @@ const AuthLogin = () => {
 };
 
 export default AuthLogin;
-

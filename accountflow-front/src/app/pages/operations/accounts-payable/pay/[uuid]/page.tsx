@@ -190,7 +190,7 @@ export default function PayableEntryPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.back()}
-              className="rounded-lg p-2 transition-all hover:bg-muted"
+              className="hover:bg-muted rounded-lg p-2 transition-all"
               title="Voltar"
             >
               <ArrowLeft size={20} />
@@ -213,7 +213,7 @@ export default function PayableEntryPage() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <Label className="text-text">Descrição</Label>
-                <TextInput value={title.description} disabled className="rounded-lg bg-muted text-text-muted" />
+                <TextInput value={title.description} disabled className="bg-muted text-text-muted rounded-lg" />
               </div>
 
               <div>
@@ -224,7 +224,7 @@ export default function PayableEntryPage() {
                     currency: 'BRL',
                   }).format(title.amount)}
                   disabled
-                  className="rounded-lg bg-muted text-text-muted"
+                  className="bg-muted text-text-muted rounded-lg"
                 />
               </div>
 
@@ -233,20 +233,20 @@ export default function PayableEntryPage() {
                 <TextInput
                   value={new Date(title.expiration_date).toLocaleDateString('pt-BR')}
                   disabled
-                  className="rounded-lg bg-muted text-text-muted"
+                  className="bg-muted text-text-muted rounded-lg"
                 />
               </div>
 
               <div>
                 <Label className="text-text">Tipo</Label>
-                <TextInput value="Despesa" disabled className="rounded-lg bg-muted text-text-muted" />
+                <TextInput value="Despesa" disabled className="bg-muted text-text-muted rounded-lg" />
               </div>
 
               {preset && (
                 <>
                   <div>
                     <Label className="text-text">Preset</Label>
-                    <TextInput value={preset.name} disabled className="rounded-lg bg-muted text-text-muted" />
+                    <TextInput value={preset.name} disabled className="bg-muted text-text-muted rounded-lg" />
                   </div>
 
                   <div>
@@ -254,7 +254,7 @@ export default function PayableEntryPage() {
                     <TextInput
                       value={preset.payable_account_name || 'N/A'}
                       disabled
-                      className="rounded-lg bg-muted text-text-muted"
+                      className="bg-muted text-text-muted rounded-lg"
                     />
                   </div>
                 </>
@@ -268,7 +268,9 @@ export default function PayableEntryPage() {
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <Label htmlFor="description" className="text-text">Descrição *</Label>
+                <Label htmlFor="description" className="text-text">
+                  Descrição *
+                </Label>
                 <TextInput
                   id="description"
                   value={form.description}
@@ -278,7 +280,9 @@ export default function PayableEntryPage() {
               </div>
 
               <div>
-                <Label htmlFor="amount" className="text-text">Valor *</Label>
+                <Label htmlFor="amount" className="text-text">
+                  Valor *
+                </Label>
                 <TextInput
                   id="amount"
                   type="number"
@@ -290,7 +294,9 @@ export default function PayableEntryPage() {
               </div>
 
               <div>
-                <Label htmlFor="paid_at" className="text-text">Data de Pagamento *</Label>
+                <Label htmlFor="paid_at" className="text-text">
+                  Data de Pagamento *
+                </Label>
                 <TextInput
                   id="paid_at"
                   type="date"
@@ -301,14 +307,16 @@ export default function PayableEntryPage() {
               </div>
 
               <div>
-                <Label htmlFor="payment_method" className="text-text">Método de Pagamento *</Label>
+                <Label htmlFor="payment_method" className="text-text">
+                  Método de Pagamento *
+                </Label>
                 <select
                   id="payment_method"
                   value={form.payment_method}
                   onChange={(e) =>
                     setForm({ ...form, payment_method: e.target.value as 'cash' | 'debit' | 'credit' | 'pix' })
                   }
-                  className="w-full rounded-lg border border-border bg-surface p-2.5 text-text"
+                  className="border-border bg-surface text-text w-full rounded-lg border p-2.5"
                   required
                 >
                   <option value="pix">Pix</option>
@@ -319,12 +327,14 @@ export default function PayableEntryPage() {
               </div>
 
               <div className="md:col-span-2">
-                <Label htmlFor="billing_account" className="text-text">Conta Contábil *</Label>
+                <Label htmlFor="billing_account" className="text-text">
+                  Conta Contábil *
+                </Label>
                 <select
                   id="billing_account"
                   value={form.billing_account}
                   onChange={(e) => setForm({ ...form, billing_account: e.target.value })}
-                  className="w-full rounded-lg border border-border bg-surface p-2.5 text-text"
+                  className="border-border bg-surface text-text w-full rounded-lg border p-2.5"
                   required
                 >
                   <option value="">Selecione uma conta...</option>
@@ -340,22 +350,23 @@ export default function PayableEntryPage() {
 
           {/* Actions */}
           <div className="flex justify-end gap-3">
-            <Button type="button" color="gray" onClick={() => router.back()} className="bg-muted hover:bg-muted-foreground/20">
+            <Button
+              type="button"
+              color="gray"
+              onClick={() => router.back()}
+              className="bg-muted hover:bg-muted-foreground/20"
+            >
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              className="btn-primary flex items-center gap-2"
-              disabled={saving || !title.active}
-            >
+            <Button type="submit" className="btn-primary flex items-center gap-2" disabled={saving || !title.active}>
               <Save size={18} />
               {saving ? 'Salvando...' : !title.active ? 'Título Quitado' : 'Registrar Pagamento'}
             </Button>
           </div>
 
           {!title.active && (
-            <div className="rounded-lg bg-success/10 border border-success/20 p-4 text-center">
-              <p className="text-sm text-success font-medium">
+            <div className="bg-success/10 border-success/20 rounded-lg border p-4 text-center">
+              <p className="text-success text-sm font-medium">
                 ✓ Este título já foi quitado e não pode receber novos pagamentos.
               </p>
             </div>

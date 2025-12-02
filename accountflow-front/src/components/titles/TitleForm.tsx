@@ -128,12 +128,12 @@ export default function TitleForm({ show, onClose, onSave, title, companies, typ
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-      <div className="mx-4 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-surface shadow-card">
+      <div className="bg-surface shadow-card mx-4 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg">
         {/* HEADER */}
-        <div className="flex items-center justify-between border-b border-border p-6">
+        <div className="border-border flex items-center justify-between border-b p-6">
           <div className="flex items-center gap-2">
             <Type className="text-primary" size={20} />
-            <h3 className="text-lg font-semibold text-foreground">{title ? 'Editar Título' : 'Novo Título'}</h3>
+            <h3 className="text-foreground text-lg font-semibold">{title ? 'Editar Título' : 'Novo Título'}</h3>
           </div>
 
           <button onClick={onClose} className="text-text-muted hover:text-foreground transition-colors">
@@ -147,7 +147,9 @@ export default function TitleForm({ show, onClose, onSave, title, companies, typ
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* DESCRIÇÃO */}
               <div>
-                <Label htmlFor="description" className="text-text">Descrição *</Label>
+                <Label htmlFor="description" className="text-text">
+                  Descrição *
+                </Label>
                 <TextInput
                   id="description"
                   value={form.description}
@@ -159,7 +161,9 @@ export default function TitleForm({ show, onClose, onSave, title, companies, typ
 
               {/* TIPO */}
               <div>
-                <Label htmlFor="type_of" className="text-text">Tipo *</Label>
+                <Label htmlFor="type_of" className="text-text">
+                  Tipo *
+                </Label>
                 <select
                   id="type_of"
                   value={form.type_of}
@@ -174,13 +178,16 @@ export default function TitleForm({ show, onClose, onSave, title, companies, typ
 
               {/* EMPRESA */}
               <div>
-                <Label htmlFor="company" className="text-text">Empresa *</Label>
+                <Label htmlFor="company" className="text-text">
+                  Empresa *
+                </Label>
                 <select
                   id="company"
                   value={form.company}
                   onChange={(e) => setForm({ ...form, company: e.target.value })}
-                  className={`custom-select ${companies.length === 0 ? 'loading' : ''
-                    } ${!form.company && toast ? 'error' : ''}`}
+                  className={`custom-select ${
+                    companies.length === 0 ? 'loading' : ''
+                  } ${!form.company && toast ? 'error' : ''}`}
                   required
                 >
                   <option value="">Selecione uma empresa...</option>
@@ -201,7 +208,9 @@ export default function TitleForm({ show, onClose, onSave, title, companies, typ
 
               {/* VALOR */}
               <div>
-                <Label htmlFor="amount" className="text-text">Valor *</Label>
+                <Label htmlFor="amount" className="text-text">
+                  Valor *
+                </Label>
                 <TextInput
                   id="amount"
                   type="number"
@@ -215,7 +224,9 @@ export default function TitleForm({ show, onClose, onSave, title, companies, typ
 
               {/* DATA */}
               <div>
-                <Label htmlFor="expiration_date" className="text-text">Data de Vencimento *</Label>
+                <Label htmlFor="expiration_date" className="text-text">
+                  Data de Vencimento *
+                </Label>
                 <TextInput
                   id="expiration_date"
                   type="date"
@@ -227,7 +238,9 @@ export default function TitleForm({ show, onClose, onSave, title, companies, typ
 
               {/* JUROS */}
               <div>
-                <Label htmlFor="fees_percentage_monthly" className="text-text">Taxa de Juros Mensal (%)</Label>
+                <Label htmlFor="fees_percentage_monthly" className="text-text">
+                  Taxa de Juros Mensal (%)
+                </Label>
                 <TextInput
                   id="fees_percentage_monthly"
                   type="number"
@@ -240,7 +253,9 @@ export default function TitleForm({ show, onClose, onSave, title, companies, typ
 
               {/* PRESET */}
               <div>
-                <Label htmlFor="preset" className="text-text">Preset</Label>
+                <Label htmlFor="preset" className="text-text">
+                  Preset
+                </Label>
                 <select
                   id="preset"
                   value={form.preset}
@@ -286,7 +301,9 @@ export default function TitleForm({ show, onClose, onSave, title, companies, typ
             {form.recorrence && (
               <>
                 <div>
-                  <Label htmlFor="recorrence_period" className="text-text">Período de Recorrência</Label>
+                  <Label htmlFor="recorrence_period" className="text-text">
+                    Período de Recorrência
+                  </Label>
                   <select
                     id="recorrence_period"
                     value={form.recorrence_period}
@@ -302,7 +319,9 @@ export default function TitleForm({ show, onClose, onSave, title, companies, typ
                 </div>
 
                 <div>
-                  <Label htmlFor="installments" className="text-text">Parcelas</Label>
+                  <Label htmlFor="installments" className="text-text">
+                    Parcelas
+                  </Label>
                   <TextInput
                     id="installments"
                     type="number"
@@ -317,7 +336,7 @@ export default function TitleForm({ show, onClose, onSave, title, companies, typ
         </div>
 
         {/* FOOTER */}
-        <div className="flex justify-end gap-2 border-t border-border p-6">
+        <div className="border-border flex justify-end gap-2 border-t p-6">
           <Button color="gray" onClick={onClose} className="bg-muted hover:bg-muted-foreground/20">
             Cancelar
           </Button>

@@ -173,33 +173,30 @@ export default function HistoryPresetsPage() {
     <div className="min-h-screen p-10 transition-all">
       <div className="mb-10 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Históricos Contábeis</h1>
-          <p className="mt-1 text-text-muted">
+          <h1 className="text-foreground text-3xl font-bold">Históricos Contábeis</h1>
+          <p className="text-text-muted mt-1">
             Configure regras de movimentação entre contas de forma simples e rápida.
           </p>
         </div>
 
-        <Button
-          className="btn-primary shadow-md"
-          onClick={() => openForm()}
-        >
+        <Button className="btn-primary shadow-md" onClick={() => openForm()}>
           Novo Histórico
         </Button>
       </div>
 
       {/* FILTERS */}
-      <div className="mb-10 rounded-2xl border border-border bg-surface p-6 shadow-card">
-        <h2 className="mb-4 text-lg font-semibold text-foreground">Filtros</h2>
+      <div className="border-border bg-surface shadow-card mb-10 rounded-2xl border p-6">
+        <h2 className="text-foreground mb-4 text-lg font-semibold">Filtros</h2>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {/* PLANO */}
           <div className="flex flex-col">
-            <Label className="mb-1 text-sm text-text">Plano de Contas</Label>
+            <Label className="text-text mb-1 text-sm">Plano de Contas</Label>
 
             <Select
               value={filterPlan}
               onChange={(e) => setFilterPlan(e.target.value)}
-              className="rounded-xl border border-border bg-surface text-foreground"
+              className="border-border bg-surface text-foreground rounded-xl border"
             >
               <option value="">Todos os planos...</option>
               {plans.map((p) => (
@@ -212,16 +209,16 @@ export default function HistoryPresetsPage() {
 
           {/* BUSCA */}
           <div className="flex flex-col">
-            <Label className="mb-1 text-sm text-text">Buscar</Label>
+            <Label className="text-text mb-1 text-sm">Buscar</Label>
 
-            <div className="relative flex items-center rounded-xl border border-border bg-surface">
-              <FiArrowRight size={18} className="absolute left-3 text-text-muted" />
+            <div className="border-border bg-surface relative flex items-center rounded-xl border">
+              <FiArrowRight size={18} className="text-text-muted absolute left-3" />
 
               <TextInput
                 placeholder="Nome ou descrição..."
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                className="w-full bg-transparent pl-10 text-foreground"
+                className="text-foreground w-full bg-transparent pl-10"
               />
             </div>
           </div>
@@ -247,23 +244,23 @@ export default function HistoryPresetsPage() {
         {filteredPresets.map((h) => (
           <div
             key={h.uuid}
-            className="group flex h-full flex-col cursor-pointer rounded-xl border border-border bg-surface p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+            className="group border-border bg-surface shadow-card flex h-full cursor-pointer flex-col rounded-xl border p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
           >
-            <div className="flex items-start justify-between gap-4 flex-1">
-              <div className="flex-1 min-w-0">
-                <h2 className="text-lg leading-tight font-semibold text-text">{h.name}</h2>
+            <div className="flex flex-1 items-start justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-text text-lg leading-tight font-semibold">{h.name}</h2>
 
-                <p className="mt-1 line-clamp-2 text-sm text-text-muted">{h.description}</p>
+                <p className="text-text-muted mt-1 line-clamp-2 text-sm">{h.description}</p>
 
-                <span className="mt-4 inline-block rounded-lg bg-primary/20 px-3 py-1 text-xs font-medium text-primary">
+                <span className="bg-primary/20 text-primary mt-4 inline-block rounded-lg px-3 py-1 text-xs font-medium">
                   {getPlanName(h.billing_plan)}
                 </span>
               </div>
 
-              <div className="flex flex-col gap-2 opacity-0 transition-opacity group-hover:opacity-100 flex-shrink-0">
+              <div className="flex flex-shrink-0 flex-col gap-2 opacity-0 transition-opacity group-hover:opacity-100">
                 <button
                   onClick={() => openForm(h)}
-                  className="rounded-lg bg-muted p-2 shadow-sm transition hover:bg-muted-foreground/20"
+                  className="bg-muted hover:bg-muted-foreground/20 rounded-lg p-2 shadow-sm transition"
                 >
                   <FiEdit2 size={16} className="text-foreground" />
                 </button>
@@ -274,7 +271,7 @@ export default function HistoryPresetsPage() {
                     e.stopPropagation();
                     setConfirmDialog({ show: true, preset: h });
                   }}
-                  className="rounded-lg bg-muted p-2 shadow-sm transition hover:bg-muted-foreground/20"
+                  className="bg-muted hover:bg-muted-foreground/20 rounded-lg p-2 shadow-sm transition"
                 >
                   <FiTrash2 size={16} className="text-foreground" />
                 </button>
@@ -282,12 +279,14 @@ export default function HistoryPresetsPage() {
             </div>
 
             {/* ACCOUNTS */}
-            <div className="mt-5 flex items-center gap-3 rounded-lg border border-border bg-muted p-4 shadow-inner">
-              <span className="flex-1 font-semibold text-red-600 dark:text-red-400 break-words">{getAccountName(h.payable_account)}</span>
+            <div className="border-border bg-muted mt-5 flex items-center gap-3 rounded-lg border p-4 shadow-inner">
+              <span className="flex-1 font-semibold break-words text-red-600 dark:text-red-400">
+                {getAccountName(h.payable_account)}
+              </span>
 
               <FiArrowRight size={22} className="text-text-muted flex-shrink-0" />
 
-              <span className="flex-1 font-semibold text-green-600 dark:text-green-400 break-words text-right">
+              <span className="flex-1 text-right font-semibold break-words text-green-600 dark:text-green-400">
                 {getAccountName(h.receivable_account)}
               </span>
             </div>
@@ -295,7 +294,7 @@ export default function HistoryPresetsPage() {
         ))}
 
         {filteredPresets.length === 0 && (
-          <div className="col-span-full py-10 text-center text-text-muted">Nenhum histórico encontrado.</div>
+          <div className="text-text-muted col-span-full py-10 text-center">Nenhum histórico encontrado.</div>
         )}
       </div>
 
