@@ -61,28 +61,40 @@ export default function HistoryPresetForm({
 
   return (
     <Modal show={show} size="lg" onClose={onClose} popup>
-      <div className="space-y-5 rounded-xl bg-white p-8 dark:bg-gray-800">
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+      <div className="bg-surface space-y-5 rounded-lg p-6">
+        <h3 className="text-foreground text-xl font-bold">
           {editing ? 'Editar Histórico' : 'Novo Histórico'}
         </h3>
 
         <div className="grid gap-5">
           {/* Nome */}
           <div>
-            <Label>Nome</Label>
-            <TextInput value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <Label className="text-text">Nome</Label>
+            <TextInput
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="bg-surface border-border text-foreground"
+            />
           </div>
 
           {/* Descrição */}
           <div>
-            <Label>Descrição</Label>
-            <TextInput value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            <Label className="text-text">Descrição</Label>
+            <TextInput
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="bg-surface border-border text-foreground"
+            />
           </div>
 
           {/* Plano */}
           <div>
-            <Label>Plano de Contas</Label>
-            <Select value={form.billing_plan} onChange={(e) => handlePlanChange(e.target.value)}>
+            <Label className="text-text">Plano de Contas</Label>
+            <Select
+              value={form.billing_plan}
+              onChange={(e) => handlePlanChange(e.target.value)}
+              className="bg-surface border-border text-foreground"
+            >
               <option value="">Selecione...</option>
 
               {plans.map((p) => (
@@ -97,10 +109,11 @@ export default function HistoryPresetForm({
           {form.billing_plan && (
             <div className="grid grid-cols-2 gap-5">
               <div>
-                <Label>Conta Débito</Label>
+                <Label className="text-text">Conta Débito</Label>
                 <Select
                   value={form.payable_account}
                   onChange={(e) => setForm({ ...form, payable_account: e.target.value })}
+                  className="bg-surface border-border text-foreground"
                 >
                   <option value="">Selecione...</option>
 
@@ -113,10 +126,11 @@ export default function HistoryPresetForm({
               </div>
 
               <div>
-                <Label>Conta Crédito</Label>
+                <Label className="text-text">Conta Crédito</Label>
                 <Select
                   value={form.receivable_account}
                   onChange={(e) => setForm({ ...form, receivable_account: e.target.value })}
+                  className="bg-surface border-border text-foreground"
                 >
                   <option value="">Selecione...</option>
 
@@ -133,14 +147,18 @@ export default function HistoryPresetForm({
 
         {/* Botões */}
         <div className="flex justify-end gap-3 pt-4">
-          <Button color="gray" className="cursor-pointer" onClick={onClose}>
+          <Button
+            color="gray"
+            className="bg-muted hover:bg-muted-foreground/20"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
 
           <Button
             onClick={onSave}
             disabled={loading}
-            className="cursor-pointer bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600"
+            className="btn-primary shadow-md"
           >
             {loading ? 'Salvando...' : 'Salvar'}
           </Button>

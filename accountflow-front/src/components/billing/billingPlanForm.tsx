@@ -30,41 +30,44 @@ export default function BillingPlanForm({ show, onClose, onSave, editing }: Prop
 
   return (
     <Modal show={show} onClose={onClose}>
-      <div className="space-y-5 rounded-xl bg-white p-8 dark:bg-gray-800">
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+      <div className="bg-surface space-y-4 rounded-lg p-6">
+        <h3 className="text-foreground text-xl font-bold">
           {editing ? 'Editar Plano de Contas' : 'Novo Plano de Contas'}
         </h3>
 
         <div>
-          <Label htmlFor="name">Nome</Label>
+          <Label htmlFor="name" className="text-text">
+            Nome
+          </Label>
           <TextInput
             id="name"
             value={form.name}
             maxLength={255}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             placeholder="Ex: Plano Financeiro 2025"
+            className="bg-surface border-border text-foreground"
           />
         </div>
 
         <div>
-          <Label htmlFor="desc">Descrição</Label>
+          <Label htmlFor="desc" className="text-text">
+            Descrição
+          </Label>
           <TextInput
             id="desc"
             value={form.description}
             maxLength={255}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             placeholder="Descrição"
+            className="bg-surface border-border text-foreground"
           />
         </div>
 
-        <div className="flex justify-end gap-3 pt-4">
-          <Button color="gray" className="cursor-pointer" onClick={handleSave}>
+        <div className="mt-4 flex justify-end gap-2">
+          <Button className="btn-primary shadow-md" onClick={handleSave}>
             {editing ? 'Salvar Alterações' : 'Salvar'}
           </Button>
-          <Button
-            className="cursor-pointer bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600"
-            onClick={onClose}
-          >
+          <Button color="gray" className="bg-muted hover:bg-muted-foreground/20 cursor-pointer" onClick={onClose}>
             Cancelar
           </Button>
         </div>
