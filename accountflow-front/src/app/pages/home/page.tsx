@@ -4,12 +4,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 p-6 dark:bg-gray-900">
       <div className="mx-auto max-w-6xl">
-        <h1 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
-          Página de Início
-        </h1>
+        <h1 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">Página de Início</h1>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
           {/* ---------------------------------------------------------------- */}
           {/* CARD DRE */}
           {/* ---------------------------------------------------------------- */}
@@ -20,22 +17,13 @@ export default function Home() {
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 ring-1 ring-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:ring-emerald-800">
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                    >
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5">
                       <path d="M3 13h18M3 17h12M3 9h18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                     </svg>
                   </div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Relatório DRE
-                  </h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Relatório DRE</h2>
                 </div>
-                <span className="text-xs text-blue-600 group-hover:underline dark:text-blue-300">
-                  Abrir
-                </span>
+                <span className="text-xs text-blue-600 group-hover:underline dark:text-blue-300">Abrir</span>
               </div>
 
               <p className="text-sm text-gray-600 dark:text-gray-300">
@@ -66,24 +54,20 @@ export default function Home() {
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 ring-1 ring-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-300 dark:ring-indigo-800">
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                    >
-                      <path d="M4 4h16v4H4zM4 10h10v4H4zM4 16h7v4H4z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5">
+                      <path
+                        d="M4 4h16v4H4zM4 10h10v4H4zM4 16h7v4H4z"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                      />
                     </svg>
                   </div>
 
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Relatório Balancete
-                  </h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Relatório Balancete</h2>
                 </div>
 
-                <span className="text-xs text-blue-600 group-hover:underline dark:text-blue-300">
-                  Abrir
-                </span>
+                <span className="text-xs text-blue-600 group-hover:underline dark:text-blue-300">Abrir</span>
               </div>
 
               <p className="text-sm text-gray-600 dark:text-gray-300">
@@ -125,18 +109,15 @@ export default function Home() {
                     </svg>
                   </div>
 
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Razão Contábil
-                  </h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Razão Contábil</h2>
                 </div>
 
-                <span className="text-xs text-blue-600 group-hover:underline dark:text-blue-300">
-                  Abrir
-                </span>
+                <span className="text-xs text-blue-600 group-hover:underline dark:text-blue-300">Abrir</span>
               </div>
 
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Histórico detalhado de movimentações por conta contábil. Visualize débitos, créditos e saldos com precisão.
+                Histórico detalhado de movimentações por conta contábil. Visualize débitos, créditos e saldos com
+                precisão.
               </p>
 
               <div className="mt-4 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
@@ -152,7 +133,6 @@ export default function Home() {
               </div>
             </div>
           </Link>
-
         </div>
       </div>
     </div>

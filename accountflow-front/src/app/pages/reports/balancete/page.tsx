@@ -112,9 +112,7 @@ export default function BalancetePage() {
 
     const walk = (items: AccountNode[], prefix = '') => {
       items.forEach((n) => {
-        lines.push(
-          `${prefix}${n.code},${n.name},${n.debit},${n.credit},${n.balance}`
-        );
+        lines.push(`${prefix}${n.code},${n.name},${n.debit},${n.credit},${n.balance}`);
         if (n.children?.length) walk(n.children, prefix + '  ');
       });
     };
@@ -138,16 +136,13 @@ export default function BalancetePage() {
       <div key={n.uuid}>
         {/* Linha da conta */}
         <div
-          className={`grid grid-cols-12 items-center py-2 border-b hover:bg-gray-50 dark:hover:bg-gray-800`}
+          className={`grid grid-cols-12 items-center border-b py-2 hover:bg-gray-50 dark:hover:bg-gray-800`}
           style={{ paddingLeft: `${level * 20}px` }}
         >
           {/* Botão expandir */}
           <div className="col-span-1">
             {n.children?.length > 0 ? (
-              <button
-                onClick={() => toggle(n.uuid)}
-                className="text-sm text-gray-600 dark:text-gray-300"
-              >
+              <button onClick={() => toggle(n.uuid)} className="text-sm text-gray-600 dark:text-gray-300">
                 {isOpen ? '▾' : '▸'}
               </button>
             ) : (
@@ -178,11 +173,7 @@ export default function BalancetePage() {
           {/* Saldo */}
           <div
             className={`col-span-1 text-right font-medium ${
-              Number(n.balance) > 0
-                ? 'text-emerald-600'
-                : Number(n.balance) < 0
-                ? 'text-rose-600'
-                : 'text-gray-400'
+              Number(n.balance) > 0 ? 'text-emerald-600' : Number(n.balance) < 0 ? 'text-rose-600' : 'text-gray-400'
             }`}
           >
             {Number(n.balance).toLocaleString('pt-BR', {
@@ -192,8 +183,7 @@ export default function BalancetePage() {
         </div>
 
         {/* Filhos */}
-        {isOpen &&
-          n.children?.map((child) => renderNode(child, level + 1))}
+        {isOpen && n.children?.map((child) => renderNode(child, level + 1))}
       </div>
     );
   };
@@ -204,18 +194,22 @@ export default function BalancetePage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6 dark:bg-gray-900">
       <div className="mx-auto max-w-7xl">
-        <h1 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">Balancete Contábil</h1>
+        <div className="mb-8">
+          <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Relatório Balancete</h1>
+          <p className="text-gray-600 dark:text-gray-300">
+            Balancete contábil com débitos, créditos e saldos por conta.
+          </p>
+        </div>
 
         <Card className="mb-6 p-4">
           {/* FORMULARIO */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             {/* Plano */}
             <div>
               <Label>Plano de Contas</Label>
 
               {loadingPlans ? (
-                <div className="flex justify-center items-center h-10">
+                <div className="flex h-10 items-center justify-center">
                   <Spinner size="sm" />
                 </div>
               ) : (
@@ -255,7 +249,7 @@ export default function BalancetePage() {
             {/* Opções */}
             <div>
               <Label>Opções</Label>
-              <div className="flex gap-2 mt-2">
+              <div className="mt-2 flex gap-2">
                 <input
                   id="includeZero"
                   type="checkbox"
@@ -268,7 +262,7 @@ export default function BalancetePage() {
           </div>
 
           {/* AÇÕES */}
-          <div className="flex justify-end gap-2 mt-4">
+          <div className="mt-4 flex justify-end gap-2">
             {data && (
               <Button color="gray" onClick={exportCSV}>
                 Exportar CSV
@@ -285,7 +279,7 @@ export default function BalancetePage() {
         {data && (
           <>
             {/* Totais */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+            <div className="mb-5 grid grid-cols-1 gap-4 md:grid-cols-3">
               <Card>
                 <div className="text-sm text-gray-500">Total Débitos</div>
                 <div className="text-2xl font-bold">R$ {Number(data.totals.debits).toFixed(2)}</div>
@@ -300,9 +294,7 @@ export default function BalancetePage() {
                 <div className="text-sm text-gray-500">Diferença</div>
                 <div
                   className={`text-2xl font-bold ${
-                    Number(data.totals.difference) === 0
-                      ? 'text-emerald-600'
-                      : 'text-rose-600'
+                    Number(data.totals.difference) === 0 ? 'text-emerald-600' : 'text-rose-600'
                   }`}
                 >
                   R$ {Number(data.totals.difference).toFixed(2)}
@@ -321,7 +313,7 @@ export default function BalancetePage() {
 
               <div className="w-full overflow-x-auto">
                 {/* Cabeçalho fixo */}
-                <div className="grid grid-cols-12 border-b bg-gray-100 dark:bg-gray-700 py-2 font-semibold text-sm sticky top-0">
+                <div className="sticky top-0 grid grid-cols-12 border-b bg-gray-100 py-2 text-sm font-semibold dark:bg-gray-700">
                   <div className="col-span-1"></div>
                   <div className="col-span-2">Código</div>
                   <div className="col-span-4">Conta</div>
@@ -341,13 +333,7 @@ export default function BalancetePage() {
         )}
       </div>
 
-      {toast && (
-        <ToastNotification
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {toast && <ToastNotification message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 }
