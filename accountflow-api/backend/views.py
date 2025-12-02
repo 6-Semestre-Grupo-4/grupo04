@@ -5,12 +5,15 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Sum, F
 from django.db.models.functions import TruncMonth
+from django.shortcuts import get_object_or_404
+import collections   
+from decimal import Decimal                             
 
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
 from django.core.exceptions import ValidationError
 # Modelos Personalizados
-from .models import Address, Company, BillingPlan, BillingAccount, Preset, Title, Entry
+from .models import Address, Company, BillingPlan, BillingAccount, Preset, Title, Entry, JournalLine 
 
 from .serializers import AddressSerializer, CompanySerializer, BillingPlanSerializer, BillingAccountSerializer, PresetSerializer, TitleSerializer, EntrySerializer
 
@@ -794,5 +797,162 @@ class DREReportView(GenericAPIView):
                 }
                 for v in agg.values()
             ]
+
+        return Response(result)
+
+class BalanceteReportView(GenericAPIView):
+    """
+    GET /reports/balancete/?billing_plan=<uuid>&company=<uuid>&start=YYYY-MM-DD&end=YYYY-MM-DD&include_zero=false
+    """
+
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        plan_id = request.query_params.get("billing_plan")
+        company_id = request.query_params.get("company")   # 🔵 novo
+        start = request.query_params.get("start")
+        end = request.query_params.get("end")
+        include_zero = request.query_params.get("include_zero", "false").lower() == "true"
+
+        if not plan_id or not start or not end:
+            return Response(
+                {"detail": "Parâmetros obrigatórios: billing_plan, start, end"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        plan = get_object_or_404(BillingPlan, pk=plan_id)
+
+        # 🔵 Valida empresa (se enviada)
+        company = None
+        if company_id:
+            company = get_object_or_404(Company, pk=company_id)
+
+        # 1) Carrega todas as contas do plano
+        accounts_qs = BillingAccount.objects.filter(
+            billing_plan=plan
+        ).select_related("parent").order_by("code")
+
+        accounts = list(accounts_qs)
+        acct_by_id = {str(a.uuid): a for a in accounts}
+
+        # Somas
+        sums_by_account = collections.defaultdict(
+            lambda: {"debit": Decimal("0.00"), "credit": Decimal("0.00")}
+        )
+
+        # 2) 🔵 Filtra lançamentos contábeis por empresa (se informado)
+        jline_filters = {
+            "journal__date__gte": start,
+            "journal__date__lte": end,
+            "account__billing_plan": plan,
+        }
+
+        if company:
+            jline_filters["journal__company_id"] = company.uuid  # 🔵 filtro empresa
+
+        jlines = (
+            JournalLine.objects.filter(**jline_filters)
+            .values("account")
+            .annotate(total_debit=Sum("debit"), total_credit=Sum("credit"))
+        )
+
+        for row in jlines:
+            acct_id = str(row["account"])
+            debit = row["total_debit"] or Decimal("0.00")
+            credit = row["total_credit"] or Decimal("0.00")
+            sums_by_account[acct_id]["debit"] += Decimal(debit)
+            sums_by_account[acct_id]["credit"] += Decimal(credit)
+
+        # 3) Build tree
+        Node = lambda: {
+            "uuid": None,
+            "code": "",
+            "name": "",
+            "debit": Decimal("0.00"),
+            "credit": Decimal("0.00"),
+            "balance": Decimal("0.00"),
+            "children": [],
+        }
+
+        nodes = {}
+        root_nodes = []
+
+        for a in accounts:
+            node = Node()
+            node["uuid"] = str(a.uuid)
+            node["code"] = a.code or ""
+            node["name"] = a.name
+            node["debit"] = sums_by_account.get(str(a.pk), {}).get(
+                "debit", Decimal("0.00")
+            )
+            node["credit"] = sums_by_account.get(str(a.pk), {}).get(
+                "credit", Decimal("0.00")
+            )
+            node["balance"] = node["debit"] - node["credit"]
+            nodes[str(a.pk)] = node
+
+        # attach children
+        for a in accounts:
+            node = nodes[str(a.pk)]
+            if a.parent_id:
+                nodes[str(a.parent_id)]["children"].append(node)
+            else:
+                root_nodes.append(node)
+
+        # Bubble sums
+        def aggregate(node):
+            for child in node["children"]:
+                aggregate(child)
+                node["debit"] += child["debit"]
+                node["credit"] += child["credit"]
+            node["balance"] = node["debit"] - node["credit"]
+
+        for rn in root_nodes:
+            aggregate(rn)
+
+        # prune zero
+        def prune_zero(node):
+            node["children"] = [c for c in node["children"] if prune_zero(c)]
+            if (
+                node["debit"] == Decimal("0.00")
+                and node["credit"] == Decimal("0.00")
+                and not node["children"]
+            ):
+                return include_zero
+            return True
+
+        if not include_zero:
+            root_nodes = [r for r in root_nodes if prune_zero(r)]
+
+        # serializar
+        def fmt_node(node):
+            return {
+                "uuid": node["uuid"],
+                "code": node["code"],
+                "name": node["name"],
+                "debit": f"{node['debit']:.2f}",
+                "credit": f"{node['credit']:.2f}",
+                "balance": f"{node['balance']:.2f}",
+                "children": [fmt_node(c) for c in node["children"]],
+            }
+
+        result = {
+            "billing_plan": str(plan.uuid),
+            "company": str(company.uuid) if company else None,  # 🔵 retornando empresa
+            "start": start,
+            "end": end,
+            "tree": [fmt_node(r) for r in root_nodes],
+        }
+
+        # Totais diretos
+        total_debit = sum(v["debit"] for v in sums_by_account.values())
+        total_credit = sum(v["credit"] for v in sums_by_account.values())
+
+        result["totals"] = {
+            "debits": f"{total_debit:.2f}",
+            "credits": f"{total_credit:.2f}",
+            "difference": f"{(total_debit - total_credit):.2f}",
+        }
 
         return Response(result)

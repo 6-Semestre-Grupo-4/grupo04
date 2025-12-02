@@ -203,3 +203,4 @@ class EntrySerializer(serializers.ModelSerializer):
             })
 
         return data
+

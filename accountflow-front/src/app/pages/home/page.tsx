@@ -6,7 +6,10 @@ export default function Home() {
       <div className="mx-auto max-w-6xl">
         <h1 className="mb-6 text-3xl font-bold text-foreground">Página de Início</h1>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {/* ---------------------------------------------------------------- */}
+          {/* CARD DRE */}
+          {/* ---------------------------------------------------------------- */}
           <Link href="/pages/reports/dre" className="group">
             <div className="relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 via-blue-500 to-rose-500" />
@@ -14,7 +17,6 @@ export default function Home() {
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted ring-1 ring-border">
-                    {/* simple inline icon */}
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-text">
                       <path d="M3 13h18M3 17h12M3 9h18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                     </svg>
@@ -31,7 +33,6 @@ export default function Home() {
                 detalhes por dia e a estrutura clássica.
               </p>
 
-              {/* Footer stats hint */}
               <div className="mt-4 flex items-center gap-3 text-xs text-text-muted">
                 <span className="inline-flex items-center gap-1 whitespace-nowrap">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" /> Resumo
@@ -46,6 +47,53 @@ export default function Home() {
             </div>
           </Link>
 
+          {/* ---------------------------------------------------------------- */}
+          {/* CARD BALANCETE */}
+          {/* ---------------------------------------------------------------- */}
+          <Link href="/pages/reports/balancete" className="group">
+            <div className="relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500" />
+
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted ring-1 ring-border">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-text">
+                      <path
+                        d="M4 4h16v4H4zM4 10h10v4H4zM4 16h7v4H4z"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </div>
+
+                  <h2 className="text-lg font-semibold text-foreground">Relatório Balancete</h2>
+                </div>
+
+                <span className="text-xs text-primary transition-colors group-hover:underline">Abrir</span>
+              </div>
+
+              <p className="flex-1 text-sm text-text-muted">
+                Balancete contábil: visão completa de débitos, créditos e saldos com árvore do plano de contas.
+              </p>
+
+              <div className="mt-4 flex items-center gap-3 text-xs text-text-muted">
+                <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                  <span className="h-2 w-2 rounded-full bg-indigo-500" /> Débitos / Créditos
+                </span>
+                <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                  <span className="h-2 w-2 rounded-full bg-blue-500" /> Saldo
+                </span>
+                <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                  <span className="h-2 w-2 rounded-full bg-purple-500" /> Estrutura em árvore
+                </span>
+              </div>
+            </div>
+          </Link>
+
+          {/* ---------------------------------------------------------------- */}
+          {/* CARD RAZÃO CONTÁBIL */}
+          {/* ---------------------------------------------------------------- */}
           <Link href="/pages/reports/ledger" className="group">
             <div className="relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
@@ -53,7 +101,6 @@ export default function Home() {
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted ring-1 ring-border">
-                    {/* simple inline icon */}
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-text">
                       <path
                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
@@ -76,7 +123,6 @@ export default function Home() {
                 saldos acumulados em tempo real.
               </p>
 
-              {/* Footer stats hint */}
               <div className="mt-4 flex items-center gap-3 text-xs text-text-muted">
                 <span className="inline-flex items-center gap-1 whitespace-nowrap">
                   <span className="h-2 w-2 rounded-full bg-blue-500" /> Movimentações

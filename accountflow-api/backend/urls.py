@@ -20,6 +20,7 @@ from django.urls import path, include
 from backend.views import (
   AddressList,
   AddressDetail,
+  BalanceteReportView,
   CompanyList,
   CompanyDetail,
   BillingPlanList,
@@ -64,4 +65,5 @@ urlpatterns = [
     path('entries/<uuid:pk>/', EntryDetail.as_view(), name='entry-detail'),
     path('reports/ledger/', LedgerReportView.as_view(), name='ledger-report'),
     path('reports/dre/', DREReportView.as_view(), name='dre-report'),
+    path('reports/balancete/', BalanceteReportView.as_view(), name='balancete-report'),
 ]
