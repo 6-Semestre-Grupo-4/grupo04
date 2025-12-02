@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useMemo, memo } from 'react'; // Otimização de cálculo
+import { useMemo, memo } from 'react';
 import {
   Sidebar,
   SidebarItem,
@@ -29,7 +29,6 @@ import Logo from '@/assets/images/logos/sideLogo.png';
 
 const route = '/pages/';
 
-// Tema definido fora do componente para evitar recriação a cada render
 const customTheme = createTheme({
   sidebar: {
     root: {
@@ -38,26 +37,30 @@ const customTheme = createTheme({
     },
     collapse: {
       button:
-        'group flex w-full items-center justify-start text-left rounded-lg p-2 text-base font-medium text-text-muted transition duration-200 hover:bg-gray-100 dark:hover:bg-gray-700',
+        'group flex w-full items-center justify-start text-left rounded-lg p-2 text-base font-medium text-text hover:bg-muted transition duration-200',
       icon: {
-        base: 'h-5 w-5',
-        open: { off: '', on: '' },
+        base: 'h-5 w-5 text-text-muted',
+        open: { off: '', on: 'rotate-180' },
       },
       label: {
-        base: 'ml-3 w-full items-center justify-start text-left flex-1 whitespace-nowrap',
+        base: 'ml-2 w-full items-center justify-start text-left flex-1 whitespace-nowrap',
         icon: {
           base: 'h-5 w-5 transition duration-200 group-hover:scale-110',
-          open: { off: '', on: '' },
+          open: { off: '', on: 'rotate-180' },
         },
       },
-      list: 'space-y-1 py-2 pl-3',
+      list: 'space-y-1 py-2',
     },
     item: {
-      base: 'group flex w-full items-center justify-start text-left rounded-lg p-2 text-base font-medium text-text-muted transition duration-200 hover:bg-gray-100 dark:hover:bg-gray-700',
-      active: 'bg-primary/10 text-primary', // Simplificado classe active
+      base: 'group flex w-full items-center justify-start text-left rounded-lg p-2 text-base font-medium text-text hover:bg-muted transition duration-200',
+      active: 'bg-primary/10 text-text-muted font-semibold',
       icon: {
-        base: 'h-5 w-5 flex-shrink-0 transition duration-200 group-hover:scale-110',
+        base: 'h-5 w-5 flex-shrink-0 text-text-muted transition duration-200 group-hover:scale-110',
         active: 'text-primary scale-110',
+      },
+      content: {
+        base: 'ml-2 flex-1 whitespace-nowrap',
+        active: '',
       },
     },
   },
@@ -70,7 +73,6 @@ interface SidebarProps {
 function SidebarBase({ isOpen }: SidebarProps) {
   const pathname = usePathname();
 
-  // useMemo evita recálculo dessas variáveis booleanas se o pathname não mudar
   const { isOperationsActive, isAccountsPayableActive, isAccountsReceivableActive, isSettingsActive } = useMemo(() => {
     return {
       isOperationsActive: pathname.startsWith(`${route}operations`),
@@ -82,39 +84,29 @@ function SidebarBase({ isOpen }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed top-0 left-0 z-40 h-screen w-64 transform transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      } border-border bg-surface shadow-card border-r lg:translate-x-0`}
+      className={`fixed top-0 left-0 z-40 h-screen w-64 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
+        } border-border bg-surface shadow-card border-r lg:translate-x-0`}
     >
       <ThemeProvider theme={customTheme}>
         <Sidebar aria-label="Sidebar navegação" className="bg-surface w-full">
-          <div className="border-border flex w-full items-center justify-center border-b px-4 pb-6">
+          <div className="border-border flex w-full items-center justify-center border-b px-4 pb-4">
             <Image
               src={Logo}
               alt="Accountflow logo"
               width={150}
               height={30}
-              priority // Carrega a imagem imediatamente (LCP optimization)
+              priority
               className="mx-auto transition-transform duration-300 hover:scale-105"
             />
           </div>
 
-          <SidebarItems>
+          <SidebarItems className="pt-4">
             <SidebarItemGroup>
-              {/* MUDANÇA PRINCIPAL: 
-                Usar 'href' e 'as={Link}' ao invés de onClick + router.push 
-              */}
-              <SidebarItem icon={Home} as={Link} href={`${route}home`} prefetch active={pathname === `${route}home`}>
+              <SidebarItem icon={Home} as={Link} href={`${route}home`} active={pathname === `${route}home`}>
                 Home
               </SidebarItem>
 
-              <SidebarItem
-                icon={Building2}
-                as={Link}
-                href={`${route}company`}
-                prefetch
-                active={pathname === `${route}company`}
-              >
+              <SidebarItem icon={Building2} as={Link} href={`${route}company`} active={pathname === `${route}company`}>
                 Empresa
               </SidebarItem>
 
@@ -124,7 +116,6 @@ function SidebarBase({ isOpen }: SidebarProps) {
                     icon={FilePlus}
                     as={Link}
                     href={`${route}operations/accounts-payable/create`}
-                    prefetch
                     active={pathname === `${route}operations/accounts-payable/create`}
                   >
                     Cadastrar Títulos
@@ -134,7 +125,6 @@ function SidebarBase({ isOpen }: SidebarProps) {
                     icon={FileDown}
                     as={Link}
                     href={`${route}operations/accounts-payable/pay`}
-                    prefetch
                     active={pathname === `${route}operations/accounts-payable/pay`}
                   >
                     Baixar Títulos
@@ -146,7 +136,6 @@ function SidebarBase({ isOpen }: SidebarProps) {
                     icon={FilePlus}
                     as={Link}
                     href={`${route}operations/accounts-receivable/create`}
-                    prefetch
                     active={pathname === `${route}operations/accounts-receivable/create`}
                   >
                     Cadastrar Títulos
@@ -156,7 +145,6 @@ function SidebarBase({ isOpen }: SidebarProps) {
                     icon={FileDown}
                     as={Link}
                     href={`${route}operations/accounts-receivable/receive`}
-                    prefetch
                     active={pathname === `${route}operations/accounts-receivable/receive`}
                   >
                     Baixar Títulos
@@ -169,7 +157,6 @@ function SidebarBase({ isOpen }: SidebarProps) {
                   icon={Network}
                   as={Link}
                   href={`${route}settings/billing-plans`}
-                  prefetch
                   active={pathname === `${route}settings/billing-plans`}
                 >
                   Plano de Contas
@@ -178,7 +165,6 @@ function SidebarBase({ isOpen }: SidebarProps) {
                   icon={Landmark}
                   as={Link}
                   href={`${route}settings/history-presets`}
-                  prefetch
                   active={pathname === `${route}settings/history-presets`}
                 >
                   Históricos
@@ -192,5 +178,4 @@ function SidebarBase({ isOpen }: SidebarProps) {
   );
 }
 
-// Memoize to avoid re-renders unless isOpen or pathname changes
 export const SidebarComponent = memo(SidebarBase);

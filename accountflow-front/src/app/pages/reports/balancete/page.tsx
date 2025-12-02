@@ -136,35 +136,35 @@ export default function BalancetePage() {
       <div key={n.uuid}>
         {/* Linha da conta */}
         <div
-          className={`grid grid-cols-12 items-center border-b py-2 hover:bg-gray-50 dark:hover:bg-gray-800`}
+          className={`grid grid-cols-12 items-center border-b border-border py-2 hover:bg-muted`}
           style={{ paddingLeft: `${level * 20}px` }}
         >
           {/* Botão expandir */}
           <div className="col-span-1">
             {n.children?.length > 0 ? (
-              <button onClick={() => toggle(n.uuid)} className="text-sm text-gray-600 dark:text-gray-300">
+              <button onClick={() => toggle(n.uuid)} className="text-sm text-text-muted hover:text-text">
                 {isOpen ? '▾' : '▸'}
               </button>
             ) : (
-              <span className="text-gray-300">•</span>
+              <span className="text-text-muted/50">•</span>
             )}
           </div>
 
           {/* Código */}
-          <div className="col-span-2 font-mono text-sm">{n.code}</div>
+          <div className="col-span-2 font-mono text-sm text-text">{n.code}</div>
 
           {/* Nome */}
-          <div className="col-span-4 text-sm">{n.name}</div>
+          <div className="col-span-4 text-sm text-text">{n.name}</div>
 
           {/* Débito */}
-          <div className="col-span-2 text-right tabular-nums">
+          <div className="col-span-2 text-right tabular-nums text-text">
             {Number(n.debit).toLocaleString('pt-BR', {
               minimumFractionDigits: 2,
             })}
           </div>
 
           {/* Crédito */}
-          <div className="col-span-2 text-right tabular-nums">
+          <div className="col-span-2 text-right tabular-nums text-text">
             {Number(n.credit).toLocaleString('pt-BR', {
               minimumFractionDigits: 2,
             })}
@@ -172,9 +172,8 @@ export default function BalancetePage() {
 
           {/* Saldo */}
           <div
-            className={`col-span-1 text-right font-medium ${
-              Number(n.balance) > 0 ? 'text-emerald-600' : Number(n.balance) < 0 ? 'text-rose-600' : 'text-gray-400'
-            }`}
+            className={`col-span-1 text-right font-medium ${Number(n.balance) > 0 ? 'text-success' : Number(n.balance) < 0 ? 'text-error' : 'text-text-muted'
+              }`}
           >
             {Number(n.balance).toLocaleString('pt-BR', {
               minimumFractionDigits: 2,
@@ -192,28 +191,28 @@ export default function BalancetePage() {
   // 🔵 UI PRINCIPAL
   // ---------------------------------------------------------------------------
   return (
-    <div className="min-h-screen bg-gray-50 p-6 dark:bg-gray-900">
+    <div className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Relatório Balancete</h1>
-          <p className="text-gray-600 dark:text-gray-300">
+          <h1 className="mb-2 text-3xl font-bold text-foreground">Relatório Balancete</h1>
+          <p className="text-text-muted">
             Balancete contábil com débitos, créditos e saldos por conta.
           </p>
         </div>
 
-        <Card className="mb-6 p-4">
+        <Card className="mb-6 border-border bg-surface p-4">
           {/* FORMULARIO */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             {/* Plano */}
             <div>
-              <Label>Plano de Contas</Label>
+              <Label className="text-text">Plano de Contas</Label>
 
               {loadingPlans ? (
                 <div className="flex h-10 items-center justify-center">
                   <Spinner size="sm" />
                 </div>
               ) : (
-                <Select value={plan} onChange={(e) => setPlan(e.target.value)}>
+                <Select value={plan} onChange={(e) => setPlan(e.target.value)} className="w-full">
                   <option value="">Selecionar</option>
                   {plans.map((p) => (
                     <option key={p.uuid} value={p.uuid}>
@@ -226,37 +225,38 @@ export default function BalancetePage() {
 
             {/* Início */}
             <div>
-              <Label>Início</Label>
+              <Label className="text-text">Início</Label>
               <input
                 type="date"
                 value={start}
                 onChange={(e) => setStart(e.target.value)}
-                className="w-full rounded border p-2"
+                className="w-full rounded border border-border bg-surface p-2 text-text"
               />
             </div>
 
             {/* Fim */}
             <div>
-              <Label>Fim</Label>
+              <Label className="text-text">Fim</Label>
               <input
                 type="date"
                 value={end}
                 onChange={(e) => setEnd(e.target.value)}
-                className="w-full rounded border p-2"
+                className="w-full rounded border border-border bg-surface p-2 text-text"
               />
             </div>
 
             {/* Opções */}
             <div>
-              <Label>Opções</Label>
+              <Label className="text-text">Opções</Label>
               <div className="mt-2 flex gap-2">
                 <input
                   id="includeZero"
                   type="checkbox"
                   checked={includeZero}
                   onChange={(e) => setIncludeZero(e.target.checked)}
+                  className="rounded border-border bg-surface text-primary focus:ring-primary"
                 />
-                <Label htmlFor="includeZero">Incluir contas zeradas</Label>
+                <Label htmlFor="includeZero" className="text-text">Incluir contas zeradas</Label>
               </div>
             </div>
           </div>
@@ -264,12 +264,12 @@ export default function BalancetePage() {
           {/* AÇÕES */}
           <div className="mt-4 flex justify-end gap-2">
             {data && (
-              <Button color="gray" onClick={exportCSV}>
+              <Button color="gray" onClick={exportCSV} className="bg-muted hover:bg-muted-foreground/20">
                 Exportar CSV
               </Button>
             )}
 
-            <Button onClick={fetch} disabled={loading}>
+            <Button onClick={fetch} disabled={loading} className="btn-primary">
               {loading ? <Spinner size="sm" /> : 'Gerar Balancete'}
             </Button>
           </div>
@@ -280,22 +280,21 @@ export default function BalancetePage() {
           <>
             {/* Totais */}
             <div className="mb-5 grid grid-cols-1 gap-4 md:grid-cols-3">
-              <Card>
-                <div className="text-sm text-gray-500">Total Débitos</div>
-                <div className="text-2xl font-bold">R$ {Number(data.totals.debits).toFixed(2)}</div>
+              <Card className="border-border bg-surface">
+                <div className="text-sm text-text-muted">Total Débitos</div>
+                <div className="text-2xl font-bold text-text">R$ {Number(data.totals.debits).toFixed(2)}</div>
               </Card>
 
-              <Card>
-                <div className="text-sm text-gray-500">Total Créditos</div>
-                <div className="text-2xl font-bold">R$ {Number(data.totals.credits).toFixed(2)}</div>
+              <Card className="border-border bg-surface">
+                <div className="text-sm text-text-muted">Total Créditos</div>
+                <div className="text-2xl font-bold text-text">R$ {Number(data.totals.credits).toFixed(2)}</div>
               </Card>
 
-              <Card>
-                <div className="text-sm text-gray-500">Diferença</div>
+              <Card className="border-border bg-surface">
+                <div className="text-sm text-text-muted">Diferença</div>
                 <div
-                  className={`text-2xl font-bold ${
-                    Number(data.totals.difference) === 0 ? 'text-emerald-600' : 'text-rose-600'
-                  }`}
+                  className={`text-2xl font-bold ${Number(data.totals.difference) === 0 ? 'text-success' : 'text-error'
+                    }`}
                 >
                   R$ {Number(data.totals.difference).toFixed(2)}
                 </div>
@@ -303,17 +302,17 @@ export default function BalancetePage() {
             </div>
 
             {/* Árvore */}
-            <Card>
+            <Card className="border-border bg-surface">
               <div className="mb-3 flex justify-between">
-                <h2 className="text-lg font-semibold">Plano de Contas</h2>
-                <div className="text-xs text-gray-500">
+                <h2 className="text-lg font-semibold text-foreground">Plano de Contas</h2>
+                <div className="text-xs text-text-muted">
                   {data.start} — {data.end}
                 </div>
               </div>
 
               <div className="w-full overflow-x-auto">
                 {/* Cabeçalho fixo */}
-                <div className="sticky top-0 grid grid-cols-12 border-b bg-gray-100 py-2 text-sm font-semibold dark:bg-gray-700">
+                <div className="sticky top-0 grid grid-cols-12 border-b border-border bg-muted py-2 text-sm font-semibold text-text">
                   <div className="col-span-1"></div>
                   <div className="col-span-2">Código</div>
                   <div className="col-span-4">Conta</div>
@@ -323,7 +322,7 @@ export default function BalancetePage() {
                 </div>
 
                 {data.tree.length === 0 ? (
-                  <div className="text-sm text-gray-400">Nenhuma movimentação encontrada.</div>
+                  <div className="text-sm text-text-muted p-4">Nenhuma movimentação encontrada.</div>
                 ) : (
                   data.tree.map((node) => renderNode(node))
                 )}

@@ -27,7 +27,12 @@ export default function DreReportPage() {
   const [detailTopLevelFilter, setDetailTopLevelFilter] = useState<string>('all');
 
   // Helpers to build lightweight charts without external deps
-  const formatCurrency = (v: number) => Number(v).toFixed(2);
+  const formatCurrency = (v: number) =>
+    new Intl.NumberFormat('pt-BR', {
+      style: 'decimal',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(v);
 
   const summaryBars = useMemo(() => {
     if (!data) return null;
@@ -105,78 +110,78 @@ export default function DreReportPage() {
     if (!data) return;
     const lines: string[] = [];
     // Header info
-    lines.push(`Empresa,${data.company}`);
-    lines.push(`Periodo,${data.start} a ${data.end}`);
+    lines.push(`Empresa;${data.company}`);
+    lines.push(`Periodo;${data.start} a ${data.end}`);
     lines.push('');
     // Totals
-    lines.push('Secao,Receitas,Despesas,Resultado');
+    lines.push('Secao;Receitas;Despesas;Resultado');
     lines.push(
-      `Totais,${Number(data.totals.revenues).toFixed(2)},${Number(data.totals.expenses).toFixed(2)},${Number(data.totals.result).toFixed(2)}`
+      `Totais;${formatCurrency(Number(data.totals.revenues))};${formatCurrency(Number(data.totals.expenses))};${formatCurrency(Number(data.totals.result))}`
     );
     lines.push('');
     // Current tab details
     if (tab === 'classic' && (data as any).classic) {
       const c = (data as any).classic;
-      lines.push('Estrutura clássica,,,');
-      lines.push(`(+) Receita Total,,,${Number(c.receita_total).toFixed(2)}`);
-      lines.push(`(-) Custos Variáveis,,,${Number(c.custos_variaveis).toFixed(2)}`);
-      lines.push(`(=) Margem de Contribuição,,,${Number(c.margem_contribuicao).toFixed(2)}`);
-      lines.push(`(-) Custos Fixos,,,${Number(c.custos_fixos).toFixed(2)}`);
-      lines.push(`(=) Resultado Operacional Líquido,,,${Number(c.resultado_operacional_liquido).toFixed(2)}`);
-      lines.push(`(-) Investimentos,,,${Number(c.investimentos).toFixed(2)}`);
-      lines.push(`(-) Amortizações/Depreciações,,,${Number(c.amortizacoes).toFixed(2)}`);
-      lines.push(`(=) Resultado Final,,,${Number(c.resultado_final).toFixed(2)}`);
+      lines.push('Estrutura clássica;;;');
+      lines.push(`(+) Receita Total;;;${formatCurrency(Number(c.receita_total))}`);
+      lines.push(`(-) Custos Variáveis;;;${formatCurrency(Number(c.custos_variaveis))}`);
+      lines.push(`(=) Margem de Contribuição;;;${formatCurrency(Number(c.margem_contribuicao))}`);
+      lines.push(`(-) Custos Fixos;;;${formatCurrency(Number(c.custos_fixos))}`);
+      lines.push(`(=) Resultado Operacional Líquido;;;${formatCurrency(Number(c.resultado_operacional_liquido))}`);
+      lines.push(`(-) Investimentos;;;${formatCurrency(Number(c.investimentos))}`);
+      lines.push(`(-) Amortizações/Depreciações;;;${formatCurrency(Number(c.amortizacoes))}`);
+      lines.push(`(=) Resultado Final;;;${formatCurrency(Number(c.resultado_final))}`);
     } else if (tab === 'monthly' && data.monthly) {
-      lines.push('Mes,Receitas,Despesas,Resultado');
+      lines.push('Mes;Receitas;Despesas;Resultado');
       data.monthly.forEach((m) => {
         lines.push(
-          `${m.month},${Number(m.revenues).toFixed(2)},${Number(m.expenses).toFixed(2)},${Number(m.result).toFixed(2)}`
+          `${m.month};${formatCurrency(Number(m.revenues))};${formatCurrency(Number(m.expenses))};${formatCurrency(Number(m.result))}`
         );
       });
     } else if (tab === 'account' && data.by_account) {
-      lines.push('Codigo,Nome,Receitas,Despesas,Total');
+      lines.push('Codigo;Nome;Receitas;Despesas;Total');
       data.by_account.forEach((a) => {
-        const safeName = (a.name || '').replace(/,/g, ' ');
+        const safeName = (a.name || '').replace(/;/g, ' ');
         lines.push(
-          `${a.code},${safeName},${Number(a.income).toFixed(2)},${Number(a.expense).toFixed(2)},${Number(a.total).toFixed(2)}`
+          `${a.code};${safeName};${formatCurrency(Number(a.income))};${formatCurrency(Number(a.expense))};${formatCurrency(Number(a.total))}`
         );
       });
     } else if (tab === 'details' && (data as any).details_by_day) {
       const details = (data as any).details_by_day as Record<string, any[]>;
-      lines.push('Data,Tipo,Descricao,Conta,Codigo,Metodo,Valor');
+      lines.push('Data;Tipo;Descricao;Conta;Codigo;Metodo;Valor');
       Object.entries(details).forEach(([day, items]) => {
         items.forEach((it) => {
-          const desc = (it.title_desc || '').replace(/,/g, ' ');
-          const accName = (it.account_name || '').replace(/,/g, ' ');
+          const desc = (it.title_desc || '').replace(/;/g, ' ');
+          const accName = (it.account_name || '').replace(/;/g, ' ');
           lines.push(
-            `${day},${it.type},${desc},${accName},${it.account_code},${it.payment_method},${Number(it.amount).toFixed(2)}`
+            `${day};${it.type};${desc};${accName};${it.account_code};${it.payment_method};${formatCurrency(Number(it.amount))}`
           );
         });
       });
     } else {
       // Default summary export when no specific tab: repeat totals and include breakdowns if present
       if (data.monthly) {
-        lines.push('Mes,Receitas,Despesas,Resultado');
+        lines.push('Mes;Receitas;Despesas;Resultado');
         data.monthly.forEach((m) => {
           lines.push(
-            `${m.month},${Number(m.revenues).toFixed(2)},${Number(m.expenses).toFixed(2)},${Number(m.result).toFixed(2)}`
+            `${m.month};${formatCurrency(Number(m.revenues))};${formatCurrency(Number(m.expenses))};${formatCurrency(Number(m.result))}`
           );
         });
         lines.push('');
       }
       if (data.by_account) {
-        lines.push('Codigo,Nome,Receitas,Despesas,Total');
+        lines.push('Codigo;Nome;Receitas;Despesas;Total');
         data.by_account.forEach((a) => {
-          const safeName = (a.name || '').replace(/,/g, ' ');
+          const safeName = (a.name || '').replace(/;/g, ' ');
           lines.push(
-            `${a.code},${safeName},${Number(a.income).toFixed(2)},${Number(a.expense).toFixed(2)},${Number(a.total).toFixed(2)}`
+            `${a.code};${safeName};${formatCurrency(Number(a.income))};${formatCurrency(Number(a.expense))};${formatCurrency(Number(a.total))}`
           );
         });
         lines.push('');
       }
     }
 
-    const csv = lines.join('\n');
+    const csv = '\uFEFF' + lines.join('\n'); // Add BOM for Excel
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -190,25 +195,24 @@ export default function DreReportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 transition-colors duration-200 dark:bg-gray-900">
+    <div className="min-h-screen bg-background transition-colors duration-200">
       <div className="container mx-auto px-4 py-8">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
-            <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Relatório DRE</h1>
-            <p className="text-gray-600 dark:text-gray-300">Demonstração do Resultado do Exercício</p>
+            <h1 className="mb-2 text-3xl font-bold text-foreground">Relatório DRE</h1>
+            <p className="text-text-muted">Demonstração do Resultado do Exercício</p>
           </div>
 
-          <Card className="mb-6 border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+          <Card className="mb-6 border-border bg-surface">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
               <div>
-                <Label htmlFor="company" className="text-gray-700 dark:text-gray-200">
+                <Label htmlFor="company" className="text-text">
                   Empresa
                 </Label>
                 <Select
                   id="company"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
-                  className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 >
                   <option value="">Selecionar</option>
                   {companies.map((c) => (
@@ -220,7 +224,7 @@ export default function DreReportPage() {
               </div>
 
               <div>
-                <Label htmlFor="start" className="text-gray-700 dark:text-gray-200">
+                <Label htmlFor="start" className="text-text">
                   Início
                 </Label>
                 <input
@@ -228,12 +232,12 @@ export default function DreReportPage() {
                   type="date"
                   value={start}
                   onChange={(e) => setStart(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full"
                 />
               </div>
 
               <div>
-                <Label htmlFor="end" className="text-gray-700 dark:text-gray-200">
+                <Label htmlFor="end" className="text-text">
                   Fim
                 </Label>
                 <input
@@ -241,19 +245,18 @@ export default function DreReportPage() {
                   type="date"
                   value={end}
                   onChange={(e) => setEnd(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full"
                 />
               </div>
 
               <div>
-                <Label htmlFor="group" className="text-gray-700 dark:text-gray-200">
+                <Label htmlFor="group" className="text-text">
                   Agrupar por
                 </Label>
                 <Select
                   id="group"
                   value={group}
                   onChange={(e) => setGroup(e.target.value as any)}
-                  className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 >
                   <option value="">Nenhum</option>
                   <option value="month">Mês</option>
@@ -265,11 +268,11 @@ export default function DreReportPage() {
             <div className="mt-4 flex justify-end">
               <div className="flex gap-2">
                 {data && (
-                  <Button color="gray" onClick={exportCSV}>
+                  <Button color="gray" onClick={exportCSV} className="bg-muted hover:bg-muted-foreground/20">
                     Exportar CSV
                   </Button>
                 )}
-                <Button onClick={fetchReport} disabled={loading}>
+                <Button onClick={fetchReport} disabled={loading} className="btn-primary">
                   {loading ? 'Gerando…' : 'Gerar'}
                 </Button>
               </div>
@@ -280,22 +283,22 @@ export default function DreReportPage() {
             <div className="space-y-6">
               {/* Totals summary */}
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Receitas</div>
-                  <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                <Card className="border-border bg-surface">
+                  <div className="text-sm text-text-muted">Receitas</div>
+                  <div className="text-2xl font-bold text-success">
                     R$ {formatCurrency(Number(data.totals.revenues))}
                   </div>
                 </Card>
-                <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Despesas</div>
-                  <div className="text-2xl font-bold text-rose-600 dark:text-rose-400">
+                <Card className="border-border bg-surface">
+                  <div className="text-sm text-text-muted">Despesas</div>
+                  <div className="text-2xl font-bold text-error">
                     R$ {formatCurrency(Number(data.totals.expenses))}
                   </div>
                 </Card>
-                <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Resultado</div>
+                <Card className="border-border bg-surface">
+                  <div className="text-sm text-text-muted">Resultado</div>
                   <div
-                    className={`text-2xl font-bold ${Number(data.totals.result) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}
+                    className={`text-2xl font-bold ${Number(data.totals.result) >= 0 ? 'text-success' : 'text-error'}`}
                   >
                     R$ {formatCurrency(Number(data.totals.result))}
                   </div>
@@ -306,31 +309,46 @@ export default function DreReportPage() {
               {(data.monthly || data.by_account) && (
                 <div className="flex items-center justify-between">
                   <div className="flex gap-2">
-                    <Button color={tab === 'summary' ? 'blue' : 'gray'} onClick={() => setTab('summary')}>
+                    <Button
+                      className="btn-primary"
+                      onClick={() => setTab('summary')}
+                    >
                       Resumo
                     </Button>
                     {(data as any).classic && (
-                      <Button color={tab === 'classic' ? 'blue' : 'gray'} onClick={() => setTab('classic')}>
+                      <Button
+                        className="btn-primary"
+                        onClick={() => setTab('classic')}
+                      >
                         Estrutura clássica
                       </Button>
                     )}
                     {data.monthly && (
-                      <Button color={tab === 'monthly' ? 'blue' : 'gray'} onClick={() => setTab('monthly')}>
+                      <Button
+                        className="btn-primary"
+                        onClick={() => setTab('monthly')}
+                      >
                         Por mês
                       </Button>
                     )}
                     {data.by_account && (
-                      <Button color={tab === 'account' ? 'blue' : 'gray'} onClick={() => setTab('account')}>
+                      <Button
+                        className="btn-primary"
+                        onClick={() => setTab('account')}
+                      >
                         Por conta
                       </Button>
                     )}
                     {(data as any).details_by_day && (
-                      <Button color={tab === 'details' ? 'blue' : 'gray'} onClick={() => setTab('details')}>
+                      <Button
+                        className="btn-primary"
+                        onClick={() => setTab('details')}
+                      >
                         Detalhes por dia
                       </Button>
                     )}
                   </div>
-                  <span className="rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  <span className="rounded bg-primary/20 px-2 py-1 text-xs font-medium text-primary">
                     {data.monthly
                       ? `${data.monthly.length} meses`
                       : data.by_account
@@ -344,22 +362,22 @@ export default function DreReportPage() {
               {tab === 'summary' && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">Receitas</div>
-                      <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                    <Card className="border-border bg-surface">
+                      <div className="text-sm text-text-muted">Receitas</div>
+                      <div className="text-2xl font-bold text-success">
                         R$ {formatCurrency(Number(data.totals.revenues))}
                       </div>
                     </Card>
-                    <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">Despesas</div>
-                      <div className="text-2xl font-bold text-rose-600 dark:text-rose-400">
+                    <Card className="border-border bg-surface">
+                      <div className="text-sm text-text-muted">Despesas</div>
+                      <div className="text-2xl font-bold text-error">
                         R$ {formatCurrency(Number(data.totals.expenses))}
                       </div>
                     </Card>
-                    <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">Resultado</div>
+                    <Card className="border-border bg-surface">
+                      <div className="text-sm text-text-muted">Resultado</div>
                       <div
-                        className={`text-2xl font-bold ${Number(data.totals.result) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}
+                        className={`text-2xl font-bold ${Number(data.totals.result) >= 0 ? 'text-success' : 'text-error'}`}
                       >
                         R$ {formatCurrency(Number(data.totals.result))}
                       </div>
@@ -368,22 +386,22 @@ export default function DreReportPage() {
 
                   {/* Summary bars (revenues vs expenses) */}
                   {summaryBars && (
-                    <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                      <div className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">
+                    <Card className="border-border bg-surface">
+                      <div className="mb-3 text-sm font-semibold text-text">
                         Comparativo receitas x despesas
                       </div>
                       <div className="space-y-2">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Receitas</div>
-                        <div className="h-3 w-full rounded bg-emerald-100 dark:bg-emerald-900">
+                        <div className="text-xs text-text-muted">Receitas</div>
+                        <div className="h-3 w-full rounded bg-success/20">
                           <div
-                            className="h-3 rounded bg-emerald-500 dark:bg-emerald-400"
+                            className="h-3 rounded bg-success"
                             style={{ width: `${summaryBars.revPct}%` }}
                           />
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Despesas</div>
-                        <div className="h-3 w-full rounded bg-rose-100 dark:bg-rose-900">
+                        <div className="text-xs text-text-muted">Despesas</div>
+                        <div className="h-3 w-full rounded bg-error/20">
                           <div
-                            className="h-3 rounded bg-rose-500 dark:bg-rose-400"
+                            className="h-3 rounded bg-error"
                             style={{ width: `${summaryBars.expPct}%` }}
                           />
                         </div>
@@ -393,10 +411,10 @@ export default function DreReportPage() {
 
                   {/* Monthly result line chart */}
                   {monthlyChart && (
-                    <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                    <Card className="border-border bg-surface">
                       <div className="mb-2 flex items-center justify-between">
-                        <div className="text-sm font-semibold text-gray-900 dark:text-white">Resultado por mês</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">(R$)</div>
+                        <div className="text-sm font-semibold text-text">Resultado por mês</div>
+                        <div className="text-xs text-text-muted">(R$)</div>
                       </div>
                       <div className="overflow-x-auto">
                         <svg width={monthlyChart.w} height={monthlyChart.h} className="max-w-full">
@@ -406,14 +424,16 @@ export default function DreReportPage() {
                             y1={monthlyChart.toY(0)}
                             x2={monthlyChart.w - monthlyChart.pad}
                             y2={monthlyChart.toY(0)}
-                            stroke="#9ca3af"
+                            className="text-text-muted"
+                            stroke="currentColor"
                             strokeDasharray="4 4"
                           />
                           {/* line */}
                           <path
                             d={monthlyChart.path}
                             fill="none"
-                            stroke={Number(data.totals.result) >= 0 ? '#10b981' : '#f43f5e'}
+                            className={Number(data.totals.result) >= 0 ? 'text-success' : 'text-error'}
+                            stroke="currentColor"
                             strokeWidth="2"
                           />
                           {/* points */}
@@ -423,7 +443,8 @@ export default function DreReportPage() {
                               cx={monthlyChart.toX(i)}
                               cy={monthlyChart.toY(Number(m.result))}
                               r="3"
-                              fill={Number(m.result) >= 0 ? '#10b981' : '#f43f5e'}
+                              className={Number(m.result) >= 0 ? 'text-success' : 'text-error'}
+                              fill="currentColor"
                             />
                           ))}
                           {/* labels */}
@@ -434,7 +455,8 @@ export default function DreReportPage() {
                               y={monthlyChart.h - 4}
                               textAnchor="middle"
                               fontSize="10"
-                              fill="#6b7280"
+                              className="text-text-muted"
+                              fill="currentColor"
                             >
                               {lbl}
                             </text>
@@ -448,42 +470,42 @@ export default function DreReportPage() {
 
               {/* Monthly table */}
               {tab === 'monthly' && data.monthly && (
-                <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                <Card className="border-border bg-surface">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Por mês</h2>
-                    <span className="rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    <h2 className="text-lg font-semibold text-text">Por mês</h2>
+                    <span className="rounded bg-primary/20 px-2 py-1 text-xs font-medium text-primary">
                       {data.monthly.length} meses
                     </span>
                   </div>
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                      <thead className="bg-gray-50 dark:bg-gray-700">
+                    <table className="min-w-full divide-y divide-border">
+                      <thead className="bg-muted">
                         <tr>
-                          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                          <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                             Mês
                           </th>
-                          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                          <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                             Receitas
                           </th>
-                          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                          <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                             Despesas
                           </th>
-                          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                          <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                             Resultado
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+                      <tbody className="divide-y divide-border bg-surface">
                         {data.monthly.map((m) => (
                           <tr key={m.month}>
-                            <td className="px-4 py-2 font-medium whitespace-nowrap text-gray-900 dark:text-white">
+                            <td className="px-4 py-2 font-medium whitespace-nowrap text-text">
                               {m.month}
                             </td>
-                            <td className="px-4 py-2">R$ {Number(m.revenues).toFixed(2)}</td>
-                            <td className="px-4 py-2">R$ {Number(m.expenses).toFixed(2)}</td>
+                            <td className="px-4 py-2">R$ {formatCurrency(Number(m.revenues))}</td>
+                            <td className="px-4 py-2">R$ {formatCurrency(Number(m.expenses))}</td>
                             <td className="px-4 py-2">
-                              <span className={`${Number(m.result) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                R$ {Number(m.result).toFixed(2)}
+                              <span className={`${Number(m.result) >= 0 ? 'text-success' : 'text-error'}`}>
+                                R$ {formatCurrency(Number(m.result))}
                               </span>
                             </td>
                           </tr>
@@ -496,46 +518,46 @@ export default function DreReportPage() {
 
               {/* Account table */}
               {tab === 'account' && data.by_account && (
-                <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                <Card className="border-border bg-surface">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Por conta (nível 1)</h2>
-                    <span className="rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    <h2 className="text-lg font-semibold text-text">Por conta (nível 1)</h2>
+                    <span className="rounded bg-primary/20 px-2 py-1 text-xs font-medium text-primary">
                       {data.by_account.length} contas
                     </span>
                   </div>
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                      <thead className="bg-gray-50 dark:bg-gray-700">
+                    <table className="min-w-full divide-y divide-border">
+                      <thead className="bg-muted">
                         <tr>
-                          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                          <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                             Código
                           </th>
-                          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                          <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                             Nome
                           </th>
-                          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                          <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                             Receitas
                           </th>
-                          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                          <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                             Despesas
                           </th>
-                          <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                          <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                             Total
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+                      <tbody className="divide-y divide-border bg-surface">
                         {data.by_account.map((acc) => (
                           <tr key={acc.code}>
-                            <td className="px-4 py-2 font-medium whitespace-nowrap text-gray-900 dark:text-white">
+                            <td className="px-4 py-2 font-medium whitespace-nowrap text-text">
                               {acc.code}
                             </td>
                             <td className="px-4 py-2">{acc.name}</td>
-                            <td className="px-4 py-2">R$ {Number(acc.income).toFixed(2)}</td>
-                            <td className="px-4 py-2">R$ {Number(acc.expense).toFixed(2)}</td>
+                            <td className="px-4 py-2">R$ {formatCurrency(Number(acc.income))}</td>
+                            <td className="px-4 py-2">R$ {formatCurrency(Number(acc.expense))}</td>
                             <td className="px-4 py-2">
-                              <span className={`${Number(acc.total) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                R$ {Number(acc.total).toFixed(2)}
+                              <span className={`${Number(acc.total) >= 0 ? 'text-success' : 'text-error'}`}>
+                                R$ {formatCurrency(Number(acc.total))}
                               </span>
                             </td>
                           </tr>
@@ -548,48 +570,48 @@ export default function DreReportPage() {
 
               {/* Classic DRE structure */}
               {tab === 'classic' && (data as any).classic && (
-                <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                <Card className="border-border bg-surface">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Estrutura clássica (DRE)</h2>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Valores em R$</span>
+                    <h2 className="text-lg font-semibold text-text">Estrutura clássica (DRE)</h2>
+                    <span className="text-xs text-text-muted">Valores em R$</span>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="font-medium">(+) Receita Total</span>
-                      <span>{Number((data as any).classic.receita_total).toFixed(2)}</span>
+                      <span>{formatCurrency(Number((data as any).classic.receita_total))}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-medium">(-) Custos Variáveis</span>
-                      <span>{Number((data as any).classic.custos_variaveis).toFixed(2)}</span>
+                      <span>{formatCurrency(Number((data as any).classic.custos_variaveis))}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-medium">(=) Margem de Contribuição</span>
-                      <span>{Number((data as any).classic.margem_contribuicao).toFixed(2)}</span>
+                      <span>{formatCurrency(Number((data as any).classic.margem_contribuicao))}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-medium">(-) Custos Fixos</span>
-                      <span>{Number((data as any).classic.custos_fixos).toFixed(2)}</span>
+                      <span>{formatCurrency(Number((data as any).classic.custos_fixos))}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-medium">(=) Resultado Operacional Líquido</span>
-                      <span>{Number((data as any).classic.resultado_operacional_liquido).toFixed(2)}</span>
+                      <span>{formatCurrency(Number((data as any).classic.resultado_operacional_liquido))}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-medium">(-) Investimentos</span>
-                      <span>{Number((data as any).classic.investimentos).toFixed(2)}</span>
+                      <span>{formatCurrency(Number((data as any).classic.investimentos))}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-medium">(-) Amortizações/Depreciações</span>
-                      <span>{Number((data as any).classic.amortizacoes).toFixed(2)}</span>
+                      <span>{formatCurrency(Number((data as any).classic.amortizacoes))}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-semibold">(=) Resultado Final</span>
                       <span
                         className={
-                          Number((data as any).classic.resultado_final) >= 0 ? 'text-emerald-600' : 'text-rose-600'
+                          Number((data as any).classic.resultado_final) >= 0 ? 'text-success' : 'text-error'
                         }
                       >
-                        {Number((data as any).classic.resultado_final).toFixed(2)}
+                        {formatCurrency(Number((data as any).classic.resultado_final))}
                       </span>
                     </div>
                   </div>
@@ -598,10 +620,10 @@ export default function DreReportPage() {
 
               {/* Details by day tab */}
               {tab === 'details' && (data as any).details_by_day && (
-                <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                <Card className="border-border bg-surface">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Detalhes por dia</h2>
-                    <Button color="gray" onClick={exportCSV}>
+                    <h2 className="text-lg font-semibold text-text">Detalhes por dia</h2>
+                    <Button color="gray" onClick={exportCSV} className="bg-muted hover:bg-muted-foreground/20">
                       Exportar CSV
                     </Button>
                   </div>
@@ -611,7 +633,6 @@ export default function DreReportPage() {
                     <Select
                       value={detailTypeFilter}
                       onChange={(e) => setDetailTypeFilter(e.target.value as any)}
-                      className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     >
                       <option value="all">Tipo: Todos</option>
                       <option value="income">Tipo: Receitas</option>
@@ -620,7 +641,6 @@ export default function DreReportPage() {
                     <Select
                       value={detailMethodFilter}
                       onChange={(e) => setDetailMethodFilter(e.target.value as any)}
-                      className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     >
                       <option value="all">Método: Todos</option>
                       <option value="cash">Dinheiro</option>
@@ -631,7 +651,6 @@ export default function DreReportPage() {
                     <Select
                       value={detailTopLevelFilter}
                       onChange={(e) => setDetailTopLevelFilter(e.target.value)}
-                      className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     >
                       <option value="all">Nível 1: Todos</option>
                       {Array.from(
@@ -669,45 +688,45 @@ export default function DreReportPage() {
                         { revenues: 0, expenses: 0, result: 0 }
                       );
                       return (
-                        <div key={day} className="rounded border border-gray-200 p-3 dark:border-gray-700">
+                        <div key={day} className="rounded border border-border p-3">
                           <div className="mb-2 flex items-center justify-between">
-                            <div className="text-sm font-semibold text-gray-700 dark:text-gray-200">{day}</div>
+                            <div className="text-sm font-semibold text-text">{day}</div>
                             <div className="flex gap-4 text-xs">
-                              <span className="text-emerald-600">Receitas: R$ {totals.revenues.toFixed(2)}</span>
-                              <span className="text-rose-600">Despesas: R$ {totals.expenses.toFixed(2)}</span>
-                              <span className={`${totals.result >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                Resultado: R$ {totals.result.toFixed(2)}
+                              <span className="text-success">Receitas: R$ {formatCurrency(totals.revenues)}</span>
+                              <span className="text-error">Despesas: R$ {formatCurrency(totals.expenses)}</span>
+                              <span className={`${totals.result >= 0 ? 'text-success' : 'text-error'}`}>
+                                Resultado: R$ {formatCurrency(totals.result)}
                               </span>
                             </div>
                           </div>
                           <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                              <thead className="bg-gray-50 dark:bg-gray-700">
+                            <table className="min-w-full divide-y divide-border">
+                              <thead className="bg-muted">
                                 <tr>
-                                  <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                  <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                                     Tipo
                                   </th>
-                                  <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                  <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                                     Descrição
                                   </th>
-                                  <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                  <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                                     Conta
                                   </th>
-                                  <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                  <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                                     Código
                                   </th>
-                                  <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                  <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                                     Método
                                   </th>
-                                  <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                  <th className="px-4 py-2 text-left text-sm font-semibold text-text">
                                     Valor
                                   </th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+                              <tbody className="divide-y divide-border bg-surface">
                                 {filtered.map((it: any, idx: number) => (
                                   <tr key={`${day}-${idx}`}>
-                                    <td className="px-4 py-2 font-medium whitespace-nowrap text-gray-900 dark:text-white">
+                                    <td className="px-4 py-2 font-medium whitespace-nowrap text-text">
                                       {it.type === 'income' ? 'Receita' : 'Despesa'}
                                     </td>
                                     <td className="px-4 py-2">{it.title_desc}</td>
@@ -716,7 +735,7 @@ export default function DreReportPage() {
                                     <td className="px-4 py-2">
                                       {it.payment_method?.toUpperCase?.() || it.payment_method}
                                     </td>
-                                    <td className="px-4 py-2">R$ {Number(it.amount).toFixed(2)}</td>
+                                    <td className="px-4 py-2">R$ {formatCurrency(Number(it.amount))}</td>
                                   </tr>
                                 ))}
                               </tbody>

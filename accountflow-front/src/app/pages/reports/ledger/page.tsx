@@ -19,12 +19,12 @@ function ToastNotification({
 
   const bgClass =
     type === 'success'
-      ? 'bg-emerald-500'
+      ? 'bg-success'
       : type === 'error'
-        ? 'bg-rose-500'
+        ? 'bg-error'
         : type === 'warning'
-          ? 'bg-amber-500'
-          : 'bg-sky-500';
+          ? 'bg-warning'
+          : 'bg-primary';
 
   return (
     <div className={`fixed right-4 bottom-4 z-50 rounded px-4 py-2 text-white shadow-lg ${bgClass}`}>
@@ -71,7 +71,11 @@ export default function LedgerReportPage() {
   const formatCurrency = (v: string | number | undefined) => {
     if (v === undefined || v === null) return '0.00';
     const num = typeof v === 'string' ? Number(v) : v;
-    return num.toFixed(2);
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'decimal',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num);
   };
 
   // Função para tratar datas como locais (evita problemas de timezone)
@@ -166,42 +170,42 @@ export default function LedgerReportPage() {
     const lines: string[] = [];
 
     // Cabeçalho
-    lines.push(`Empresa,${data.company}`);
-    lines.push(`Período,${data.start} a ${data.end}`);
+    lines.push(`Empresa;${data.company}`);
+    lines.push(`Período;${data.start} a ${data.end}`);
     lines.push('');
 
     // Resumo
     lines.push('Resumo');
-    lines.push(`Total de Contas,${data.summary.accounts_count}`);
-    lines.push(`Total de Movimentações,${data.summary.total_movements}`);
-    lines.push(`Total de Débitos,${formatCurrency(data.summary.total_debits)}`);
-    lines.push(`Total de Créditos,${formatCurrency(data.summary.total_credits)}`);
-    lines.push(`Resultado Líquido,${formatCurrency(data.summary.net_result)}`);
+    lines.push(`Total de Contas;${data.summary.accounts_count}`);
+    lines.push(`Total de Movimentações;${data.summary.total_movements}`);
+    lines.push(`Total de Débitos;${formatCurrency(data.summary.total_debits)}`);
+    lines.push(`Total de Créditos;${formatCurrency(data.summary.total_credits)}`);
+    lines.push(`Resultado Líquido;${formatCurrency(data.summary.net_result)}`);
     lines.push('');
 
     // Detalhes por conta
     data.accounts.forEach((acc) => {
-      lines.push(`Conta,${acc.code} - ${acc.name}`);
-      lines.push(`Tipo,${acc.account_type}`);
-      lines.push(`Saldo Inicial,${formatCurrency(acc.initial_balance)}`);
-      lines.push(`Total Débitos,${formatCurrency(acc.total_debits)}`);
-      lines.push(`Total Créditos,${formatCurrency(acc.total_credits)}`);
-      lines.push(`Saldo Final,${formatCurrency(acc.final_balance)}`);
+      lines.push(`Conta;${acc.code} - ${acc.name}`);
+      lines.push(`Tipo;${acc.account_type}`);
+      lines.push(`Saldo Inicial;${formatCurrency(acc.initial_balance)}`);
+      lines.push(`Total Débitos;${formatCurrency(acc.total_debits)}`);
+      lines.push(`Total Créditos;${formatCurrency(acc.total_credits)}`);
+      lines.push(`Saldo Final;${formatCurrency(acc.final_balance)}`);
       lines.push('');
 
       if (acc.movements.length > 0) {
-        lines.push('Data,Descrição,Tipo,Débito,Crédito,Saldo Acumulado,Método');
+        lines.push('Data;Descrição;Tipo;Débito;Crédito;Saldo Acumulado;Método');
         acc.movements.forEach((mov) => {
-          const desc = (mov.description || '').replace(/,/g, ' ');
+          const desc = (mov.description || '').replace(/;/g, ' ');
           lines.push(
-            `${mov.date},${desc},${mov.type},${formatCurrency(mov.debit)},${formatCurrency(mov.credit)},${formatCurrency(mov.accumulated_balance)},${mov.payment_method}`
+            `${mov.date};${desc};${mov.type};${formatCurrency(mov.debit)};${formatCurrency(mov.credit)};${formatCurrency(mov.accumulated_balance)};${mov.payment_method}`
           );
         });
       }
       lines.push('');
     });
 
-    const csv = lines.join('\n');
+    const csv = '\uFEFF' + lines.join('\n'); // Add BOM for Excel
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -255,28 +259,26 @@ export default function LedgerReportPage() {
   const summary = getFilteredSummary();
 
   return (
-    <div className="min-h-screen bg-gray-50 transition-colors duration-200 dark:bg-gray-900">
+    <div className="min-h-screen bg-background transition-colors duration-200">
       <div className="container mx-auto px-4 py-8">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
-            <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Relatório de Razão</h1>
-            <p className="text-gray-600 dark:text-gray-300">
+            <h1 className="mb-2 text-3xl font-bold text-foreground">Relatório de Razão</h1>
+            <p className="text-text-muted">
               Visualize o histórico detalhado de movimentações por conta contábil
             </p>
           </div>
 
-          {/* Filtros */}
-          <Card className="mb-6 border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+          <Card className="mb-6 border-border bg-surface">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
               <div>
-                <Label htmlFor="company" className="text-gray-700 dark:text-gray-200">
+                <Label htmlFor="company" className="text-text">
                   Empresa
                 </Label>
                 <Select
                   id="company"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
-                  className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 >
                   <option value="">Selecionar</option>
                   {companies.map((c) => (
@@ -288,7 +290,7 @@ export default function LedgerReportPage() {
               </div>
 
               <div>
-                <Label htmlFor="start" className="text-gray-700 dark:text-gray-200">
+                <Label htmlFor="start" className="text-text">
                   Início
                 </Label>
                 <input
@@ -296,12 +298,12 @@ export default function LedgerReportPage() {
                   type="date"
                   value={start}
                   onChange={(e) => setStart(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full"
                 />
               </div>
 
               <div>
-                <Label htmlFor="end" className="text-gray-700 dark:text-gray-200">
+                <Label htmlFor="end" className="text-text">
                   Fim
                 </Label>
                 <input
@@ -309,19 +311,20 @@ export default function LedgerReportPage() {
                   type="date"
                   value={end}
                   onChange={(e) => setEnd(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full"
                 />
               </div>
 
               <div>
-                <Label htmlFor="account" className="text-gray-700 dark:text-gray-200">
-                  Conta (Opcional)
+                <Label htmlFor="account" className="text-text">
+                  Conta (opcional)
                 </Label>
                 <Select
                   id="account"
                   value={account}
                   onChange={(e) => setAccount(e.target.value)}
-                  className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full"
+                  disabled={loading}
                 >
                   <option value="">Todas as contas</option>
                   {Array.isArray(accounts) &&
@@ -334,8 +337,8 @@ export default function LedgerReportPage() {
               </div>
 
               <div className="flex items-end">
-                <Button onClick={fetchReport} disabled={loading} className="w-full">
-                  {loading ? 'Gerando...' : 'Gerar Relatório'}
+                <Button onClick={fetchReport} disabled={loading} className="btn-primary w-full">
+                  {loading ? 'Gerando…' : 'Gerar'}
                 </Button>
               </div>
             </div>
@@ -345,36 +348,39 @@ export default function LedgerReportPage() {
             <div className="space-y-6">
               {/* Resumo */}
               <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
-                <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Contas</div>
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.accounts_count}</div>
-                </Card>
-                <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Movimentações</div>
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.total_movements}</div>
-                </Card>
-                <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Total Débitos</div>
-                  <div className="text-2xl font-bold text-rose-600 dark:text-rose-400">
-                    R$ {formatCurrency(summary.total_debits)}
+                <Card className="border-border bg-surface">
+                  <div className="text-sm text-text-muted">Contas</div>
+                  <div className="text-2xl font-bold text-primary">
+                    {data.summary.accounts_count}
                   </div>
                 </Card>
-                <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Total Créditos</div>
-                  <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                    R$ {formatCurrency(summary.total_credits)}
+                <Card className="border-border bg-surface">
+                  <div className="text-sm text-text-muted">Movimentações</div>
+                  <div className="text-2xl font-bold text-primary">
+                    {data.summary.total_movements}
                   </div>
                 </Card>
-                <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Resultado Líquido</div>
+                <Card className="border-border bg-surface">
+                  <div className="text-sm text-text-muted">Total Débitos</div>
+                  <div className="text-2xl font-bold text-error">
+                    R$ {formatCurrency(data.summary.total_debits)}
+                  </div>
+                </Card>
+                <Card className="border-border bg-surface">
+                  <div className="text-sm text-text-muted">Total Créditos</div>
+                  <div className="text-2xl font-bold text-success">
+                    R$ {formatCurrency(data.summary.total_credits)}
+                  </div>
+                </Card>
+                <Card className="border-border bg-surface">
+                  <div className="text-sm text-text-muted">Resultado Líquido</div>
                   <div
-                    className={`text-2xl font-bold ${
-                      Number(summary.net_result) >= 0
-                        ? 'text-emerald-600 dark:text-emerald-400'
-                        : 'text-rose-600 dark:text-rose-400'
-                    }`}
+                    className={`text-2xl font-bold ${Number(data.summary.net_result) >= 0
+                      ? 'text-success'
+                      : 'text-error'
+                      }`}
                   >
-                    R$ {formatCurrency(summary.net_result)}
+                    R$ {formatCurrency(data.summary.net_result)}
                   </div>
                 </Card>
               </div>
@@ -384,14 +390,13 @@ export default function LedgerReportPage() {
                 <div className="flex flex-col gap-2 md:flex-row md:gap-4">
                   {uniqueAccountCodes.length > 0 && (
                     <div>
-                      <Label htmlFor="filter-account-code" className="text-sm text-gray-700 dark:text-gray-200">
+                      <Label htmlFor="filter-account-code" className="text-sm text-text">
                         Filtrar por Conta
                       </Label>
                       <Select
                         id="filter-account-code"
                         value={accountCodeFilter}
                         onChange={(e) => setAccountCodeFilter(e.target.value)}
-                        className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                       >
                         <option value="all">Todas</option>
                         {uniqueAccountCodes.map((code) => (
@@ -404,14 +409,13 @@ export default function LedgerReportPage() {
                   )}
 
                   <div>
-                    <Label htmlFor="filter-type" className="text-sm text-gray-700 dark:text-gray-200">
+                    <Label htmlFor="filter-type" className="text-sm text-text">
                       Filtrar por Tipo
                     </Label>
                     <Select
                       id="filter-type"
                       value={movementTypeFilter}
                       onChange={(e) => setMovementTypeFilter(e.target.value as any)}
-                      className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     >
                       <option value="all">Todos</option>
                       <option value="income">Créditos</option>
@@ -420,7 +424,7 @@ export default function LedgerReportPage() {
                   </div>
                 </div>
 
-                <Button color="gray" onClick={exportCSV}>
+                <Button color="gray" onClick={exportCSV} className="bg-muted hover:bg-muted-foreground/20">
                   Exportar CSV
                 </Button>
               </div>
@@ -428,8 +432,8 @@ export default function LedgerReportPage() {
               {/* Contas e Movimentações */}
               <div className="space-y-4">
                 {filteredAccounts.length === 0 ? (
-                  <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                    <p className="text-gray-600 dark:text-gray-400">
+                  <Card className="border-border bg-surface">
+                    <p className="text-text-muted">
                       Nenhuma conta encontrada com os filtros selecionados.
                     </p>
                   </Card>
@@ -437,68 +441,66 @@ export default function LedgerReportPage() {
                   filteredAccounts.map((acc) => (
                     <Card
                       key={acc.account_id}
-                      className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+                      className="border-border bg-surface"
                     >
                       {/* Header da Conta */}
                       <div
-                        className="-m-3 cursor-pointer rounded p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
+                        className="-m-3 cursor-pointer rounded p-3 transition-colors hover:bg-muted"
                         onClick={() => toggleAccountExpanded(acc.account_id)}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                            <h3 className="text-sm font-semibold text-text">
                               {acc.code} - {acc.name}
                             </h3>
-                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            <p className="mt-1 text-xs text-text-muted">
                               Tipo: {acc.account_type === 'analytic' ? 'Analítica' : 'Sintética'} •{' '}
                               {acc.movements_count} movimentações
                             </p>
                           </div>
                           <div className="mr-4 text-right">
-                            <div className="mb-1 text-xs text-gray-500 dark:text-gray-400">Saldo Inicial</div>
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            <div className="mb-1 text-xs text-text-muted">Saldo Inicial</div>
+                            <div className="text-sm font-medium text-text">
                               R$ {formatCurrency(acc.initial_balance)}
                             </div>
                           </div>
                           <div className="mr-4 text-right">
-                            <div className="mb-1 text-xs text-gray-500 dark:text-gray-400">Saldo Final</div>
+                            <div className="mb-1 text-xs text-text-muted">Saldo Final</div>
                             <div
-                              className={`text-sm font-bold ${
-                                Number(acc.final_balance) >= 0
-                                  ? 'text-emerald-600 dark:text-emerald-400'
-                                  : 'text-rose-600 dark:text-rose-400'
-                              }`}
+                              className={`text-sm font-bold ${Number(acc.final_balance) >= 0
+                                ? 'text-success'
+                                : 'text-error'
+                                }`}
                             >
                               R$ {formatCurrency(acc.final_balance)}
                             </div>
                           </div>
-                          <div className="text-gray-400">{expandedAccounts.has(acc.account_id) ? '▼' : '▶'}</div>
+                          <div className="text-text-muted">{expandedAccounts.has(acc.account_id) ? '▼' : '▶'}</div>
                         </div>
                       </div>
 
                       {/* Resumo da Conta */}
-                      <div className="mt-3 border-t border-gray-200 pt-3 dark:border-gray-700">
+                      <div className="mt-3 border-t border-border pt-3">
                         <div className="grid grid-cols-3 gap-4">
                           <div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">Débitos</div>
-                            <div className="text-sm font-medium text-rose-600 dark:text-rose-400">
+                            <div className="text-xs text-text-muted">Débitos</div>
+                            <div className="text-sm font-medium text-error">
                               R$ {formatCurrency(acc.total_debits)}
                             </div>
                           </div>
                           <div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">Créditos</div>
-                            <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                            <div className="text-xs text-text-muted">Créditos</div>
+                            <div className="text-sm font-medium text-success">
                               R$ {formatCurrency(acc.total_credits)}
                             </div>
                           </div>
                           <div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">Variação</div>
+                            <div className="text-xs text-text-muted">Variação</div>
                             <div
-                              className={`text-sm font-medium ${
-                                Number(acc.total_credits) - Number(acc.total_debits) >= 0
-                                  ? 'text-emerald-600 dark:text-emerald-400'
-                                  : 'text-rose-600 dark:text-rose-400'
-                              }`}
+                              className={`text-sm font-medium ${Number(acc.total_credits) - Number(acc.total_debits) >= 0
+                                ? 'text-success'
+                                : 'text-error'
+                                }`}
                             >
                               R$ {formatCurrency(Number(acc.total_credits) - Number(acc.total_debits))}
                             </div>
@@ -508,53 +510,53 @@ export default function LedgerReportPage() {
 
                       {/* Movimentações */}
                       {expandedAccounts.has(acc.account_id) && acc.movements.length > 0 && (
-                        <div className="mt-3 border-t border-gray-200 pt-3 dark:border-gray-700">
+                        <div className="mt-3 border-t border-border pt-3">
                           <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                              <thead className="bg-gray-50 dark:bg-gray-700">
+                            <table className="min-w-full divide-y divide-border">
+                              <thead className="bg-muted">
                                 <tr>
-                                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-200">
+                                  <th className="px-3 py-2 text-left text-xs font-semibold text-text">
                                     Data
                                   </th>
-                                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-200">
+                                  <th className="px-3 py-2 text-left text-xs font-semibold text-text">
                                     Descrição
                                   </th>
-                                  <th className="px-3 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-200">
+                                  <th className="px-3 py-2 text-right text-xs font-semibold text-text">
                                     Débito
                                   </th>
-                                  <th className="px-3 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-200">
+                                  <th className="px-3 py-2 text-right text-xs font-semibold text-text">
                                     Crédito
                                   </th>
-                                  <th className="px-3 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-200">
+                                  <th className="px-3 py-2 text-right text-xs font-semibold text-text">
                                     Saldo
                                   </th>
-                                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-200">
+                                  <th className="px-3 py-2 text-left text-xs font-semibold text-text">
                                     Método
                                   </th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+                              <tbody className="divide-y divide-border bg-surface">
                                 {getFilteredMovements(acc.movements).map((mov, idx) => (
                                   <tr
                                     key={`${acc.account_id}-${idx}`}
-                                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                                    className="hover:bg-muted"
                                   >
-                                    <td className="px-3 py-2 text-xs whitespace-nowrap text-gray-900 dark:text-white">
-                                      {parseLocalDate(mov.date).toLocaleDateString('pt-BR')}
+                                    <td className="px-3 py-2 text-xs whitespace-nowrap text-text">
+                                      {new Date(mov.date).toLocaleDateString('pt-BR')}
                                     </td>
-                                    <td className="px-3 py-2 text-xs text-gray-600 dark:text-gray-300">
+                                    <td className="px-3 py-2 text-xs text-text-muted">
                                       {mov.description}
                                     </td>
-                                    <td className="px-3 py-2 text-right text-xs text-rose-600 dark:text-rose-400">
+                                    <td className="px-3 py-2 text-right text-xs text-error">
                                       {Number(mov.debit) > 0 ? `R$ ${formatCurrency(mov.debit)}` : '-'}
                                     </td>
-                                    <td className="px-3 py-2 text-right text-xs text-emerald-600 dark:text-emerald-400">
+                                    <td className="px-3 py-2 text-right text-xs text-success">
                                       {Number(mov.credit) > 0 ? `R$ ${formatCurrency(mov.credit)}` : '-'}
                                     </td>
-                                    <td className="px-3 py-2 text-right text-xs font-medium text-gray-900 dark:text-white">
+                                    <td className="px-3 py-2 text-right text-xs font-medium text-text">
                                       R$ {formatCurrency(mov.accumulated_balance)}
                                     </td>
-                                    <td className="px-3 py-2 text-xs text-gray-500 capitalize dark:text-gray-400">
+                                    <td className="px-3 py-2 text-xs text-text-muted capitalize">
                                       {mov.payment_method}
                                     </td>
                                   </tr>
@@ -566,8 +568,8 @@ export default function LedgerReportPage() {
                       )}
 
                       {expandedAccounts.has(acc.account_id) && acc.movements.length === 0 && (
-                        <div className="mt-3 border-t border-gray-200 pt-3 dark:border-gray-700">
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Nenhuma movimentação encontrada.</p>
+                        <div className="mt-3 border-t border-border pt-3">
+                          <p className="text-sm text-text-muted">Nenhuma movimentação encontrada.</p>
                         </div>
                       )}
                     </Card>

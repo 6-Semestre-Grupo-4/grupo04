@@ -13,7 +13,7 @@ type BillingAccountOption = {
   uuid: string;
   name: string;
   code: string;
-  account_type: string;
+  account_type: string | null;
 };
 
 type PresetOption = {
@@ -138,17 +138,17 @@ export default function CreateEntryModal({ isOpen, onClose, onSave, entry, title
 
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40">
-      <div className="max-width-[720px] mx-4 w-full rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
-        <div className="mb-4 flex items-center justify-between border-b pb-3">
+      <div className="max-width-[720px] mx-4 w-full rounded-lg bg-surface p-6 shadow-card">
+        <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
           <div className="flex items-center gap-2">
             {form.type_of === 'income' ? (
-              <TrendingUp className="text-green-600" />
+              <TrendingUp className="text-success" />
             ) : (
-              <TrendingDown className="text-red-600" />
+              <TrendingDown className="text-error" />
             )}
-            <h3 className="text-lg font-semibold">{entry?.uuid ? 'Editar Lançamento' : 'Novo Lançamento'}</h3>
+            <h3 className="text-lg font-semibold text-foreground">{entry?.uuid ? 'Editar Lançamento' : 'Novo Lançamento'}</h3>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="text-text-muted hover:text-foreground transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -156,19 +156,19 @@ export default function CreateEntryModal({ isOpen, onClose, onSave, entry, title
         <form onSubmit={submit} className="space-y-4">
           {/* Resumo do título (não editável) */}
           {selectedTitle && (
-            <div className="rounded-lg bg-gray-50 p-4 text-sm dark:bg-gray-900">
+            <div className="rounded-lg bg-muted p-4 text-sm">
               <div className="mb-2 flex items-center gap-2">
-                <BadgeDollarSign className="text-emerald-600" size={18} />
-                <span className="font-semibold">Título selecionado</span>
+                <BadgeDollarSign className="text-primary" size={18} />
+                <span className="font-semibold text-foreground">Título selecionado</span>
               </div>
               <div className="grid gap-3 md:grid-cols-2">
                 <div>
-                  <Label>Descrição</Label>
-                  <p className="mt-1 text-xs text-gray-800 dark:text-gray-200">{selectedTitle.description}</p>
+                  <Label className="text-text">Descrição</Label>
+                  <p className="mt-1 text-xs text-text">{selectedTitle.description}</p>
                 </div>
                 <div>
-                  <Label>Valor original</Label>
-                  <p className="mt-1 text-xs text-gray-800 dark:text-gray-200">
+                  <Label className="text-text">Valor original</Label>
+                  <p className="mt-1 text-xs text-text">
                     {new Intl.NumberFormat('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -176,23 +176,23 @@ export default function CreateEntryModal({ isOpen, onClose, onSave, entry, title
                   </p>
                 </div>
                 <div>
-                  <Label>Vencimento</Label>
-                  <p className="mt-1 text-xs text-gray-800 dark:text-gray-200">
+                  <Label className="text-text">Vencimento</Label>
+                  <p className="mt-1 text-xs text-text">
                     {selectedTitle.expiration_date
                       ? new Date(selectedTitle.expiration_date).toLocaleDateString('pt-BR')
                       : '—'}
                   </p>
                 </div>
                 <div>
-                  <Label>Tipo</Label>
-                  <p className="mt-1 text-xs text-gray-800 dark:text-gray-200">
+                  <Label className="text-text">Tipo</Label>
+                  <p className="mt-1 text-xs text-text">
                     {form.type_of === 'income' ? 'Receita (Contas a Receber)' : 'Despesa (Contas a Pagar)'}
                   </p>
                 </div>
                 {selectedPreset && (
                   <div className="md:col-span-2">
-                    <Label>Conta sugerida pelo preset</Label>
-                    <p className="mt-1 flex items-center gap-2 text-xs text-gray-800 dark:text-gray-200">
+                    <Label className="text-text">Conta sugerida pelo preset</Label>
+                    <p className="mt-1 flex items-center gap-2 text-xs text-text">
                       <Banknote size={14} />
                       {form.type_of === 'expense'
                         ? selectedPreset.payable_name || '—'
@@ -310,7 +310,7 @@ export default function CreateEntryModal({ isOpen, onClose, onSave, entry, title
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button color="gray" type="button" onClick={onClose}>
+            <Button color="gray" type="button" onClick={onClose} className="bg-muted hover:bg-muted-foreground/20">
               Cancelar
             </Button>
             <Button type="submit" className="btn-primary">

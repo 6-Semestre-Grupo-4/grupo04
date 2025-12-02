@@ -86,12 +86,12 @@ export default function BillingPlansPage() {
     <div className="min-h-screen p-10 transition-all">
       <div className="mb-10 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Planos de Contas</h1>
-          <p className="mt-1 text-gray-500 dark:text-gray-400">Gerencie os planos e suas contas estruturadas.</p>
+          <h1 className="text-3xl font-bold text-foreground">Planos de Contas</h1>
+          <p className="mt-1 text-text-muted">Gerencie os planos e suas contas estruturadas.</p>
         </div>
 
         <Button
-          className="cursor-pointer bg-gray-900 text-white shadow-md transition-all hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700"
+          className="btn-primary shadow-md"
           onClick={handleNew}
         >
           Novo Plano
@@ -103,11 +103,11 @@ export default function BillingPlansPage() {
           <Link
             key={plan.uuid}
             href={`billing-plans/${plan.uuid}`}
-            className="group relative cursor-pointer rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:scale-[1.02] hover:border-gray-400 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-500"
+            className="group relative cursor-pointer rounded-xl border border-border bg-surface p-5 shadow-card transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
           >
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{plan.name}</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{plan.description}</p>
+              <h2 className="text-lg font-semibold text-foreground">{plan.name}</h2>
+              <p className="text-sm text-text-muted">{plan.description}</p>
             </div>
 
             <div className="absolute top-4 right-4 flex gap-2 opacity-0 transition group-hover:opacity-100">
@@ -117,10 +117,10 @@ export default function BillingPlansPage() {
                   e.stopPropagation();
                   handleEdit(plan);
                 }}
-                className="cursor-pointer rounded-md bg-white/60 p-1 transition hover:scale-105 dark:bg-gray-700/50"
+                className="cursor-pointer rounded-md bg-surface/60 backdrop-blur-sm p-1 transition hover:scale-105"
                 title="Editar"
               >
-                <FiEdit2 size={18} />
+                <FiEdit2 size={18} className="text-foreground" />
               </button>
 
               <button
@@ -129,17 +129,17 @@ export default function BillingPlansPage() {
                   e.stopPropagation();
                   confirmDelete(plan.uuid);
                 }}
-                className="cursor-pointer rounded-md bg-white/60 p-1 transition hover:scale-105 dark:bg-gray-700/50"
+                className="cursor-pointer rounded-md bg-surface/60 backdrop-blur-sm p-1 transition hover:scale-105"
                 title="Excluir"
               >
-                <FiTrash2 size={18} />
+                <FiTrash2 size={18} className="text-foreground" />
               </button>
             </div>
           </Link>
         ))}
 
         {billingPlans.length === 0 && (
-          <div className="col-span-full py-10 text-center text-gray-400">Nenhum plano cadastrado ainda.</div>
+          <div className="col-span-full py-10 text-center text-text-muted">Nenhum plano cadastrado ainda.</div>
         )}
       </div>
 

@@ -128,7 +128,7 @@ export function NavbarComponent({ onMenuClick }: NavbarComponentProps) {
                   <Avatar
                     alt="User settings"
                     rounded
-                    className="group-hover:ring-offset-muted-foreground ring-2 ring-transparent transition-all duration-200"
+                    className="group-hover:ring-offset-muted-foreground ring-1 ring-transparent transition-all duration-200"
                     size="sm"
                   />
                 </div>

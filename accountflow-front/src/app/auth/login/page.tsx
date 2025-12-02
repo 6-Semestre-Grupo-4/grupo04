@@ -1,6 +1,7 @@
 import FullLogo from '@/components/FullLogo';
 import Florest from '@/components/illustration/florest';
 import AuthLogin from '@/components/login/authform/AuthLogin';
+
 const gradientStyle = {
   background:
     'linear-gradient(45deg, rgb(238, 119, 82,0.2), rgb(231, 60, 126,0.2), rgb(35, 166, 213,0.2), rgb(35, 213, 171,0.2))',
@@ -12,14 +13,16 @@ const gradientStyle = {
 const Login = () => {
   return (
     <>
+      {/* Desktop Layout */}
       <div className="hidden h-screen w-full sm:hidden md:flex">
-        <div className="bg-primary align-center flex w-[30%] flex-col justify-center p-4">
-          <div className="bg-primary align-center flex w-full flex-col justify-center p-4">
+        {/* Left Panel - Login Form */}
+        <div className="bg-surface align-center flex w-[30%] flex-col justify-center p-4">
+          <div className="align-center flex w-full flex-col justify-center p-4">
             <div className="mx-auto h-38 w-48">
               <FullLogo withoutLink />
             </div>
             <AuthLogin />
-            <div className="text-ld mt-6 flex flex-col items-center justify-center gap-2 text-base font-medium">
+            <div className="mt-6 flex flex-col items-center justify-center gap-2 text-base font-medium text-foreground">
               <p>New to AccountFlow?</p>
               <a
                 href="/auth/register"
@@ -30,21 +33,25 @@ const Login = () => {
             </div>
           </div>
         </div>
-        <div className="aling-center bg-text flex h-screen w-[70%] justify-center">
+
+        {/* Right Panel - Illustration */}
+        <div className="aling-center bg-background flex h-screen w-[70%] justify-center">
           <div className="aling-center flex h-screen w-[50%] justify-center">
             <Florest />
           </div>
         </div>
       </div>
-      <div style={gradientStyle} className="text-dark relative flex h-screen w-full overflow-hidden sm:flex md:hidden">
+
+      {/* Mobile Layout */}
+      <div style={gradientStyle} className="relative flex h-screen w-full overflow-hidden sm:flex md:hidden">
         <div className="flex h-full w-full items-center justify-center px-4">
-          <div className="bg-primary dark:bg-primary w-full rounded-xl border-none p-6 shadow-md md:w-96">
+          <div className="bg-surface w-full rounded-xl border border-border p-6 shadow-card md:w-96">
             <div className="flex w-full flex-col gap-2 p-0">
               <div className="mx-auto h-38 w-48">
                 <FullLogo withoutLink />
               </div>
               <AuthLogin />
-              <div className="text-ld mt-6 flex flex-col items-center justify-center gap-2 text-base font-medium">
+              <div className="mt-6 flex flex-col items-center justify-center gap-2 text-base font-medium text-foreground">
                 <p>New to AccountFlow?</p>
                 <a
                   href="/auth/register"

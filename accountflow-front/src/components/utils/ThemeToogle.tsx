@@ -17,7 +17,7 @@ export function ThemeToggle() {
 
   return (
     <label
-      className="hover:!bg-muted-foreground/20 flex w-full cursor-pointer items-center justify-between rounded-md px-6 py-2 transition-colors duration-200"
+      className="hover:bg-muted flex w-full cursor-pointer items-center justify-between rounded-md px-6 py-2 transition-colors duration-200"
       title={isChecked ? 'Tema escuro' : 'Tema claro'}
     >
       <span className="text-text text-sm font-medium">{isChecked ? 'Dark Mode 🌙' : 'Light Mode ☀️'}</span>
@@ -29,7 +29,8 @@ export function ThemeToggle() {
         aria-label="Alternar tema"
       />
       <div
-        className={`peer peer-focus:ring-primary/30 after:bg-muted relative h-5 w-9 rounded-full transition-all duration-300 peer-focus:ring-2 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:shadow-sm after:transition-all after:content-[''] peer-checked:after:translate-x-[18px] hover:scale-105 ${isChecked ? 'bg-foreground' : 'bg-foreground'}`}
+        className={`peer peer-focus:ring-primary/20 relative h-5 w-9 rounded-full transition-all duration-300 peer-focus:ring-1 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-all after:content-[''] peer-checked:after:translate-x-[18px] hover:scale-105 ${isChecked ? 'bg-primary' : 'bg-muted-foreground'
+          }`}
       />
     </label>
   );

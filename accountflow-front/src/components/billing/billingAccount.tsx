@@ -85,27 +85,34 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
 
   return (
     <Modal show={show} onClose={onClose}>
-      <div className="space-y-4 p-6">
-        <h2 className="text-xl font-bold text-gray-900">{editing ? 'Editar Conta Contábil' : 'Nova Conta Contábil'}</h2>
+      <div className="bg-surface space-y-4 p-6">
+        <h2 className="text-foreground text-xl font-bold">
+          {editing ? 'Editar Conta Contábil' : 'Nova Conta Contábil'}
+        </h2>
 
         <div>
-          <Label htmlFor="name">Descrição</Label>
+          <Label htmlFor="name" className="text-text">
+            Descrição
+          </Label>
           <TextInput
             id="name"
             value={form.name}
             maxLength={255}
             onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value.toUpperCase() }))}
             placeholder="Ex: ATIVO CIRCULANTE"
+            className="bg-surface border-border text-foreground"
           />
         </div>
 
         <div>
-          <Label htmlFor="parentId">Conta Pai (opcional)</Label>
+          <Label htmlFor="parentId" className="text-text">
+            Conta Pai (opcional)
+          </Label>
           <select
             id="parentId"
             value={form.parentId}
             onChange={(e) => setForm((prev) => ({ ...prev, parentId: e.target.value }))}
-            className="w-full rounded border px-2 py-1"
+            className="border-border bg-surface text-foreground hover:border-primary focus:border-primary focus:ring-primary/15 w-full rounded-lg border px-3 py-2 transition-colors focus:ring-1 focus:outline-none"
           >
             <option value="">Nenhuma (Conta Principal)</option>
             {generateParentOptions(parentOptions).map((opt) => (
@@ -117,7 +124,9 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
         </div>
 
         <div>
-          <Label htmlFor="type_of">Tipo de Conta</Label>
+          <Label htmlFor="type_of" className="text-text">
+            Tipo de Conta
+          </Label>
           <select
             id="type_of"
             value={form.type_of}
@@ -127,7 +136,7 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
                 type_of: e.target.value as TypeOfAccount,
               }))
             }
-            className="w-full rounded border px-2 py-1"
+            className="border-border bg-surface text-foreground hover:border-primary focus:border-primary focus:ring-primary/15 w-full rounded-lg border px-3 py-2 transition-colors focus:ring-1 focus:outline-none"
           >
             <option value="">Selecione...</option>
             <option value="Sintética">Sintética</option>
@@ -136,10 +145,10 @@ export default function BillingAccountForm({ show, onClose, onSave, editing, pla
         </div>
 
         <div className="mt-4 flex justify-end gap-2">
-          <Button color="blue" className="cursor-pointer" onClick={handleSave}>
+          <Button className="btn-primary shadow-md" onClick={handleSave}>
             {editing ? 'Salvar Alterações' : 'Salvar'}
           </Button>
-          <Button color="gray" className="cursor-pointer" onClick={onClose}>
+          <Button color="gray" className="bg-muted hover:bg-muted-foreground/20 cursor-pointer" onClick={onClose}>
             Cancelar
           </Button>
         </div>
