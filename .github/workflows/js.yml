@@ -1,62 +1,92 @@
 name: CI
 
 on:
-  push:
-    branches: ['main', 'dev']
-  pull_request:
-    branches: ['main', 'dev']
+    push:
+        branches: ["main", "dev"]
+    pull_request:
+        branches: ["main", "dev"]
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    name: Code Quality
+    ci-pipeline:
+        runs-on: ubuntu-latest
+        name: Code Quality + Docker Build
+        permissions:
+            contents: read
+            packages: write 
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
 
-      - name: Install commitlint
-        run: |
-          npm install -g @commitlint/cli @commitlint/config-conventional
-          npm install -g prettier
+            - name: Install commitlint
+              run: |
+                  npm install -g @commitlint/cli @commitlint/config-conventional
+                  npm install -g prettier prettier-plugin-tailwindcss
 
-      - name: Create commitlint config
-        run: |
-          echo "extends: ['@commitlint/config-conventional']" > .commitlintrc.yaml
+            - name: Create commitlint config
+              run: |
+                  echo 'extends: ["@commitlint/config-conventional"]' > .commitlintrc.yaml
 
-      - name: Validate PR Commits with commitlint
-        if: github.event_name == 'pull_request'
-        run: |
-          npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+            - name: Validate PR Commits with commitlint
+              if: github.event_name == 'pull_request'
+              run: |
+                  npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
-      - name: Validate Push Commits with commitlint
-        if: github.event_name == 'push'
-        run: |
-          npx commitlint --from ${{ github.event.before }} --to ${{ github.event.after }} --verbose
+            - name: Validate Push Commits with commitlint
+              if: github.event_name == 'push'
+              run: |
+                  npx commitlint --from ${{ github.event.before }} --to ${{ github.event.after }} --verbose
 
-      - name: Create .prettierrc
-        run: |
-          echo '{
-            'singleQuote': true,
-            'trailingComma': 'all',
-            'semi': true,
-            'printWidth': 120,
-            'tabWidth': 2,
-            'endOfLine': 'auto'
-          }' > .prettierrc
+            - name: Create .prettierrc
+              run: |
+                  echo '{
+                    "singleQuote": true,
+                    "trailingComma": "all",
+                    "semi": true,
+                    "printWidth": 120,
+                    "tabWidth": 2,
+                    "endOfLine": "auto",
+                    "plugins": ["prettier-plugin-tailwindcss"]
+                  }' > .prettierrc
 
-      - name: Create .prettierignore
-        run: |
-          echo 'node_modules\nbuild\ndist\n' > .prettierignore
+            - name: Create .prettierignore
+              run: |
+                  echo 'node_modules\nbuild\ndist\n' > .prettierignore
 
-      - name: Run Prettier and show formatting diffs
-        run: |
-          prettier '**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}' --write
-          git diff --color --exit-code
+            - name: Run Prettier and show formatting diffs
+              run: |
+                  prettier '**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}' --write
+                  git diff --color --exit-code
+
+            - name: Login to GHCR
+              uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Define TAG
+              id: tag
+              run: |
+                  if [[ "${GITHUB_REF#refs/heads/}" == "main" ]]; then
+                    echo "value=prod" >> $GITHUB_OUTPUT
+                  else
+                    echo "value=dev" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Build Backend Image
+              run: |
+                  docker build -t ghcr.io/${{ github.repository_owner }}/backend:${{ steps.tag.outputs.value }} ./accountflow-api
+                  docker push ghcr.io/${{ github.repository_owner }}/backend:${{ steps.tag.outputs.value }}
+
+            - name: Build Frontend Image
+              run: |
+                  docker build -t ghcr.io/${{ github.repository_owner }}/frontend:${{ steps.tag.outputs.value }} ./accountflow-front
+                  docker push ghcr.io/${{ github.repository_owner }}/frontend:${{ steps.tag.outputs.value }}
