@@ -5,12 +5,15 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Sum, F
 from django.db.models.functions import TruncMonth
+from django.shortcuts import get_object_or_404
+import collections   
+from decimal import Decimal                             
 
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
 from django.core.exceptions import ValidationError
 # Modelos Personalizados
-from .models import Address, Company, BillingPlan, BillingAccount, Preset, Title, Entry
+from .models import Address, Company, BillingPlan, BillingAccount, Preset, Title, Entry, JournalLine 
 
 from .serializers import AddressSerializer, CompanySerializer, BillingPlanSerializer, BillingAccountSerializer, PresetSerializer, TitleSerializer, EntrySerializer
 
@@ -620,5 +623,135 @@ class DREReportView(GenericAPIView):
                 }
                 for v in agg.values()
             ]
+
+        return Response(result)
+
+class BalanceteReportView(GenericAPIView):
+    """
+    GET /reports/balancete/?billing_plan=<uuid>&start=YYYY-MM-DD&end=YYYY-MM-DD&include_zero=false
+
+    Retorna árvore do plano de contas com soma de débitos/créditos por conta (somando filhos).
+    """
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        plan_id = request.query_params.get('billing_plan')
+        start = request.query_params.get('start')
+        end = request.query_params.get('end')
+        include_zero = request.query_params.get('include_zero', 'false').lower() == 'true'
+
+        if not plan_id or not start or not end:
+            return Response({"detail": "Parâmetros obrigatórios: billing_plan, start, end"}, status=status.HTTP_400_BAD_REQUEST)
+
+        plan = get_object_or_404(BillingPlan, pk=plan_id)
+
+        # 1) Carrega todas contas do plano (evita N+1)
+        accounts_qs = BillingAccount.objects.filter(billing_plan=plan).select_related('parent').order_by('code')
+        accounts = list(accounts_qs)
+
+        # Build map by uuid / id
+        acct_by_id = {str(a.uuid): a for a in accounts}
+        # We will keep numeric sums as Decimal
+        sums_by_account = collections.defaultdict(lambda: {'debit': Decimal('0.00'), 'credit': Decimal('0.00')})
+
+        # 2) Agregar JournalLine por account no período
+        # Filtra JournalLine via journal__date e account__billing_plan
+        jlines = JournalLine.objects.filter(
+            journal__date__gte=start,
+            journal__date__lte=end,
+            account__billing_plan=plan
+        ).values('account').annotate(total_debit=Sum('debit'), total_credit=Sum('credit'))
+
+        for row in jlines:
+            acct_id = str(row['account'])
+            debit = row['total_debit'] or Decimal('0.00')
+            credit = row['total_credit'] or Decimal('0.00')
+            sums_by_account[acct_id]['debit'] += Decimal(debit)
+            sums_by_account[acct_id]['credit'] += Decimal(credit)
+
+        # 3) Build tree structure and bubble sums up from children to parents
+        # Prepare nodes dict
+        Node = lambda: {'uuid': None, 'code': '', 'name': '', 'debit': Decimal('0.00'), 'credit': Decimal('0.00'),
+                        'balance': Decimal('0.00'), 'children': []}
+
+        nodes = {}
+        root_nodes = []
+
+        # create node for every account
+        for a in accounts:
+            node = Node()
+            node['uuid'] = str(a.uuid)
+            node['code'] = a.code or ''
+            node['name'] = a.name
+            node['debit'] = sums_by_account.get(str(a.pk), {}).get('debit', Decimal('0.00'))
+            node['credit'] = sums_by_account.get(str(a.pk), {}).get('credit', Decimal('0.00'))
+            node['balance'] = node['debit'] - node['credit']  # naive balance (debit - credit)
+            nodes[str(a.pk)] = node
+
+        # attach children
+        for a in accounts:
+            node = nodes[str(a.pk)]
+            if a.parent_id:
+                parent_node = nodes.get(str(a.parent_id))
+                if parent_node is not None:
+                    parent_node['children'].append(node)
+            else:
+                root_nodes.append(node)
+
+        # Recursive function to aggregate children's sums into parent nodes
+        def aggregate(node):
+            # Aggregate children's sums first
+            for child in node['children']:
+                aggregate(child)
+                node['debit'] += child['debit']
+                node['credit'] += child['credit']
+            node['balance'] = node['debit'] - node['credit']
+
+        for rn in root_nodes:
+            aggregate(rn)
+
+        # Optionally remove leaves/branches with zero totals if include_zero == False
+        def prune_zero(node):
+            # prune children first
+            node['children'] = [c for c in node['children'] if prune_zero(c)]
+            # keep node if it or any child has non-zero amounts
+            if node['debit'] == Decimal('0.00') and node['credit'] == Decimal('0.00') and not node['children']:
+                return include_zero  # if include_zero True keep; else prune
+            return True
+
+        if not include_zero:
+            root_nodes = [r for r in root_nodes if prune_zero(r)]
+
+        # Prepare serializable output converting Decimal -> str with 2 decimals
+        def fmt_node(node):
+            return {
+                'uuid': node['uuid'],
+                'code': node['code'],
+                'name': node['name'],
+                'debit': f"{node['debit']:.2f}",
+                'credit': f"{node['credit']:.2f}",
+                'balance': f"{node['balance']:.2f}",
+                'children': [fmt_node(c) for c in node['children']]
+            }
+
+        result = {
+            'billing_plan': str(plan.uuid),
+            'start': start,
+            'end': end,
+            'tree': [fmt_node(r) for r in root_nodes],
+        }
+
+        # Totais (para cards)
+        total_debits = sum(Decimal(n['debit']) for n in result['tree'] for _ in [0])  # we'll compute totals separately
+        # better compute totals directly from sums_by_account
+        total_debit = sum(v['debit'] for v in sums_by_account.values())
+        total_credit = sum(v['credit'] for v in sums_by_account.values())
+
+        result['totals'] = {
+            'debits': f"{total_debit:.2f}",
+            'credits': f"{total_credit:.2f}",
+            'difference': f"{(total_debit - total_credit):.2f}"
+        }
 
         return Response(result)
