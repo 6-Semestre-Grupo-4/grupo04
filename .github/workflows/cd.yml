@@ -25,6 +25,7 @@ jobs:
           script: |
             set -e
             BRANCH="${{ github.event.workflow_run.head_branch }}"
+            REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
 
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
@@ -34,8 +35,8 @@ jobs:
               TAG="dev"
             fi
 
-            BACK_IMAGE="ghcr.io/${{ github.repository_owner }}/backend:$TAG"
-            FRONT_IMAGE="ghcr.io/${{ github.repository_owner }}/frontend:$TAG"
+            BACK_IMAGE="ghcr.io/$REPO_OWNER/backend:$TAG"
+            FRONT_IMAGE="ghcr.io/$REPO_OWNER/frontend:$TAG"
 
             docker pull "$BACK_IMAGE"
             docker pull "$FRONT_IMAGE"
