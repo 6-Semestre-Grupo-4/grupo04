@@ -65,8 +65,8 @@ jobs:
                   - TZ=America/Sao_Paulo
             EOF
 
-            docker-compose down || true
-            docker-compose up -d
+            docker compose down -v || true
+            docker compose up -d --build
 
             sleep 5
 
