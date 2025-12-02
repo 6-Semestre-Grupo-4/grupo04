@@ -335,11 +335,23 @@ export default function ReceivableEntryPage() {
             <Button type="button" color="gray" onClick={() => router.back()} className="bg-muted hover:bg-muted-foreground/20">
               Cancelar
             </Button>
-            <Button type="submit" className="btn-primary flex items-center gap-2" disabled={saving}>
+            <Button
+              type="submit"
+              className="btn-primary flex items-center gap-2"
+              disabled={saving || !title.active}
+            >
               <Save size={18} />
-              {saving ? 'Salvando...' : 'Registrar Recebimento'}
+              {saving ? 'Salvando...' : !title.active ? 'Título Quitado' : 'Registrar Recebimento'}
             </Button>
           </div>
+
+          {!title.active && (
+            <div className="rounded-lg bg-success/10 border border-success/20 p-4 text-center">
+              <p className="text-sm text-success font-medium">
+                ✓ Este título já foi quitado e não pode receber novos pagamentos.
+              </p>
+            </div>
+          )}
         </form>
 
         {toast && <ToastNotification message={toast.message} type={toast.type} onClose={() => setToast(null)} />}

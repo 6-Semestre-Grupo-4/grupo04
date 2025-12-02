@@ -17,12 +17,12 @@ import { getTitles, saveTitle, deleteTitle, getCompanies } from '@/services/titl
 // Status badge
 const StatusBadge = ({ active }: { active: boolean }) =>
   active ? (
-    <span className="status-badge status-active flex items-center gap-1">
-      <Check size={14} /> Ativo
+    <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-medium text-warning border border-warning/20">
+      Em aberto
     </span>
   ) : (
-    <span className="status-badge status-inactive flex items-center gap-1">
-      <X size={14} /> Inativo
+    <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success border border-success/20">
+      Quitado
     </span>
   );
 
@@ -163,9 +163,9 @@ export default function ReceivablesPage() {
             onChange={(e) => setFilterActive(e.target.value)}
             className="border-border bg-surface text-muted-foreground focus:border-primary focus:ring-primary/15 w-full rounded-lg border px-3 py-2.5 text-sm focus:ring-1 focus:outline-none md:w-40"
           >
-            <option value="all">Status...</option>
-            <option value="active">Ativos</option>
-            <option value="inactive">Inativos</option>
+            <option value="all">Todos</option>
+            <option value="active">Em aberto</option>
+            <option value="inactive">Quitados</option>
           </select>
         </div>
 
