@@ -187,7 +187,7 @@ export default function BillingAccountPage() {
               {hasChildren ? (
                 <button
                   onClick={() => toggleRow(acc.uuid)}
-                  className="mr-2 rounded-md p-1 transition hover:bg-gray-200 dark:hover:bg-gray-700"
+                  className="mr-2 cursor-pointer rounded-md p-1 transition hover:bg-gray-200 dark:hover:bg-gray-700"
                 >
                   {isExpanded ? <HiOutlineChevronDown size={16} /> : <HiOutlineChevronRight size={16} />}
                 </button>
@@ -211,7 +211,7 @@ export default function BillingAccountPage() {
             <button
               onClick={() => openEditModal(acc)}
               onMouseDown={(e) => e.stopPropagation()}
-              className="rounded-md bg-white/60 p-1 shadow-sm transition hover:scale-105 hover:bg-white dark:bg-gray-700/50 dark:hover:bg-gray-600"
+              className="cursor-pointer rounded-md bg-white/60 p-1 shadow-sm transition hover:scale-105 hover:bg-white dark:bg-gray-700/50 dark:hover:bg-gray-600"
               title="Editar"
             >
               <FiEdit2 size={18} />
@@ -220,7 +220,7 @@ export default function BillingAccountPage() {
             <button
               onClick={() => confirmDelete(acc.uuid)}
               onMouseDown={(e) => e.stopPropagation()}
-              className="rounded-md bg-white/60 p-1 shadow-sm transition hover:scale-105 hover:bg-white dark:bg-gray-700/50 dark:hover:bg-gray-600"
+              className="cursor-pointer rounded-md bg-white/60 p-1 shadow-sm transition hover:scale-105 hover:bg-white dark:bg-gray-700/50 dark:hover:bg-gray-600"
               title="Excluir"
             >
               <FiTrash2 size={18} />
@@ -247,14 +247,14 @@ export default function BillingAccountPage() {
 
         <div className="flex gap-3">
           <Button
-            className="bg-gray-200 text-gray-800 shadow-sm hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            onClick={() => router.push('/pages/billing-plans')}
+            className="cursor-pointer bg-gray-200 text-gray-800 shadow-sm hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+            onClick={() => router.push('/pages/settings/billing-plans')}
           >
             Voltar
           </Button>
 
           <Button
-            className="bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700"
+            className="cursor-pointer bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700"
             onClick={() => {
               setEditingAccount(null);
               setNewAccount({ name: '', parentId: '', type_of: '' });
@@ -337,14 +337,14 @@ export default function BillingAccountPage() {
 
           <div className="flex justify-end gap-3 pt-4">
             <Button
-              className="bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600"
+              className="cursor-pointer bg-gray-900 text-white shadow-md hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600"
               onClick={saveAccount}
             >
               {editingAccount ? 'Salvar Alterações' : 'Salvar'}
             </Button>
 
             <Button
-              className="bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              className="cursor-pointer bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
               onClick={() => setShowModal(false)}
             >
               Cancelar

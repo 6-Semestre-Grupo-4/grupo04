@@ -35,7 +35,8 @@ from backend.views import (
   EntryList,
   EntryDetail,
   LogoutView,
-    DREReportView,
+  LedgerReportView,
+  DREReportView,
 )
 from rest_framework.authtoken import views as authtoken_views
 
@@ -61,8 +62,8 @@ urlpatterns = [
     path('title/', TitleList.as_view(), name='title-list'),
     path('title/<uuid:pk>/', TitleDetail.as_view(), name='title-detail'),
     path('titles/<uuid:title_id>/entries/', EntryList.as_view(), name='entry-list'),
-    path('entries/<uuid:pk>/', EntryDetail.as_view(), name='entry-detail')
-    ,
+    path('entries/<uuid:pk>/', EntryDetail.as_view(), name='entry-detail'),
+    path('reports/ledger/', LedgerReportView.as_view(), name='ledger-report'),
     path('reports/dre/', DREReportView.as_view(), name='dre-report'),
     path('reports/balancete/', BalanceteReportView.as_view(), name='balancete-report'),
 ]
