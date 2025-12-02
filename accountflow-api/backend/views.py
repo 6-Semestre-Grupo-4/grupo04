@@ -442,13 +442,16 @@ class LedgerReportView(GenericAPIView):
     Relatório de Razão Contábil
     GET /api/v1/reports/ledger/?company=<uuid>&start=YYYY-MM-DD&end=YYYY-MM-DD&account=<uuid>
 
-    Base: entradas (Entry) liquidadas no período (paid_at), agrupadas por conta contábil (BillingAccount).
+    Base: lançamentos contábeis (JournalLine) do período, agrupados por conta contábil (BillingAccount).
     Mostra saldo inicial, movimentações e saldo acumulado.
     """
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
+        from .models import JournalEntry, JournalLine
+        from datetime import datetime
+        
         company_id = request.query_params.get('company')
         start = request.query_params.get('start')
         end = request.query_params.get('end')
@@ -459,11 +462,20 @@ class LedgerReportView(GenericAPIView):
                 {"detail": "Parâmetros obrigatórios: company, start, end"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        
+        # Converte strings de data para objetos datetime para garantir comparação correta
+        try:
+            start_date = datetime.strptime(start, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end, '%Y-%m-%d').date()
+        except ValueError:
+            return Response(
+                {"detail": "Formato de data inválido. Use YYYY-MM-DD"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        # Busca todas as contas da empresa (ou apenas a selecionada)
-        # Filtra contas que têm entries relacionadas à empresa
+        # Busca todas as contas que têm movimentações no journal
         accounts_qs = BillingAccount.objects.filter(
-            entries__title__company_id=company_id
+            journal_lines__journal__company_id=company_id
         ).distinct()
 
         if account_id:
@@ -478,28 +490,53 @@ class LedgerReportView(GenericAPIView):
 
         # Para cada conta, calcula saldo inicial, movimentações e saldo final
         for account in accounts_qs.order_by('code'):
-            # Entries antes do período (para saldo inicial)
-            entries_before = Entry.objects.filter(
-                billing_account=account,
-                title__company_id=company_id,
-                paid_at__lt=start
-            ).select_related('title', 'billing_account')
+            # Lançamentos antes do período (para saldo inicial)
+            lines_before = JournalLine.objects.filter(
+                account=account,
+                journal__company_id=company_id,
+                journal__date__lt=start_date
+            ).select_related('journal')
 
-            # Entries no período
-            entries_period = Entry.objects.filter(
-                billing_account=account,
-                title__company_id=company_id,
-                paid_at__gte=start,
-                paid_at__lte=end
-            ).select_related('title', 'billing_account').order_by('paid_at')
+            # Lançamentos no período
+            lines_period = JournalLine.objects.filter(
+                account=account,
+                journal__company_id=company_id,
+                journal__date__gte=start_date,
+                journal__date__lte=end_date
+            ).select_related('journal').order_by('journal__date')
 
-            # Calcula saldo inicial
-            initial_balance = 0.0
-            for entry in entries_before:
-                if entry.title.type_of == 'income':
-                    initial_balance += float(entry.amount or 0)
+            # Determina natureza da conta baseado no uso nos presets
+            def get_account_nature_from_presets(account):
+                # Verifica se a conta é usada em presets para determinar natureza
+                if account.payable_presets.exists() or account.receivable_presets.exists():
+                    return 'ATIVO'  # Contas de controle (a receber/pagar)
+                elif account.revenue_presets.exists():
+                    return 'RECEITA'
+                elif account.expense_presets.exists():
+                    return 'DESPESA'
                 else:
-                    initial_balance -= float(entry.amount or 0)
+                    # Fallback: usa convenção de código se não estiver em preset
+                    first_digit = (account.code or '1').split('.')[0]
+                    nature_map = {
+                        '1': 'ATIVO',
+                        '2': 'PASSIVO', 
+                        '3': 'RECEITA',
+                        '4': 'DESPESA',
+                        '5': 'PATRIMONIO'
+                    }
+                    return nature_map.get(first_digit, 'ATIVO')
+            
+            account_nature = get_account_nature_from_presets(account)
+            
+            # Calcula saldo inicial considerando natureza da conta
+            initial_balance = 0.0
+            for line in lines_before:
+                debit = float(line.debit or 0)
+                credit = float(line.credit or 0)
+                if account_nature in ['ATIVO', 'DESPESA']:
+                    initial_balance += debit - credit  # Natureza devedora
+                else:
+                    initial_balance += credit - debit  # Natureza credora
 
             # Processa movimentações do período
             movements = []
@@ -507,24 +544,29 @@ class LedgerReportView(GenericAPIView):
             debit_total = 0.0
             credit_total = 0.0
 
-            for entry in entries_period:
-                if entry.title.type_of == 'income':
-                    credit_total += float(entry.amount or 0)
-                    accumulated_balance += float(entry.amount or 0)
+            for line in lines_period:
+                debit_amount = float(line.debit or 0)
+                credit_amount = float(line.credit or 0)
+                
+                debit_total += debit_amount
+                credit_total += credit_amount
+                
+                # Calcula saldo acumulado considerando natureza da conta
+                if account_nature in ['ATIVO', 'DESPESA']:
+                    accumulated_balance += debit_amount - credit_amount
                 else:
-                    debit_total += float(entry.amount or 0)
-                    accumulated_balance -= float(entry.amount or 0)
+                    accumulated_balance += credit_amount - debit_amount
 
                 movements.append({
-                    'date': entry.paid_at.isoformat(),
-                    'description': entry.title.description,
-                    'type': entry.title.type_of,
-                    'amount': str(entry.amount),
-                    'debit': str(entry.amount) if entry.title.type_of == 'expense' else '0',
-                    'credit': str(entry.amount) if entry.title.type_of == 'income' else '0',
+                    'date': line.journal.date.isoformat(),
+                    'description': line.journal.description or line.memo,
+                    'type': 'expense' if debit_amount > 0 else 'income',
+                    'amount': str(debit_amount if debit_amount > 0 else credit_amount),
+                    'debit': str(debit_amount),
+                    'credit': str(credit_amount),
                     'accumulated_balance': str(accumulated_balance),
-                    'payment_method': entry.payment_method,
-                    'entry_id': str(entry.uuid),
+                    'payment_method': 'journal',
+                    'entry_id': str(line.uuid),
                 })
 
             # Prepara resposta da conta
@@ -533,10 +575,12 @@ class LedgerReportView(GenericAPIView):
                 'code': account.code,
                 'name': account.name,
                 'account_type': account.account_type,
+                'account_nature': account_nature,
                 'initial_balance': str(initial_balance),
                 'total_debits': str(debit_total),
                 'total_credits': str(credit_total),
                 'final_balance': str(accumulated_balance),
+                'balance_type': 'devedor' if accumulated_balance >= 0 else 'credor',
                 'movements_count': len(movements),
                 'movements': movements,
             }
@@ -555,7 +599,7 @@ class LedgerReportView(GenericAPIView):
             'total_movements': sum(acc['movements_count'] for acc in result['accounts']),
             'total_debits': str(total_debits),
             'total_credits': str(total_credits),
-            'net_result': str(total_credits - total_debits),
+            'net_result': str(total_debits - total_credits),  # Ajustado para contabilidade: débito - crédito
         }
 
         return Response(result)
@@ -566,12 +610,14 @@ class DREReportView(GenericAPIView):
     Demonstração do Resultado do Exercício (DRE)
     GET /api/v1/reports/dre/?company=<uuid>&start=YYYY-MM-DD&end=YYYY-MM-DD&group=<account|month>
 
-    Base: entradas (Entry) liquidadas no período (paid_at), classificadas por Title.type_of (income/expense).
+    Base: lançamentos contábeis (JournalLine) do período, classificados por natureza das contas.
     """
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
+        from .models import JournalEntry, JournalLine
+        
         company_id = request.query_params.get('company')
         start = request.query_params.get('start')
         end = request.query_params.get('end')
@@ -583,19 +629,29 @@ class DREReportView(GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        qs = (
-            Entry.objects.select_related('title', 'billing_account')
-            .filter(title__company_id=company_id, paid_at__gte=start, paid_at__lte=end)
+        # Busca lançamentos do período
+        lines_qs = JournalLine.objects.select_related('journal', 'account').filter(
+            journal__company_id=company_id,
+            journal__date__gte=start,
+            journal__date__lte=end
         )
 
-        # Totais por tipo (income/expense)
-        totals_by_type = (
-            qs.values('title__type_of')
-            .annotate(total=Sum('amount'))
-        )
-        income_total = sum(x['total'] or 0 for x in totals_by_type if x['title__type_of'] == 'income')
-        expense_total = sum(x['total'] or 0 for x in totals_by_type if x['title__type_of'] == 'expense')
-        result_total = (income_total or 0) - (expense_total or 0)
+        # Calcula totais de receitas e despesas baseado na natureza das contas
+        income_total = 0.0
+        expense_total = 0.0
+        
+        for line in lines_qs:
+            # Identifica receitas e despesas pela estrutura do código da conta
+            code = line.account.code or ''
+            first_level = code.split('.')[0] if code else ''
+            
+            # Convenção: códigos 3.x = Receitas, 4.x = Despesas
+            if first_level == '3':  # Receitas
+                income_total += float(line.credit or 0)
+            elif first_level == '4':  # Despesas
+                expense_total += float(line.debit or 0)
+        
+        result_total = income_total - expense_total
 
         result = {
             'company': str(company_id),
@@ -608,75 +664,58 @@ class DREReportView(GenericAPIView):
             },
         }
 
-        # Detalhamento por dia (lista de entradas pagas com contexto)
-        # Estrutura: { 'YYYY-MM-DD': [ { paid_at, type, amount, payment_method, account_code, account_name, top_level, title_desc } ] }
+        # Detalhamento por dia baseado nos lançamentos contábeis
         details = {}
-        for e in qs.values(
-            'paid_at',
-            'amount',
-            'payment_method',
-            'billing_account__code',
-            'billing_account__name',
-            'title__type_of',
-            'title__description',
-        ).order_by('paid_at'):
-            d = e['paid_at'].strftime('%Y-%m-%d')
+        for line in lines_qs.order_by('journal__date'):
+            d = line.journal.date.strftime('%Y-%m-%d')
             if d not in details:
                 details[d] = []
-            code = e['billing_account__code'] or ''
-            top_level = code.split('.')[0] if code else ''
+            
+            code = line.account.code or ''
+            first_level = code.split('.')[0] if code else ''
+            
+            # Determina tipo baseado na natureza da conta
+            line_type = 'income' if first_level == '3' else 'expense' if first_level == '4' else 'other'
+            amount = float(line.debit or 0) if line.debit > 0 else float(line.credit or 0)
+            
             details[d].append({
                 'paid_at': d,
-                'type': e['title__type_of'],
-                'amount': str(e['amount']),
-                'payment_method': e['payment_method'],
+                'type': line_type,
+                'amount': str(amount),
+                'payment_method': 'journal',
                 'account_code': code,
-                'account_name': e['billing_account__name'] or '',
-                'top_level': top_level,
-                'title_desc': e['title__description'] or '',
+                'account_name': line.account.name or '',
+                'top_level': first_level,
+                'title_desc': line.journal.description or line.memo,
             })
         result['details_by_day'] = details
 
-        # Estrutura clássica DRE (heurística baseada em nomes/códigos de contas)
-        # Identificação simples: variáveis (CMV/CMA, impostos, taxas), fixos (salários, aluguel, energia, internet, manutenção etc),
-        # investimentos e amortizações por nomes de conta.
-        def normalize(s):
-            return (s or '').lower()
-
-        variable_keywords = [
-            'cmv', 'cma', 'custo de mercadoria', 'custo de matéria', 'simples', 'imposto', 'taxa', 'cartão', 'administracao de cartoes', 'administracao de cartões'
-        ]
-        fixed_keywords = [
-            'salário', 'salarios', 'encargo', 'pró-labore', 'pro-labore', 'contador', 'energia', 'água', 'agua', 'aluguel', 'juros', 'manutenção', 'segurança', 'telefone', 'internet', 'vale transporte'
-        ]
-        invest_keywords = ['investimento', 'imobilizado', 'equipamento', 'veículo', 'veiculo']
-        amort_keywords = ['amortização', 'amortizacao', 'depreciação', 'depreciacao']
-
-        receita_total = float(income_total or 0)
+        # Estrutura clássica DRE baseada na hierarquia de contas
+        receita_total = income_total
         custos_variaveis = 0.0
         custos_fixos = 0.0
         investimentos = 0.0
         amortizacoes = 0.0
 
-        # Percorre entradas de despesas para classificar
-        for e in qs.values('amount', 'billing_account__name', 'billing_account__code', 'title__type_of'):
-            if e['title__type_of'] != 'expense':
-                continue
-            name = normalize(e['billing_account__name'])
-            code = normalize(e['billing_account__code'])
-            val = float(e['amount'] or 0)
-
-            if any(k in name for k in variable_keywords) or any(k in code for k in variable_keywords):
-                custos_variaveis += val
-            elif any(k in name for k in fixed_keywords) or any(k in code for k in fixed_keywords):
-                custos_fixos += val
-            elif any(k in name for k in invest_keywords) or any(k in code for k in invest_keywords):
-                investimentos += val
-            elif any(k in name for k in amort_keywords) or any(k in code for k in amort_keywords):
-                amortizacoes += val
-            else:
-                # Default: considera como fixo para não perder controle
-                custos_fixos += val
+        # Classifica despesas por subcódigos (4.1 = variáveis, 4.2 = fixos, etc.)
+        for line in lines_qs:
+            code = line.account.code or ''
+            parts = code.split('.')
+            
+            if len(parts) >= 2 and parts[0] == '4':  # Despesas
+                val = float(line.debit or 0)
+                
+                if parts[1] == '1':  # 4.1.x = Custos Variáveis
+                    custos_variaveis += val
+                elif parts[1] == '2':  # 4.2.x = Custos Fixos
+                    custos_fixos += val
+                elif parts[1] == '3':  # 4.3.x = Investimentos
+                    investimentos += val
+                elif parts[1] == '4':  # 4.4.x = Amortizações
+                    amortizacoes += val
+                else:
+                    # Default: considera como fixo
+                    custos_fixos += val
 
         margem_contribuicao = receita_total - custos_variaveis
         resultado_operacional = margem_contribuicao - custos_fixos
@@ -693,48 +732,59 @@ class DREReportView(GenericAPIView):
             'resultado_final': str(resultado_final),
         }
 
-        # Quebra opcional por conta (usa o primeiro nível do código, se existir)
+        # Quebra opcional por conta com hierarquia completa
         if group == 'account':
             breakdown = {}
-            for e in qs.values('billing_account__code', 'billing_account__name', 'title__type_of').annotate(total=Sum('amount')):
-                code = e['billing_account__code'] or 'N/A'
-                top_level = code.split('.')[0] if code else 'N/A'
-                key = f"{top_level}"
+            for line in lines_qs:
+                code = line.account.code or 'N/A'
+                key = code
+                
                 if key not in breakdown:
                     breakdown[key] = {
-                        'code': top_level,
-                        'name': e['billing_account__name'] if e['billing_account__name'] else 'Sem conta',
-                        'income': '0',
-                        'expense': '0',
-                        'total': '0',
+                        'code': code,
+                        'name': line.account.name or 'Sem conta',
+                        'income': 0.0,
+                        'expense': 0.0,
+                        'total': 0.0,
                     }
-                if e['title__type_of'] == 'income':
-                    breakdown[key]['income'] = str((float(breakdown[key]['income']) if breakdown[key]['income'] else 0) + float(e['total'] or 0))
-                else:
-                    breakdown[key]['expense'] = str((float(breakdown[key]['expense']) if breakdown[key]['expense'] else 0) + float(e['total'] or 0))
-                breakdown[key]['total'] = str(float(breakdown[key]['income']) - float(breakdown[key]['expense']))
-            result['by_account'] = list(breakdown.values())
+                
+                # Soma débitos e créditos
+                breakdown[key]['expense'] += float(line.debit or 0)
+                breakdown[key]['income'] += float(line.credit or 0)
+                breakdown[key]['total'] = breakdown[key]['income'] - breakdown[key]['expense']
+            
+            # Converte para strings
+            result['by_account'] = [
+                {
+                    'code': v['code'],
+                    'name': v['name'],
+                    'income': str(v['income']),
+                    'expense': str(v['expense']),
+                    'total': str(v['total']),
+                }
+                for v in breakdown.values()
+            ]
 
         # Quebra opcional por mês
         if group == 'month':
-            monthly = (
-                qs.annotate(month=TruncMonth('paid_at'))
-                .values('month', 'title__type_of')
-                .annotate(total=Sum('amount'))
-                .order_by('month')
-            )
-            # Agrega em linhas mês a mês
             from collections import OrderedDict
             agg = OrderedDict()
-            for row in monthly:
-                m = row['month'].strftime('%Y-%m') if row['month'] else 'unknown'
+            
+            for line in lines_qs:
+                m = line.journal.date.strftime('%Y-%m')
                 if m not in agg:
                     agg[m] = {'month': m, 'revenues': 0.0, 'expenses': 0.0, 'result': 0.0}
-                if row['title__type_of'] == 'income':
-                    agg[m]['revenues'] += float(row['total'] or 0)
-                else:
-                    agg[m]['expenses'] += float(row['total'] or 0)
+                
+                code = line.account.code or ''
+                first_level = code.split('.')[0] if code else ''
+                
+                if first_level == '3':  # Receitas
+                    agg[m]['revenues'] += float(line.credit or 0)
+                elif first_level == '4':  # Despesas
+                    agg[m]['expenses'] += float(line.debit or 0)
+                
                 agg[m]['result'] = agg[m]['revenues'] - agg[m]['expenses']
+            
             result['monthly'] = [
                 {
                     'month': v['month'],

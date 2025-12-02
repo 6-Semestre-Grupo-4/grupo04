@@ -39,6 +39,7 @@ function ToastNotification({
 }
 import companyService from '@/services/companyService';
 import ledgerService, { LedgerResponse, LedgerAccount } from '@/services/ledgerService';
+import api from '@/services/api';
 
 interface CompanyOption {
   uuid: string;
@@ -67,9 +68,15 @@ export default function LedgerReportPage() {
   const [movementTypeFilter, setMovementTypeFilter] = useState<'all' | 'income' | 'expense'>('all');
   const [accountCodeFilter, setAccountCodeFilter] = useState<string>('all');
 
-  const formatCurrency = (v: string | number) => {
+  const formatCurrency = (v: string | number | undefined) => {
+    if (v === undefined || v === null) return '0.00';
     const num = typeof v === 'string' ? Number(v) : v;
     return num.toFixed(2);
+  };
+
+  // Função para tratar datas como locais (evita problemas de timezone)
+  const parseLocalDate = (dateString: string) => {
+    return new Date(dateString + 'T00:00:00');
   };
 
   // Carrega empresas
@@ -84,6 +91,31 @@ export default function LedgerReportPage() {
     };
     loadCompanies();
   }, []);
+
+  // Carrega contas quando empresa for selecionada
+  useEffect(() => {
+    const loadAccounts = async () => {
+      if (!company) {
+        setAccounts([]);
+        return;
+      }
+      try {
+        // Faz uma requisição de teste para o relatório para obter as contas com movimentações
+        const testParams = { company, start: '1900-01-01', end: '2100-12-31' };
+        const res = await ledgerService.getLedger(testParams);
+        const accountsWithMovements = res.accounts.map((acc) => ({
+          uuid: acc.account_id,
+          code: acc.code,
+          name: acc.name,
+        }));
+        setAccounts(accountsWithMovements);
+      } catch (e) {
+        console.error('Erro ao carregar contas:', e);
+        setAccounts([]);
+      }
+    };
+    loadAccounts();
+  }, [company]);
 
   const fetchReport = async () => {
     if (!company || !start || !end) {
@@ -194,12 +226,33 @@ export default function LedgerReportPage() {
   const getFilteredMovements = (movements: any[]) => {
     return movements.filter((mov) => {
       const typeOk = movementTypeFilter === 'all' || mov.type === movementTypeFilter;
-      return typeOk;
+      // Filtro por data: só exibe movimentações dentro do período
+      const dateOk = !start || !end || (mov.date >= start && mov.date <= end);
+      return typeOk && dateOk;
     });
   };
 
   const filteredAccounts = getFilteredAccounts();
   const uniqueAccountCodes = data ? Array.from(new Set(data.accounts.map((a) => a.code))).sort() : [];
+
+  // Calcula totais baseados nas contas filtradas
+  const getFilteredSummary = () => {
+    if (!data || filteredAccounts.length === 0) return data?.summary || {};
+
+    const totalDebits = filteredAccounts.reduce((sum, acc) => sum + Number(acc.total_debits), 0);
+    const totalCredits = filteredAccounts.reduce((sum, acc) => sum + Number(acc.total_credits), 0);
+    const totalMovements = filteredAccounts.reduce((sum, acc) => sum + acc.movements_count, 0);
+
+    return {
+      accounts_count: filteredAccounts.length,
+      total_movements: totalMovements,
+      total_debits: totalDebits || 0,
+      total_credits: totalCredits || 0,
+      net_result: (totalCredits || 0) - (totalDebits || 0),
+    };
+  };
+
+  const summary = getFilteredSummary();
 
   return (
     <div className="min-h-screen bg-gray-50 transition-colors duration-200 dark:bg-gray-900">
@@ -262,22 +315,27 @@ export default function LedgerReportPage() {
 
               <div>
                 <Label htmlFor="account" className="text-gray-700 dark:text-gray-200">
-                  Conta (opcional)
+                  Conta (Opcional)
                 </Label>
                 <Select
                   id="account"
                   value={account}
                   onChange={(e) => setAccount(e.target.value)}
                   className="border-gray-300 bg-gray-50 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                  disabled={loading}
                 >
-                  <option value="">Todas</option>
+                  <option value="">Todas as contas</option>
+                  {Array.isArray(accounts) &&
+                    accounts.map((acc) => (
+                      <option key={acc.uuid} value={acc.uuid}>
+                        {acc.code} - {acc.name}
+                      </option>
+                    ))}
                 </Select>
               </div>
 
               <div className="flex items-end">
                 <Button onClick={fetchReport} disabled={loading} className="w-full">
-                  {loading ? 'Gerando…' : 'Gerar'}
+                  {loading ? 'Gerando...' : 'Gerar Relatório'}
                 </Button>
               </div>
             </div>
@@ -289,38 +347,34 @@ export default function LedgerReportPage() {
               <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
                 <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                   <div className="text-sm text-gray-500 dark:text-gray-400">Contas</div>
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    {data.summary.accounts_count}
-                  </div>
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.accounts_count}</div>
                 </Card>
                 <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                   <div className="text-sm text-gray-500 dark:text-gray-400">Movimentações</div>
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    {data.summary.total_movements}
-                  </div>
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.total_movements}</div>
                 </Card>
                 <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                   <div className="text-sm text-gray-500 dark:text-gray-400">Total Débitos</div>
                   <div className="text-2xl font-bold text-rose-600 dark:text-rose-400">
-                    R$ {formatCurrency(data.summary.total_debits)}
+                    R$ {formatCurrency(summary.total_debits)}
                   </div>
                 </Card>
                 <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                   <div className="text-sm text-gray-500 dark:text-gray-400">Total Créditos</div>
                   <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                    R$ {formatCurrency(data.summary.total_credits)}
+                    R$ {formatCurrency(summary.total_credits)}
                   </div>
                 </Card>
                 <Card className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                   <div className="text-sm text-gray-500 dark:text-gray-400">Resultado Líquido</div>
                   <div
                     className={`text-2xl font-bold ${
-                      Number(data.summary.net_result) >= 0
+                      Number(summary.net_result) >= 0
                         ? 'text-emerald-600 dark:text-emerald-400'
                         : 'text-rose-600 dark:text-rose-400'
                     }`}
                   >
-                    R$ {formatCurrency(data.summary.net_result)}
+                    R$ {formatCurrency(summary.net_result)}
                   </div>
                 </Card>
               </div>
@@ -486,7 +540,7 @@ export default function LedgerReportPage() {
                                     className="hover:bg-gray-50 dark:hover:bg-gray-700"
                                   >
                                     <td className="px-3 py-2 text-xs whitespace-nowrap text-gray-900 dark:text-white">
-                                      {new Date(mov.date).toLocaleDateString('pt-BR')}
+                                      {parseLocalDate(mov.date).toLocaleDateString('pt-BR')}
                                     </td>
                                     <td className="px-3 py-2 text-xs text-gray-600 dark:text-gray-300">
                                       {mov.description}
