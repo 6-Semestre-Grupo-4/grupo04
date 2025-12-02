@@ -58,7 +58,7 @@ jobs:
 
       - name: Create .prettierignore
         run: |
-          echo 'node_modules\nbuild\ndist\n' > .prettierignore
+          echo 'node_modules\nbuild\ndist\n**/tailwind.config.ts\n' > .prettierignore
 
       - name: Run Prettier and show formatting diffs
         run: |

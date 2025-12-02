@@ -1,7 +1,1 @@
-node_modules
-.next
-build
-dist
-*.lock
-package-lock.json
-yarn.lock
+node_modules\nbuild\ndist\n**/tailwind.config.ts\n
