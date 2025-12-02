@@ -16,11 +16,11 @@ import { getTitles, saveTitle, deleteTitle, getCompanies } from '@/services/titl
 
 const StatusBadge = ({ active }: { active: boolean }) =>
   active ? (
-    <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-medium text-warning border border-warning/20">
+    <span className="bg-warning/10 text-warning border-warning/20 inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium">
       Em aberto
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success border border-success/20">
+    <span className="bg-success/10 text-success border-success/20 inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium">
       Quitado
     </span>
   );

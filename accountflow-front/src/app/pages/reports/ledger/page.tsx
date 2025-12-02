@@ -259,27 +259,21 @@ export default function LedgerReportPage() {
   const summary = getFilteredSummary();
 
   return (
-    <div className="min-h-screen bg-background transition-colors duration-200">
+    <div className="bg-background min-h-screen transition-colors duration-200">
       <div className="container mx-auto px-4 py-8">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
-            <h1 className="mb-2 text-3xl font-bold text-foreground">Relatório de Razão</h1>
-            <p className="text-text-muted">
-              Visualize o histórico detalhado de movimentações por conta contábil
-            </p>
+            <h1 className="text-foreground mb-2 text-3xl font-bold">Relatório de Razão</h1>
+            <p className="text-text-muted">Visualize o histórico detalhado de movimentações por conta contábil</p>
           </div>
 
-          <Card className="mb-6 border-border bg-surface">
+          <Card className="border-border bg-surface mb-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
               <div>
                 <Label htmlFor="company" className="text-text">
                   Empresa
                 </Label>
-                <Select
-                  id="company"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                >
+                <Select id="company" value={company} onChange={(e) => setCompany(e.target.value)}>
                   <option value="">Selecionar</option>
                   {companies.map((c) => (
                     <option key={c.uuid} value={c.uuid}>
@@ -306,13 +300,7 @@ export default function LedgerReportPage() {
                 <Label htmlFor="end" className="text-text">
                   Fim
                 </Label>
-                <input
-                  id="end"
-                  type="date"
-                  value={end}
-                  onChange={(e) => setEnd(e.target.value)}
-                  className="w-full"
-                />
+                <input id="end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} className="w-full" />
               </div>
 
               <div>
@@ -349,36 +337,27 @@ export default function LedgerReportPage() {
               {/* Resumo */}
               <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
                 <Card className="border-border bg-surface">
-                  <div className="text-sm text-text-muted">Contas</div>
-                  <div className="text-2xl font-bold text-primary">
-                    {data.summary.accounts_count}
-                  </div>
+                  <div className="text-text-muted text-sm">Contas</div>
+                  <div className="text-primary text-2xl font-bold">{data.summary.accounts_count}</div>
                 </Card>
                 <Card className="border-border bg-surface">
-                  <div className="text-sm text-text-muted">Movimentações</div>
-                  <div className="text-2xl font-bold text-primary">
-                    {data.summary.total_movements}
-                  </div>
+                  <div className="text-text-muted text-sm">Movimentações</div>
+                  <div className="text-primary text-2xl font-bold">{data.summary.total_movements}</div>
                 </Card>
                 <Card className="border-border bg-surface">
-                  <div className="text-sm text-text-muted">Total Débitos</div>
-                  <div className="text-2xl font-bold text-error">
-                    R$ {formatCurrency(data.summary.total_debits)}
-                  </div>
+                  <div className="text-text-muted text-sm">Total Débitos</div>
+                  <div className="text-error text-2xl font-bold">R$ {formatCurrency(data.summary.total_debits)}</div>
                 </Card>
                 <Card className="border-border bg-surface">
-                  <div className="text-sm text-text-muted">Total Créditos</div>
-                  <div className="text-2xl font-bold text-success">
-                    R$ {formatCurrency(data.summary.total_credits)}
-                  </div>
+                  <div className="text-text-muted text-sm">Total Créditos</div>
+                  <div className="text-success text-2xl font-bold">R$ {formatCurrency(data.summary.total_credits)}</div>
                 </Card>
                 <Card className="border-border bg-surface">
-                  <div className="text-sm text-text-muted">Resultado Líquido</div>
+                  <div className="text-text-muted text-sm">Resultado Líquido</div>
                   <div
-                    className={`text-2xl font-bold ${Number(data.summary.net_result) >= 0
-                      ? 'text-success'
-                      : 'text-error'
-                      }`}
+                    className={`text-2xl font-bold ${
+                      Number(data.summary.net_result) >= 0 ? 'text-success' : 'text-error'
+                    }`}
                   >
                     R$ {formatCurrency(data.summary.net_result)}
                   </div>
@@ -390,7 +369,7 @@ export default function LedgerReportPage() {
                 <div className="flex flex-col gap-2 md:flex-row md:gap-4">
                   {uniqueAccountCodes.length > 0 && (
                     <div>
-                      <Label htmlFor="filter-account-code" className="text-sm text-text">
+                      <Label htmlFor="filter-account-code" className="text-text text-sm">
                         Filtrar por Conta
                       </Label>
                       <Select
@@ -409,7 +388,7 @@ export default function LedgerReportPage() {
                   )}
 
                   <div>
-                    <Label htmlFor="filter-type" className="text-sm text-text">
+                    <Label htmlFor="filter-type" className="text-text text-sm">
                       Filtrar por Tipo
                     </Label>
                     <Select
@@ -433,44 +412,38 @@ export default function LedgerReportPage() {
               <div className="space-y-4">
                 {filteredAccounts.length === 0 ? (
                   <Card className="border-border bg-surface">
-                    <p className="text-text-muted">
-                      Nenhuma conta encontrada com os filtros selecionados.
-                    </p>
+                    <p className="text-text-muted">Nenhuma conta encontrada com os filtros selecionados.</p>
                   </Card>
                 ) : (
                   filteredAccounts.map((acc) => (
-                    <Card
-                      key={acc.account_id}
-                      className="border-border bg-surface"
-                    >
+                    <Card key={acc.account_id} className="border-border bg-surface">
                       {/* Header da Conta */}
                       <div
-                        className="-m-3 cursor-pointer rounded p-3 transition-colors hover:bg-muted"
+                        className="hover:bg-muted -m-3 cursor-pointer rounded p-3 transition-colors"
                         onClick={() => toggleAccountExpanded(acc.account_id)}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <h3 className="text-sm font-semibold text-text">
+                            <h3 className="text-text text-sm font-semibold">
                               {acc.code} - {acc.name}
                             </h3>
-                            <p className="mt-1 text-xs text-text-muted">
+                            <p className="text-text-muted mt-1 text-xs">
                               Tipo: {acc.account_type === 'analytic' ? 'Analítica' : 'Sintética'} •{' '}
                               {acc.movements_count} movimentações
                             </p>
                           </div>
                           <div className="mr-4 text-right">
-                            <div className="mb-1 text-xs text-text-muted">Saldo Inicial</div>
-                            <div className="text-sm font-medium text-text">
+                            <div className="text-text-muted mb-1 text-xs">Saldo Inicial</div>
+                            <div className="text-text text-sm font-medium">
                               R$ {formatCurrency(acc.initial_balance)}
                             </div>
                           </div>
                           <div className="mr-4 text-right">
-                            <div className="mb-1 text-xs text-text-muted">Saldo Final</div>
+                            <div className="text-text-muted mb-1 text-xs">Saldo Final</div>
                             <div
-                              className={`text-sm font-bold ${Number(acc.final_balance) >= 0
-                                ? 'text-success'
-                                : 'text-error'
-                                }`}
+                              className={`text-sm font-bold ${
+                                Number(acc.final_balance) >= 0 ? 'text-success' : 'text-error'
+                              }`}
                             >
                               R$ {formatCurrency(acc.final_balance)}
                             </div>
@@ -480,27 +453,26 @@ export default function LedgerReportPage() {
                       </div>
 
                       {/* Resumo da Conta */}
-                      <div className="mt-3 border-t border-border pt-3">
+                      <div className="border-border mt-3 border-t pt-3">
                         <div className="grid grid-cols-3 gap-4">
                           <div>
-                            <div className="text-xs text-text-muted">Débitos</div>
-                            <div className="text-sm font-medium text-error">
-                              R$ {formatCurrency(acc.total_debits)}
-                            </div>
+                            <div className="text-text-muted text-xs">Débitos</div>
+                            <div className="text-error text-sm font-medium">R$ {formatCurrency(acc.total_debits)}</div>
                           </div>
                           <div>
-                            <div className="text-xs text-text-muted">Créditos</div>
-                            <div className="text-sm font-medium text-success">
+                            <div className="text-text-muted text-xs">Créditos</div>
+                            <div className="text-success text-sm font-medium">
                               R$ {formatCurrency(acc.total_credits)}
                             </div>
                           </div>
                           <div>
-                            <div className="text-xs text-text-muted">Variação</div>
+                            <div className="text-text-muted text-xs">Variação</div>
                             <div
-                              className={`text-sm font-medium ${Number(acc.total_credits) - Number(acc.total_debits) >= 0
-                                ? 'text-success'
-                                : 'text-error'
-                                }`}
+                              className={`text-sm font-medium ${
+                                Number(acc.total_credits) - Number(acc.total_debits) >= 0
+                                  ? 'text-success'
+                                  : 'text-error'
+                              }`}
                             >
                               R$ {formatCurrency(Number(acc.total_credits) - Number(acc.total_debits))}
                             </div>
@@ -510,53 +482,36 @@ export default function LedgerReportPage() {
 
                       {/* Movimentações */}
                       {expandedAccounts.has(acc.account_id) && acc.movements.length > 0 && (
-                        <div className="mt-3 border-t border-border pt-3">
+                        <div className="border-border mt-3 border-t pt-3">
                           <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-border">
+                            <table className="divide-border min-w-full divide-y">
                               <thead className="bg-muted">
                                 <tr>
-                                  <th className="px-3 py-2 text-left text-xs font-semibold text-text">
-                                    Data
-                                  </th>
-                                  <th className="px-3 py-2 text-left text-xs font-semibold text-text">
-                                    Descrição
-                                  </th>
-                                  <th className="px-3 py-2 text-right text-xs font-semibold text-text">
-                                    Débito
-                                  </th>
-                                  <th className="px-3 py-2 text-right text-xs font-semibold text-text">
-                                    Crédito
-                                  </th>
-                                  <th className="px-3 py-2 text-right text-xs font-semibold text-text">
-                                    Saldo
-                                  </th>
-                                  <th className="px-3 py-2 text-left text-xs font-semibold text-text">
-                                    Método
-                                  </th>
+                                  <th className="text-text px-3 py-2 text-left text-xs font-semibold">Data</th>
+                                  <th className="text-text px-3 py-2 text-left text-xs font-semibold">Descrição</th>
+                                  <th className="text-text px-3 py-2 text-right text-xs font-semibold">Débito</th>
+                                  <th className="text-text px-3 py-2 text-right text-xs font-semibold">Crédito</th>
+                                  <th className="text-text px-3 py-2 text-right text-xs font-semibold">Saldo</th>
+                                  <th className="text-text px-3 py-2 text-left text-xs font-semibold">Método</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-border bg-surface">
+                              <tbody className="divide-border bg-surface divide-y">
                                 {getFilteredMovements(acc.movements).map((mov, idx) => (
-                                  <tr
-                                    key={`${acc.account_id}-${idx}`}
-                                    className="hover:bg-muted"
-                                  >
-                                    <td className="px-3 py-2 text-xs whitespace-nowrap text-text">
+                                  <tr key={`${acc.account_id}-${idx}`} className="hover:bg-muted">
+                                    <td className="text-text px-3 py-2 text-xs whitespace-nowrap">
                                       {new Date(mov.date).toLocaleDateString('pt-BR')}
                                     </td>
-                                    <td className="px-3 py-2 text-xs text-text-muted">
-                                      {mov.description}
-                                    </td>
-                                    <td className="px-3 py-2 text-right text-xs text-error">
+                                    <td className="text-text-muted px-3 py-2 text-xs">{mov.description}</td>
+                                    <td className="text-error px-3 py-2 text-right text-xs">
                                       {Number(mov.debit) > 0 ? `R$ ${formatCurrency(mov.debit)}` : '-'}
                                     </td>
-                                    <td className="px-3 py-2 text-right text-xs text-success">
+                                    <td className="text-success px-3 py-2 text-right text-xs">
                                       {Number(mov.credit) > 0 ? `R$ ${formatCurrency(mov.credit)}` : '-'}
                                     </td>
-                                    <td className="px-3 py-2 text-right text-xs font-medium text-text">
+                                    <td className="text-text px-3 py-2 text-right text-xs font-medium">
                                       R$ {formatCurrency(mov.accumulated_balance)}
                                     </td>
-                                    <td className="px-3 py-2 text-xs text-text-muted capitalize">
+                                    <td className="text-text-muted px-3 py-2 text-xs capitalize">
                                       {mov.payment_method}
                                     </td>
                                   </tr>
@@ -568,8 +523,8 @@ export default function LedgerReportPage() {
                       )}
 
                       {expandedAccounts.has(acc.account_id) && acc.movements.length === 0 && (
-                        <div className="mt-3 border-t border-border pt-3">
-                          <p className="text-sm text-text-muted">Nenhuma movimentação encontrada.</p>
+                        <div className="border-border mt-3 border-t pt-3">
+                          <p className="text-text-muted text-sm">Nenhuma movimentação encontrada.</p>
                         </div>
                       )}
                     </Card>

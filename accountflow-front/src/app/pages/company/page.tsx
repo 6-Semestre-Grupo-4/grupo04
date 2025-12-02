@@ -112,28 +112,22 @@ export default function Companies() {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-foreground">Empresas</h1>
-            <p className="mt-2 text-text-muted">Gerencie as empresas cadastradas no sistema</p>
+            <h1 className="text-foreground text-4xl font-bold">Empresas</h1>
+            <p className="text-text-muted mt-2">Gerencie as empresas cadastradas no sistema</p>
           </div>
           <Link href="/pages/company/register">
-            <Button className="btn-primary shadow-md">
-              Nova Empresa
-            </Button>
+            <Button className="btn-primary shadow-md">Nova Empresa</Button>
           </Link>
         </div>
 
         {companies.length === 0 ? (
           <Card className="border-border bg-surface shadow-card">
             <div className="py-12 text-center">
-              <FiUsers className="mx-auto mb-4 h-16 w-16 text-text-muted" />
-              <h3 className="mb-2 text-lg font-medium text-foreground">Nenhuma empresa cadastrada</h3>
-              <p className="mb-6 text-text-muted">
-                Comece cadastrando sua primeira empresa no sistema.
-              </p>
+              <FiUsers className="text-text-muted mx-auto mb-4 h-16 w-16" />
+              <h3 className="text-foreground mb-2 text-lg font-medium">Nenhuma empresa cadastrada</h3>
+              <p className="text-text-muted mb-6">Comece cadastrando sua primeira empresa no sistema.</p>
               <Link href="/pages/company/register">
-                <Button className="btn-primary shadow-md">
-                  Cadastrar Primeira Empresa
-                </Button>
+                <Button className="btn-primary shadow-md">Cadastrar Primeira Empresa</Button>
               </Link>
             </div>
           </Card>
@@ -142,7 +136,7 @@ export default function Companies() {
             {companies.map((company) => (
               <Card
                 key={company.uuid}
-                className="group relative border-border bg-surface transition-all hover:scale-[1.02] hover:shadow-lg shadow-card"
+                className="group border-border bg-surface shadow-card relative transition-all hover:scale-[1.02] hover:shadow-lg"
               >
                 {/* Botões flutuantes iguais ao plano de contas */}
                 <div className="absolute top-4 right-4 flex gap-2 opacity-0 transition group-hover:opacity-100">
@@ -152,7 +146,7 @@ export default function Companies() {
                       e.stopPropagation();
                       handleEdit(company);
                     }}
-                    className="rounded-md bg-surface/60 backdrop-blur-sm p-1 transition hover:scale-105"
+                    className="bg-surface/60 rounded-md p-1 backdrop-blur-sm transition hover:scale-105"
                     title="Editar"
                   >
                     <FiEdit2 size={18} className="text-foreground" />
@@ -164,7 +158,7 @@ export default function Companies() {
                       e.stopPropagation();
                       handleDeleteClick(company);
                     }}
-                    className="rounded-md bg-surface/60 backdrop-blur-sm p-1 transition hover:scale-105"
+                    className="bg-surface/60 rounded-md p-1 backdrop-blur-sm transition hover:scale-105"
                     title="Excluir"
                   >
                     <FiTrash2 size={18} className="text-foreground" />
@@ -174,32 +168,32 @@ export default function Companies() {
                 {/* Conteúdo do card */}
                 <div className="mb-4 flex items-start gap-3">
                   <Avatar alt={company.fantasy_name} img={company.logo} rounded size="md" className="bg-transparent">
-                    <div className="font-medium text-foreground">{company.fantasy_name.charAt(0)}</div>
+                    <div className="text-foreground font-medium">{company.fantasy_name.charAt(0)}</div>
                   </Avatar>
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground">{company.fantasy_name}</h3>
-                    <p className="text-sm text-text-muted">{company.cnpj}</p>
+                    <h3 className="text-foreground text-lg font-semibold">{company.fantasy_name}</h3>
+                    <p className="text-text-muted text-sm">{company.cnpj}</p>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <div>
-                    <p className="text-sm font-medium text-foreground">Razão Social:</p>
-                    <p className="text-sm text-text-muted">{company.social_reason}</p>
+                    <p className="text-foreground text-sm font-medium">Razão Social:</p>
+                    <p className="text-text-muted text-sm">{company.social_reason}</p>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <FiMail className="h-4 w-4 text-text-muted" />
-                    <span className="text-sm text-text-muted">{company.email}</span>
+                    <FiMail className="text-text-muted h-4 w-4" />
+                    <span className="text-text-muted text-sm">{company.email}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <FiPhone className="h-4 w-4 text-text-muted" />
-                    <span className="text-sm text-text-muted">{company.phone}</span>
+                    <FiPhone className="text-text-muted h-4 w-4" />
+                    <span className="text-text-muted text-sm">{company.phone}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-text-muted">
+                    <p className="text-text-muted text-sm">
                       {company.address.city} / {company.address.state}
                     </p>
 

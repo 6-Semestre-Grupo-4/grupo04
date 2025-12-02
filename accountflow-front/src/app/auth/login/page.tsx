@@ -22,7 +22,7 @@ const Login = () => {
               <FullLogo withoutLink />
             </div>
             <AuthLogin />
-            <div className="mt-6 flex flex-col items-center justify-center gap-2 text-base font-medium text-foreground">
+            <div className="text-foreground mt-6 flex flex-col items-center justify-center gap-2 text-base font-medium">
               <p>New to AccountFlow?</p>
               <a
                 href="/auth/register"
@@ -45,13 +45,13 @@ const Login = () => {
       {/* Mobile Layout */}
       <div style={gradientStyle} className="relative flex h-screen w-full overflow-hidden sm:flex md:hidden">
         <div className="flex h-full w-full items-center justify-center px-4">
-          <div className="bg-surface w-full rounded-xl border border-border p-6 shadow-card md:w-96">
+          <div className="bg-surface border-border shadow-card w-full rounded-xl border p-6 md:w-96">
             <div className="flex w-full flex-col gap-2 p-0">
               <div className="mx-auto h-38 w-48">
                 <FullLogo withoutLink />
               </div>
               <AuthLogin />
-              <div className="mt-6 flex flex-col items-center justify-center gap-2 text-base font-medium text-foreground">
+              <div className="text-foreground mt-6 flex flex-col items-center justify-center gap-2 text-base font-medium">
                 <p>New to AccountFlow?</p>
                 <a
                   href="/auth/register"

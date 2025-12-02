@@ -136,13 +136,13 @@ export default function BalancetePage() {
       <div key={n.uuid}>
         {/* Linha da conta */}
         <div
-          className={`grid grid-cols-12 items-center border-b border-border py-2 hover:bg-muted`}
+          className={`border-border hover:bg-muted grid grid-cols-12 items-center border-b py-2`}
           style={{ paddingLeft: `${level * 20}px` }}
         >
           {/* Botão expandir */}
           <div className="col-span-1">
             {n.children?.length > 0 ? (
-              <button onClick={() => toggle(n.uuid)} className="text-sm text-text-muted hover:text-text">
+              <button onClick={() => toggle(n.uuid)} className="text-text-muted hover:text-text text-sm">
                 {isOpen ? '▾' : '▸'}
               </button>
             ) : (
@@ -151,20 +151,20 @@ export default function BalancetePage() {
           </div>
 
           {/* Código */}
-          <div className="col-span-2 font-mono text-sm text-text">{n.code}</div>
+          <div className="text-text col-span-2 font-mono text-sm">{n.code}</div>
 
           {/* Nome */}
-          <div className="col-span-4 text-sm text-text">{n.name}</div>
+          <div className="text-text col-span-4 text-sm">{n.name}</div>
 
           {/* Débito */}
-          <div className="col-span-2 text-right tabular-nums text-text">
+          <div className="text-text col-span-2 text-right tabular-nums">
             {Number(n.debit).toLocaleString('pt-BR', {
               minimumFractionDigits: 2,
             })}
           </div>
 
           {/* Crédito */}
-          <div className="col-span-2 text-right tabular-nums text-text">
+          <div className="text-text col-span-2 text-right tabular-nums">
             {Number(n.credit).toLocaleString('pt-BR', {
               minimumFractionDigits: 2,
             })}
@@ -172,8 +172,9 @@ export default function BalancetePage() {
 
           {/* Saldo */}
           <div
-            className={`col-span-1 text-right font-medium ${Number(n.balance) > 0 ? 'text-success' : Number(n.balance) < 0 ? 'text-error' : 'text-text-muted'
-              }`}
+            className={`col-span-1 text-right font-medium ${
+              Number(n.balance) > 0 ? 'text-success' : Number(n.balance) < 0 ? 'text-error' : 'text-text-muted'
+            }`}
           >
             {Number(n.balance).toLocaleString('pt-BR', {
               minimumFractionDigits: 2,
@@ -191,16 +192,14 @@ export default function BalancetePage() {
   // 🔵 UI PRINCIPAL
   // ---------------------------------------------------------------------------
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="bg-background min-h-screen p-6">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-foreground">Relatório Balancete</h1>
-          <p className="text-text-muted">
-            Balancete contábil com débitos, créditos e saldos por conta.
-          </p>
+          <h1 className="text-foreground mb-2 text-3xl font-bold">Relatório Balancete</h1>
+          <p className="text-text-muted">Balancete contábil com débitos, créditos e saldos por conta.</p>
         </div>
 
-        <Card className="mb-6 border-border bg-surface p-4">
+        <Card className="border-border bg-surface mb-6 p-4">
           {/* FORMULARIO */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             {/* Plano */}
@@ -230,7 +229,7 @@ export default function BalancetePage() {
                 type="date"
                 value={start}
                 onChange={(e) => setStart(e.target.value)}
-                className="w-full rounded border border-border bg-surface p-2 text-text"
+                className="border-border bg-surface text-text w-full rounded border p-2"
               />
             </div>
 
@@ -241,7 +240,7 @@ export default function BalancetePage() {
                 type="date"
                 value={end}
                 onChange={(e) => setEnd(e.target.value)}
-                className="w-full rounded border border-border bg-surface p-2 text-text"
+                className="border-border bg-surface text-text w-full rounded border p-2"
               />
             </div>
 
@@ -254,9 +253,11 @@ export default function BalancetePage() {
                   type="checkbox"
                   checked={includeZero}
                   onChange={(e) => setIncludeZero(e.target.checked)}
-                  className="rounded border-border bg-surface text-primary focus:ring-primary"
+                  className="border-border bg-surface text-primary focus:ring-primary rounded"
                 />
-                <Label htmlFor="includeZero" className="text-text">Incluir contas zeradas</Label>
+                <Label htmlFor="includeZero" className="text-text">
+                  Incluir contas zeradas
+                </Label>
               </div>
             </div>
           </div>
@@ -281,20 +282,21 @@ export default function BalancetePage() {
             {/* Totais */}
             <div className="mb-5 grid grid-cols-1 gap-4 md:grid-cols-3">
               <Card className="border-border bg-surface">
-                <div className="text-sm text-text-muted">Total Débitos</div>
-                <div className="text-2xl font-bold text-text">R$ {Number(data.totals.debits).toFixed(2)}</div>
+                <div className="text-text-muted text-sm">Total Débitos</div>
+                <div className="text-text text-2xl font-bold">R$ {Number(data.totals.debits).toFixed(2)}</div>
               </Card>
 
               <Card className="border-border bg-surface">
-                <div className="text-sm text-text-muted">Total Créditos</div>
-                <div className="text-2xl font-bold text-text">R$ {Number(data.totals.credits).toFixed(2)}</div>
+                <div className="text-text-muted text-sm">Total Créditos</div>
+                <div className="text-text text-2xl font-bold">R$ {Number(data.totals.credits).toFixed(2)}</div>
               </Card>
 
               <Card className="border-border bg-surface">
-                <div className="text-sm text-text-muted">Diferença</div>
+                <div className="text-text-muted text-sm">Diferença</div>
                 <div
-                  className={`text-2xl font-bold ${Number(data.totals.difference) === 0 ? 'text-success' : 'text-error'
-                    }`}
+                  className={`text-2xl font-bold ${
+                    Number(data.totals.difference) === 0 ? 'text-success' : 'text-error'
+                  }`}
                 >
                   R$ {Number(data.totals.difference).toFixed(2)}
                 </div>
@@ -304,15 +306,15 @@ export default function BalancetePage() {
             {/* Árvore */}
             <Card className="border-border bg-surface">
               <div className="mb-3 flex justify-between">
-                <h2 className="text-lg font-semibold text-foreground">Plano de Contas</h2>
-                <div className="text-xs text-text-muted">
+                <h2 className="text-foreground text-lg font-semibold">Plano de Contas</h2>
+                <div className="text-text-muted text-xs">
                   {data.start} — {data.end}
                 </div>
               </div>
 
               <div className="w-full overflow-x-auto">
                 {/* Cabeçalho fixo */}
-                <div className="sticky top-0 grid grid-cols-12 border-b border-border bg-muted py-2 text-sm font-semibold text-text">
+                <div className="border-border bg-muted text-text sticky top-0 grid grid-cols-12 border-b py-2 text-sm font-semibold">
                   <div className="col-span-1"></div>
                   <div className="col-span-2">Código</div>
                   <div className="col-span-4">Conta</div>
@@ -322,7 +324,7 @@ export default function BalancetePage() {
                 </div>
 
                 {data.tree.length === 0 ? (
-                  <div className="text-sm text-text-muted p-4">Nenhuma movimentação encontrada.</div>
+                  <div className="text-text-muted p-4 text-sm">Nenhuma movimentação encontrada.</div>
                 ) : (
                   data.tree.map((node) => renderNode(node))
                 )}
