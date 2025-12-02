@@ -39,15 +39,43 @@ jobs:
             BACK_IMAGE="ghcr.io/$REPO_OWNER/backend:$TAG"
             FRONT_IMAGE="ghcr.io/$REPO_OWNER/frontend:$TAG"
 
+            # Pull das imagens
             docker pull "$BACK_IMAGE"
             docker pull "$FRONT_IMAGE"
 
-            sed -i "s|build:|image: $BACK_IMAGE|g; s|context:.*||g; s|dockerfile:.*||g" docker-compose.yml
-            sed -i "/frontend:/,/^  [a-z]/ { s|build:|image: $FRONT_IMAGE|g; s|context:.*||g; s|dockerfile:.*||g }" docker-compose.yml
+            cat > docker-compose.yml <<EOF
+            services:
+              frontend:
+                image: $FRONT_IMAGE
+                ports:
+                  - '3000:3000'
+                restart: unless-stopped
+                environment:
+                  - NEXT_TELEMETRY_DISABLED=1
 
-            sed -i '/volumes:/,/^  [a-z]/d' docker-compose.yml
+              backend:
+                image: $BACK_IMAGE
+                ports:
+                  - '8000:8000'
+                restart: unless-stopped
+                environment:
+                  - DJANGO_SETTINGS_MODULE=config.settings.django
+                  - PYTHONUNBUFFERED=1
+                  - PYTHONDONTWRITEBYTECODE=1
+                  - TZ=America/Sao_Paulo
+            EOF
 
             docker-compose down || true
             docker-compose up -d
+
+            sleep 5
+
+            if ! docker ps | grep -q "frontend\|backend"; then
+              echo "Erro: Containers não estão rodando"
+              docker-compose logs
+              exit 1
+            fi
+
+            rm -f docker-compose.yml
 
             docker image prune -af
