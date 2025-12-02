@@ -10,7 +10,6 @@ jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    environment: EC2_HOST
     permissions:
       contents: read
       actions: read
@@ -25,10 +24,11 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
+
             BRANCH="${{ github.event.workflow_run.head_branch }}"
             REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
 
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "$REPO_OWNER" --password-stdin
 
             if [ "$BRANCH" = "main" ]; then
               TAG="prod"
@@ -39,46 +39,35 @@ jobs:
             BACK_IMAGE="ghcr.io/$REPO_OWNER/backend:$TAG"
             FRONT_IMAGE="ghcr.io/$REPO_OWNER/frontend:$TAG"
 
-            # Pull das imagens
+            echo "Pulling images..."
             docker pull "$BACK_IMAGE"
             docker pull "$FRONT_IMAGE"
 
-            cat > docker-compose.yml <<EOF
-            services:
-              frontend:
-                image: $FRONT_IMAGE
-                ports:
-                  - '3000:3000'
-                restart: unless-stopped
-                environment:
-                  - NEXT_TELEMETRY_DISABLED=1
-                  - NEXT_PUBLIC_API_URL=http://backend:8000/api/v1/
-                depends_on:
-                    - backend
+            echo "Stopping old containers if exist..."
+            docker rm -f backend || true
+            docker rm -f frontend || true
 
-              backend:
-                image: $BACK_IMAGE
-                ports:
-                  - '8000:8000'
-                restart: unless-stopped
-                environment:
-                  - DJANGO_SETTINGS_MODULE=config.settings.django
-                  - PYTHONUNBUFFERED=1
-                  - PYTHONDONTWRITEBYTECODE=1
-                  - TZ=America/Sao_Paulo
-            EOF
-
-            docker compose down -v || true
-            docker compose up -d --build
+            echo "Starting backend..."
+            docker run -d \
+              --name backend \
+              --restart always \
+              -p 8000:8000 \
+              -e DJANGO_SETTINGS_MODULE=config.settings.django \
+              "$BACK_IMAGE"
 
             sleep 5
 
-            if ! docker ps | grep -q "frontend\|backend"; then
-              echo "Erro: Containers não estão rodando"
-              docker-compose logs
-              exit 1
-            fi
+            echo "Running Django migrations..."
+            docker exec backend python manage.py migrate --noinput
 
-            rm -f docker-compose.yml
+            echo "Starting frontend..."
+            docker run -d \
+              --name frontend \
+              --restart always \
+              -p 3000:3000 \
+              -e NEXT_TELEMETRY_DISABLED=1 \
+              -e NEXT_PUBLIC_API_URL="http://localhost:8000/api/v1/" \
+              "$FRONT_IMAGE"
 
+            echo "Cleaning up unused images..."
             docker image prune -af

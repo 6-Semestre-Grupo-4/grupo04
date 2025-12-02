@@ -36,22 +36,18 @@ jobs:
 
       - name: Validate PR Commits with commitlint
         if: github.event_name == 'pull_request'
-        run: |
-          npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
       - name: Validate Push Commits with commitlint
         if: github.event_name == 'push'
-        run: |
-          npx commitlint --from ${{ github.event.before }} --to ${{ github.event.after }} --verbose
+        run: npx commitlint --from ${{ github.event.before }} --to ${{ github.event.after }} --verbose
 
-      - name: Run Prettier and show formatting diffs
+      - name: Run Prettier
         run: |
           npx prettier '**/*.{css,scss,yaml,yml,ts,js,jsx,tsx,json,md}' --write
           git diff --color --exit-code
 
-      - name: Install frontend dependencies
-        run: npm install --prefix ./accountflow-front
-
+      # LOGIN GHCR
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -70,15 +66,28 @@ jobs:
 
       - name: Set lowercase repository owner
         id: repo
-        run: |
-          echo "owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+        run: echo "owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
+      # ================================
+      #      BUILD BACKEND (PROD)
+      # ================================
       - name: Build Backend Image
         run: |
-          docker build -t ghcr.io/${{ steps.repo.outputs.owner }}/backend:${{ steps.tag.outputs.value }} ./accountflow-api
+          docker build \
+            -f accountflow-api/Dockerfile.prod \
+            -t ghcr.io/${{ steps.repo.outputs.owner }}/backend:${{ steps.tag.outputs.value }} \
+            ./accountflow-api
+
           docker push ghcr.io/${{ steps.repo.outputs.owner }}/backend:${{ steps.tag.outputs.value }}
 
+      # ================================
+      #      BUILD FRONTEND (PROD)
+      # ================================
       - name: Build Frontend Image
         run: |
-          docker build -t ghcr.io/${{ steps.repo.outputs.owner }}/frontend:${{ steps.tag.outputs.value }} ./accountflow-front
+          docker build \
+            -f accountflow-front/Dockerfile.prod \
+            -t ghcr.io/${{ steps.repo.outputs.owner }}/frontend:${{ steps.tag.outputs.value }} \
+            ./accountflow-front
+
           docker push ghcr.io/${{ steps.repo.outputs.owner }}/frontend:${{ steps.tag.outputs.value }}
